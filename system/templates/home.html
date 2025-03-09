@@ -1,5 +1,4 @@
 {% load static %} 
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -12,6 +11,97 @@
 
   <style>
     /* Các CSS khác giữ nguyên */
+    .navbar-nav {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: center;
+  gap: 12px; /* Cân đối khoảng cách giữa các mục */
+}
+
+.navbar-nav .nav-item {
+  white-space: nowrap; /* Không cho xuống hàng */
+  font-size: 0.9em; /* Giảm kích thước chữ để tiết kiệm không gian */
+}
+
+.navbar-nav .nav-link {
+  padding: 8px 10px; /* Giảm padding để tiết kiệm diện tích */
+}
+.auth-buttons {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* Khoảng cách giữa hai nút */
+}
+.auth-container {
+  display: flex;
+  justify-content: flex-end; /* Đưa nút về phía bên phải */
+  align-items: center;
+  height: 100%; /* Chiều cao bằng thanh trên */
+  padding-right: 20px; /* Tạo khoảng cách với lề phải */
+}
+
+.auth-buttons {
+  display: flex;
+  gap: 10px; /* Khoảng cách giữa hai nút */
+}
+
+.auth-buttons .btn {
+  padding: 6px 12px; /* Giữ kích thước hợp lý */
+  font-size: 0.9em;
+  border-radius: 5px;
+  text-align: center;
+  white-space: nowrap; /* Ngăn nút bị dãn rộng */
+  min-width: 100px; /* Định kích thước tối thiểu */
+}
+.auth-buttons {
+  display: flex;
+  gap: 5px; /* Giảm khoảng cách giữa các nút */
+}
+
+.auth-buttons .btn {
+  padding: 5px 10px; /* Thu nhỏ kích thước nút */
+  font-size: 0.85em; /* Giảm cỡ chữ một chút */
+  min-width: 90px; /* Giảm chiều rộng tối thiểu */
+}
+
+.navbar-menu {
+  display: flex;
+  gap: 10px; /* Giảm khoảng cách giữa các mục trong menu */
+}
+
+.navbar-menu .menu-item {
+  padding: 5px 8px; /* Giảm padding để các mục gần nhau hơn */
+}
+.toolbar {
+  display: flex;
+  gap: 5px; /* Giảm khoảng cách giữa các tùy chọn */
+  padding: 5px 10px; /* Thu gọn khoảng cách tổng thể */
+}
+
+.toolbar .tool-item {
+  margin: 2px 4px; /* Giảm margin của từng mục */
+  padding: 4px 8px; /* Giảm padding để mục nhỏ hơn */
+}
+/* Giảm khoảng cách giữa các mục navbar */
+.navbar-nav .nav-item {
+  margin: 0 8px; /* Giảm khoảng cách hai bên */
+}
+
+.navbar-nav .nav-link {
+  padding: 8px 10px; /* Thu gọn khoảng cách trong mỗi mục */
+  font-size: 14px; /* Có thể giảm nhẹ kích thước chữ */
+}
+
+/* Căn chỉnh lại nút đăng nhập và đăng ký */
+.auth-buttons {
+  display: flex;
+  gap: 8px; /* Giảm khoảng cách giữa hai nút */
+}
+
+.auth-buttons .btn {
+  padding: 6px 12px; /* Thu gọn nút để không chiếm quá nhiều không gian */
+  font-size: 14px;
+}
+
     body {
       font-family: 'Arial', sans-serif;
       background: linear-gradient(to right, #E0F7FA, #ffffff);
@@ -382,7 +472,49 @@
         justify-content: center;
       }
     }
-    
+    html, body {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.container {
+    flex: 1; /* Đẩy footer xuống dưới */
+}
+
+footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 10px;
+}
+footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 5px 10px; /* Giảm khoảng cách trên dưới */
+    font-size: 14px; /* Giảm kích thước chữ */
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background-image: url('https://th.bing.com/th/id/R.e43669baf8745a178b81b68c18ee0efc?rik=NYfRhmW8vdU5WQ&riu=http%3a%2f%2fvass.net.vn%2fwp-content%2fuploads%2f2021%2f08%2fhe-thong-kiem-soat-xe-vao-ra-vass.jpg&ehk=Pjgzmg31lYE0oYgM5p%2fzl16P2W8QPvBue37MSV75byQ%3d&risl=&pid=ImgRaw&r=0');
+    background-size: cover; /* Ảnh phủ toàn bộ */
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 100vh; /* Chiều cao 100% màn hình */
+}
+body {
+    background-color: #f8f9fa; /* Chọn màu nền cho toàn bộ trang */
+}
+
+header {
+    background-color: inherit; /* Kế thừa màu nền từ body */
+}
+
+
   </style>
 </head>
 <body>
@@ -396,9 +528,7 @@
 
   <div class="collapse navbar-collapse" id="topNavbar">
     <ul class="navbar-nav mx-auto">
-      <li class="nav-item active">
-        <a class="nav-link" href="#">🏠 Trang chủ</a>
-      </li>
+
       <li class="nav-item">
         <a class="nav-link" href="#">🚗 Tình trạng bãi xe</a>
       </li>
@@ -432,6 +562,10 @@
     <p>Xin chào, bạn đã đến với dịch vụ của chúng tôi</p>
   </header>
 </div>
+
+
+<img src="https://th.bing.com/th/id/R.e43669baf8745a178b81b68c18ee0efc?rik=NYfRhmW8vdU5WQ&riu=http%3a%2f%2fvass.net.vn%2fwp-content%2fuploads%2f2021%2f08%2fhe-thong-kiem-soat-xe-vao-ra-vass.jpg&ehk=Pjgzmg31lYE0oYgM5p%2fzl16P2W8QPvBue37MSV75byQ%3d&risl=&pid=ImgRaw&r=0" alt="Mô tả về ảnh" width="500" height="300">
+
 
 <!-- Footer mới có kích thước nhỏ hơn -->
 <footer class="footer-compact">
