@@ -1,0 +1,82 @@
+
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f6f9;
+    color: #333;
+    margin-top: 60px;
+  }
+  
+  nav.navbar {
+    background-color: #343a40;
+  }
+  
+  nav.navbar a.navbar-brand {
+    font-size: 1.6em;
+    font-weight: bold;
+    color: #f8f9fa;
+  }
+  
+  nav.navbar a.nav-link {
+    color: #f8f9fa;
+    font-size: 1.1em;
+    padding: 10px 20px;
+  }
+  
+  nav.navbar a.nav-link:hover {
+    color: #007bff;
+    transition: color 0.3s ease;
+  }
+  
+  nav.navbar .navbar-toggler-icon {
+    background-color: #007bff;
+  }
+  
+  .container {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    margin-top: 80px;
+  }
+  
+  header h1 {
+    font-size: 2.5em;
+    font-weight: bold;
+    color: #007bff;
+  }
+  
+  header p {
+    font-size: 1.2em;
+    color: #555;
+    margin-top: 10px;
+  }
+  
+  .navbar-nav li.nav-item {
+    margin-left: 20px;
+  }
+  
+  .navbar-nav .nav-item.active a.nav-link {
+    font-weight: bold;
+    color: #007bff;
+  }
+  
+  .navbar-nav li.nav-item a.nav-link {
+    padding: 10px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  
+  .navbar-nav li.nav-item a.nav-link:hover {
+    background-color: #007bff;
+    color: white;
+  }
+  
+  footer {
+    text-align: center;
+    padding: 10px;
+    background-color: #343a40;
+    color: white;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+  }
+  
