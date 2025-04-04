@@ -529,18 +529,16 @@ header {
   <div class="collapse navbar-collapse" id="topNavbar">
     <ul class="navbar-nav mx-auto">
       <li class="nav-item">
-        <a class="nav-link" href="{% url 'vehicle_entry' %}"> Quản lý ra vào bãi xe</a>
+        <a class="nav-link" href="{% url 'vehicle_management' %}"> Quản lý xe</a>
 
       </li>
 
       <li class="nav-item">
         <a class="nav-link" href="{% url 'parking_status'%}"> Tình trạng bãi xe</a>
       </li>
+  
       <li class="nav-item">
-        <a class="nav-link" href="#"> Quản lý vị trí xe</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="#"> Báo cáo & thống kê</a>
+        <a class="nav-link" href="{% url 'vehicle_report'%}"> Báo cáo & thống kê</a>
       </li>>
       </li>
     </ul>

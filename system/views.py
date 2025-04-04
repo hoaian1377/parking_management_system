@@ -7,7 +7,11 @@ def login(request):
     return render(request,'login.html')
 def register(request):
     return render(request,'register.html')
-def vehicle_entry(request):
-    return render(request,'vehicle_entry.html')
+def vehicle_management(request):
+    return render(request,'vehicle_management.html')
 def parking_status(request):
     return render(request,'parking_status.html')
+def vehicle_report(request):
+    return render(request, 'vehicle_report.html')
+
+

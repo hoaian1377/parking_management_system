@@ -1,0 +1,790 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quản lý Xe Ra Vào</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #3b82f6;
+      --primary-light: #bfdbfe;
+      --success-color: #34d399;
+      --danger-color: #ef4444;
+      --warning-color: #facc15;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-800: #1f2937;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--gray-50);
+      color: var(--gray-800);
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    
+    header {
+      background-color: white;
+      padding: 15px 0;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary-color);
+    }
+    
+    .tabs {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .tab {
+      padding: 8px 16px;
+      cursor: pointer;
+      border-radius: 6px;
+      font-weight: 500;
+    }
+    
+    .tab.active {
+      background-color: var(--primary-light);
+      color: var(--primary-color);
+    }
+    
+    .content {
+      display: flex;
+      gap: 20px;
+      margin-top: 20px;
+    }
+    
+    .forms-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    
+    .form-box {
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      padding: 20px;
+    }
+    
+    h1 {
+      text-align: center;
+      margin: 20px 0;
+      color: var(--gray-800);
+    }
+    
+    h2 {
+      color: var(--primary-color);
+      font-size: 1.2rem;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    h2::before {
+      content: '';
+      display: inline-block;
+      width: 4px;
+      height: 20px;
+      background-color: var(--primary-color);
+      border-radius: 2px;
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+    
+    input, select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--gray-300);
+      border-radius: 6px;
+      font-family: 'Inter', sans-serif;
+      font-size: 1rem;
+    }
+    
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px var(--primary-light);
+    }
+    
+    .form-row {
+      display: flex;
+      gap: 15px;
+    }
+    
+    .form-row .form-group {
+      flex: 1;
+    }
+    
+    button {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 15px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      width: 100%;
+    }
+    
+    button:hover {
+      background-color: #2563eb;
+    }
+    
+    .status-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+    
+    .badge-success {
+      background-color: rgba(52, 211, 153, 0.2);
+      color: #065f46;
+    }
+    
+    .badge-warning {
+      background-color: rgba(250, 204, 21, 0.2);
+      color: #854d0e;
+    }
+    
+    .badge-danger {
+      background-color: rgba(239, 68, 68, 0.2);
+      color: #991b1b;
+    }
+    
+    .parking-area {
+      flex: 1;
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      padding: 20px;
+    }
+    
+    .parking-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      margin-top: 15px;
+    }
+    
+    .parking-slot {
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s;
+      position: relative;
+    }
+    
+    .parking-slot:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+    
+    .available {
+      background-color: var(--success-color);
+      color: white;
+    }
+    
+    .occupied {
+      background-color: var(--danger-color);
+      color: white;
+    }
+    
+    .reserved {
+      background-color: var(--warning-color);
+      color: var(--gray-800);
+    }
+    
+    .parking-info {
+      position: absolute;
+      bottom: -65px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: white;
+      padding: 8px 12px;
+      border-radius: 6px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+      z-index: 10;
+      width: 150px;
+      display: none;
+      font-size: 0.8rem;
+      text-align: left;
+      color: var(--gray-800);
+      font-weight: normal;
+    }
+    
+    .parking-slot:hover .parking-info {
+      display: block;
+    }
+    
+    .info-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 3px;
+    }
+    
+    .legend {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 15px;
+      justify-content: center;
+    }
+    
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.9rem;
+    }
+    
+    .legend-color {
+      width: 15px;
+      height: 15px;
+      border-radius: 3px;
+    }
+    
+    .recent-entries {
+      margin-top: 20px;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 0.9rem;
+    }
+    
+    th, td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid var(--gray-200);
+    }
+    
+    th {
+      background-color: var(--gray-100);
+      font-weight: 600;
+    }
+    
+    tbody tr:hover {
+      background-color: var(--gray-50);
+    }
+    
+    .dashboard {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .dashboard-card {
+      background-color: white;
+      border-radius: 10px;
+      padding: 15px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+    
+    .dashboard-card h3 {
+      font-size: 0.9rem;
+      color: var(--gray-800);
+      margin-bottom: 5px;
+    }
+    
+    .dashboard-card p {
+      font-size: 1.8rem;
+      font-weight: 700;
+    }
+    
+    .text-success {
+      color: var(--success-color);
+    }
+    
+    .text-danger {
+      color: var(--danger-color);
+    }
+    
+    .text-warning {
+      color: var(--warning-color);
+    }
+    
+    @media (max-width: 768px) {
+      .content {
+        flex-direction: column;
+      }
+      
+      .dashboard {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="container">
+      <nav>
+        <div class="logo">Smart Parking</div>
+        <div class="tabs">
+          <div class="tab active">Quản lý xe</div>
+          <div class="tab">Báo cáo</div>
+          <div class="tab">Cài đặt</div>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <div class="container">
+    <h1>Quản lý xe ra vào bãi</h1>
+    
+    <div class="dashboard">
+      <div class="dashboard-card">
+        <h3>Tổng số chỗ</h3>
+        <p>20</p>
+      </div>
+      <div class="dashboard-card">
+        <h3>Chỗ trống</h3>
+        <p class="text-success">8</p>
+      </div>
+      <div class="dashboard-card">
+        <h3>Đã sử dụng</h3>
+        <p class="text-danger">12</p>
+      </div>
+    </div>
+    
+    <div class="content">
+      <div class="forms-container">
+        <!-- Form xe vào -->
+        <div class="form-box">
+          <h2>Xe Vào</h2>
+          <form id="vehicle-in-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="license-plate-in">Biển số xe</label>
+                <input type="text" id="license-plate-in" placeholder="Nhập biển số xe" required>
+              </div>
+              <div class="form-group">
+                <label for="vehicle-type-in">Loại xe</label>
+                <select id="vehicle-type-in" required>
+                  <option value="">-- Chọn loại xe --</option>
+                  <option value="car">Ô tô</option>
+                  <option value="motorcycle">Xe máy</option>
+                  <option value="bicycle">Xe đạp</option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label for="parking-slot">Vị trí đỗ</label>
+                <select id="parking-slot" required>
+                  <option value="">-- Chọn vị trí --</option>
+                  <option value="A1">A1</option>
+                  <option value="A2">A2</option>
+                  <option value="A3">A3</option>
+                  <option value="B1">B1</option>
+                  <option value="B2">B2</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="time-in">Thời gian vào</label>
+                <input type="datetime-local" id="time-in" value="" required>
+              </div>
+            </div>
+            
+            <button type="button" onclick="recordVehicleIn()">Ghi nhận xe vào</button>
+          </form>
+        </div>
+        
+        <!-- Form xe ra -->
+        <div class="form-box">
+          <h2>Xe Ra</h2>
+          <form id="vehicle-out-form">
+            <div class="form-group">
+              <label for="license-plate-out">Biển số xe</label>
+              <input type="text" id="license-plate-out" placeholder="Nhập biển số xe" required>
+            </div>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label for="time-in-display">Thời gian vào</label>
+                <input type="text" id="time-in-display" readonly disabled>
+              </div>
+              <div class="form-group">
+                <label for="time-out">Thời gian ra</label>
+                <input type="datetime-local" id="time-out" required>
+              </div>
+            </div>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label for="duration">Thời gian giữ xe</label>
+                <input type="text" id="duration" readonly disabled>
+              </div>
+              <div class="form-group">
+                <label for="fee">Phí (VNĐ)</label>
+                <input type="text" id="fee" readonly disabled>
+              </div>
+            </div>
+            
+            <button type="button" onclick="recordVehicleOut()">Ghi nhận xe ra</button>
+          </form>
+        </div>
+        
+        <!-- Lịch sử gần đây -->
+        <div class="form-box recent-entries">
+          <h2>Lịch sử gần đây</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Biển số</th>
+                <th>Loại xe</th>
+                <th>Vị trí</th>
+                <th>Vào</th>
+                <th>Ra</th>
+                <th>Phí</th>
+              </tr>
+            </thead>
+            <tbody id="history-table">
+              <tr>
+                <td>29A-12345</td>
+                <td>Ô tô</td>
+                <td>A1</td>
+                <td>08:30</td>
+                <td>11:45</td>
+                <td>45.000đ</td>
+              </tr>
+              <tr>
+                <td>30F-56789</td>
+                <td>Xe máy</td>
+                <td>B3</td>
+                <td>09:15</td>
+                <td>17:20</td>
+                <td>20.000đ</td>
+              </tr>
+              <tr>
+                <td>29H-98765</td>
+                <td>Ô tô</td>
+                <td>A4</td>
+                <td>07:45</td>
+                <td>18:30</td>
+                <td>90.000đ</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <div class="parking-area">
+        <h2>Sơ đồ bãi đỗ xe</h2>
+        
+        <div class="legend">
+          <div class="legend-item">
+            <div class="legend-color available"></div>
+            <span>Trống</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color occupied"></div>
+            <span>Đã có xe</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color reserved"></div>
+            <span>Đặt trước</span>
+          </div>
+        </div>
+        
+        <div class="parking-grid">
+          <div class="parking-slot available" id="A1" onclick="selectParkingSlot('A1')">
+            A1
+            <div class="parking-info">
+              <div class="info-item"><span>Trạng thái:</span> <span>Trống</span></div>
+              <div class="info-item"><span>Loại:</span> <span>Ô tô</span></div>
+            </div>
+          </div>
+          <div class="parking-slot occupied" id="A2" onclick="selectParkingSlot('A2')">
+            A2
+            <div class="parking-info">
+              <div class="info-item"><span>Trạng thái:</span> <span>Đã có xe</span></div>
+              <div class="info-item"><span>Biển số:</span> <span>29A-12345</span></div>
+              <div class="info-item"><span>Vào lúc:</span> <span>09:30</span></div>
+            </div>
+          </div>
+          <div class="parking-slot occupied" id="A3" onclick="selectParkingSlot('A3')">
+            A3
+            <div class="parking-info">
+              <div class="info-item"><span>Trạng thái:</span> <span>Đã có xe</span></div>
+              <div class="info-item"><span>Biển số:</span> <span>30F-56789</span></div>
+              <div class="info-item"><span>Vào lúc:</span> <span>10:15</span></div>
+            </div>
+          </div>
+          <div class="parking-slot available" id="A4" onclick="selectParkingSlot('A4')">
+            A4
+            <div class="parking-info">
+              <div class="info-item"><span>Trạng thái:</span> <span>Trống</span></div>
+              <div class="info-item"><span>Loại:</span> <span>Ô tô</span></div>
+            </div>
+          </div>
+          <div class="parking-slot reserved" id="A5" onclick="selectParkingSlot('A5')">
+            A5
+            <div class="parking-info">
+              <div class="info-item"><span>Trạng thái:</span> <span>Đặt trước</span></div>
+              <div class="info-item"><span>Người đặt:</span> <span>Nguyễn Văn A</span></div>
+              <div class="info-item"><span>Đến lúc:</span> <span>14:00</span></div>
+            </div>
+          </div>
+          
+          <div class="parking-slot occupied" id="B1" onclick="selectParkingSlot('B1')">
+            B1
+            <div class="parking-info">
+              <div class="info-item"><span>Trạng thái:</span> <span>Đã có xe</span></div>
+              <div class="info-item"><span>Biển số:</span> <span>29H-98765</span></div>
+              <div class="info-item"><span>Vào lúc:</span> <span>08:45</span></div>
+            </div>
+          </div>
+          <div class="parking-slot available" id="B2" onclick="selectParkingSlot('B2')">
+            B2
+            <div class="parking-info">
+              <div class="info-item"><span>Trạng thái:</span> <span>Trống</span></div>
+              <div class="info-item"><span>Loại:</span> <span>Xe máy</span></div>
+            </div>
+          </div>
+          <div class="parking-slot occupied" id="B3" onclick="selectParkingSlot('B3')">
+            B3
+            <div class="parking-info">
+              <div class="info-item"><span>Trạng thái:</span> <span>Đã có xe</span></div>
+              <div class="info-item"><span>Biển số:</span> <span>30K-54321</span></div>
+              <div class="info-item"><span>Vào lúc:</span> <span>11:30</span></div>
+            </div>
+          </div>
+          <div class="parking-slot occupied" id="B4" onclick="selectParkingSlot('B4')">
+            B4
+            <div class="parking-info">
+              <div class="info-item"><span>Trạng thái:</span> <span>Đã có xe</span></div>
+              <div class="info-item"><span>Biển số:</span> <span>29A-54321</span></div>
+              <div class="info-item"><span>Vào lúc:</span> <span>12:15</span></div>
+            </div>
+          </div>
+          <div class="parking-slot available" id="B5" onclick="selectParkingSlot('B5')">
+            B5
+            <div class="parking-info">
+              <div class="info-item"><span>Trạng thái:</span> <span>Trống</span></div>
+              <div class="info-item"><span>Loại:</span> <span>Xe máy</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Thiết lập thời gian mặc định
+    document.addEventListener('DOMContentLoaded', function() {
+      const now = new Date();
+      const timeInInput = document.getElementById('time-in');
+      const timeOutInput = document.getElementById('time-out');
+      
+      // Format datetime-local
+      now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+      const nowStr = now.toISOString().slice(0, 16);
+      
+      timeInInput.value = nowStr;
+      timeOutInput.value = nowStr;
+    });
+    
+    // Hàm chọn vị trí đỗ xe
+    function selectParkingSlot(slotId) {
+      const slot = document.getElementById(slotId);
+      
+      // Nếu vị trí trống, thì có thể chọn để đỗ xe
+      if (slot.classList.contains('available')) {
+        document.getElementById('parking-slot').value = slotId;
+      } else if (slot.classList.contains('occupied')) {
+        // Nếu vị trí đã có xe, lấy thông tin xe để form xe ra
+        const infoItems = slot.querySelectorAll('.info-item');
+        const licensePlate = infoItems[1].querySelector('span:last-child').textContent;
+        const timeIn = infoItems[2].querySelector('span:last-child').textContent;
+        
+        document.getElementById('license-plate-out').value = licensePlate;
+        document.getElementById('time-in-display').value = timeIn + ' (04/04/2025)';
+        
+        // Tính phí dựa trên thời gian (giả định)
+        const currentTime = new Date();
+        const hours = currentTime.getHours();
+        const minutes = currentTime.getMinutes();
+        const timeInParts = timeIn.split(':');
+        const hoursIn = parseInt(timeInParts[0]);
+        const minutesIn = parseInt(timeInParts[1]);
+        
+        let durationHours = hours - hoursIn;
+        let durationMinutes = minutes - minutesIn;
+        
+        if (durationMinutes < 0) {
+          durationHours--;
+          durationMinutes += 60;
+        }
+        
+        const duration = durationHours + ' giờ ' + durationMinutes + ' phút';
+        document.getElementById('duration').value = duration;
+        
+        // Tính phí (ví dụ: 10.000đ/giờ)
+        const fee = Math.ceil(durationHours * 10000);
+        document.getElementById('fee').value = fee.toLocaleString() + ' VNĐ';
+      }
+    }
+    
+    // Ghi nhận xe vào
+    function recordVehicleIn() {
+      const licensePlate = document.getElementById('license-plate-in').value;
+      const vehicleType = document.getElementById('vehicle-type-in');
+      const parkingSlot = document.getElementById('parking-slot').value;
+      const timeIn = document.getElementById('time-in').value;
+      
+      if (!licensePlate || vehicleType.selectedIndex === 0 || !parkingSlot || !timeIn) {
+        alert('Vui lòng điền đầy đủ thông tin xe vào!');
+        return;
+      }
+      
+      // Cập nhật trạng thái chỗ đỗ
+      const slot = document.getElementById(parkingSlot);
+      if (slot && slot.classList.contains('available')) {
+        slot.classList.remove('available');
+        slot.classList.add('occupied');
+        
+        // Cập nhật thông tin tooltip
+        const info = slot.querySelector('.parking-info');
+        info.innerHTML = `
+          <div class="info-item"><span>Trạng thái:</span> <span>Đã có xe</span></div>
+          <div class="info-item"><span>Biển số:</span> <span>${licensePlate}</span></div>
+          <div class="info-item"><span>Vào lúc:</span> <span>${new Date(timeIn).toLocaleTimeString('vi-VN', {hour: '2-digit', minute: '2-digit'})}</span></div>
+        `;
+        
+        // Cập nhật thống kê
+        const availableCount = document.querySelectorAll('.parking-slot.available').length;
+        const occupiedCount = document.querySelectorAll('.parking-slot.occupied').length;
+        
+        document.querySelector('.dashboard-card:nth-child(2) p').textContent = availableCount;
+        document.querySelector('.dashboard-card:nth-child(3) p').textContent = occupiedCount;
+        
+        // Reset form
+        document.getElementById('vehicle-in-form').reset();
+        
+        alert('Đã ghi nhận xe vào thành công!');
+      } else {
+        alert('Vị trí đỗ xe đã được sử dụng hoặc không hợp lệ!');
+      }
+    }
+    
+    // Ghi nhận xe ra
+    function recordVehicleOut() {
+      const licensePlate = document.getElementById('license-plate-out').value;
+      const timeInDisplay = document.getElementById('time-in-display').value;
+      const timeOut = document.getElementById('time-out').value;
+      const fee = document.getElementById('fee').value;
+      
+      if (!licensePlate || !timeInDisplay || !timeOut || !fee) {
+        alert('Vui lòng điền đầy đủ thông tin xe ra!');
+        return;
+      }
+      
+      // Tìm chỗ đỗ xe có biển số này
+      let foundSlot = null;
+      const occupiedSlots = document.querySelectorAll('.parking-slot.occupied');
+      
+      for (let slot of occupiedSlots) {
+        const info = slot.querySelector('.parking-info');
+        const infoItems = slot.querySelectorAll('.info-item');
+        if (infoItems.length > 1) {
+          const slotLicensePlate = infoItems[1].querySelector('span:last-child').textContent;
+          if (slotLicensePlate === licensePlate) {
+            foundSlot = slot;
+            break;
+          }
+        }
+      }
+      
+      if (foundSlot) {
+        // Cập nhật trạng thái chỗ đỗ
+        foundSlot.classList.remove('occupied');
+        foundSlot.classList.add('available');
+        
+        // Cập nhật thông tin tooltip
+        const vehicleTypeText = foundSlot.id.startsWith('A') ? 'Ô tô' : 'Xe máy';
+        const info = foundSlot.querySelector('.parking-info');
+        info.innerHTML = `
+          <div class="info-item"><span>Trạng thái:</span> <span>Trống</span></div>
+          <div class="info-item"><span>Loại:</span> <span>${vehicleTypeText}</span></div>
+        `;
+        
+        // Thêm vào lịch sử
+        const historyTable = document.getElementById('history-table');
+        const newRow = historyTable.insertRow(0);
+        
+        const timeInText = timeInDisplay.split(' ')[0];
+        const timeOutText = new Date(timeOut).toLocaleTimeString('vi-VN', {hour: '2-digit', minute: '2-digit'});
+        
+        newRow.innerHTML = `
+          <td>${licensePlate}</td>
+          <td>${vehicleTypeText}</td>
+          <td>${foundSlot.id}</td>
+          <td>${timeInText}</td>
+          <td>${timeOutText}</td>
+          <td>${fee}</td>
+        `;
+        
+        // Cập nhật thống kê
+        const availableCount = document.querySelectorAll('.parking-slot.available').length;
+        const occupiedCount = document.querySelectorAll('.parking-slot.occupied').length;
+        
+        document.querySelector('.dashboard-card:nth-child(2) p').textContent = availableCount;
+        document.querySelector('.dashboard-card:nth-child(3) p').textContent = occupiedCount;
+        
+        // Reset form
+        document.getElementById('vehicle-out-form').reset();
+      }}
