@@ -1,0 +1,582 @@
+
+    /* Các CSS khác giữ nguyên */
+    .navbar-nav {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: center;
+  gap: 12px; /* Cân đối khoảng cách giữa các mục */
+}
+
+.navbar-nav .nav-item {
+  white-space: nowrap; /* Không cho xuống hàng */
+  font-size: 0.9em; /* Giảm kích thước chữ để tiết kiệm không gian */
+}
+
+.navbar-nav .nav-link {
+  padding: 8px 10px; /* Giảm padding để tiết kiệm diện tích */
+}
+.auth-buttons {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* Khoảng cách giữa hai nút */
+}
+.auth-container {
+  display: flex;
+  justify-content: flex-end; /* Đưa nút về phía bên phải */
+  align-items: center;
+  height: 100%; /* Chiều cao bằng thanh trên */
+  padding-right: 20px; /* Tạo khoảng cách với lề phải */
+}
+
+.auth-buttons {
+  display: flex;
+  gap: 10px; /* Khoảng cách giữa hai nút */
+}
+
+.auth-buttons .btn {
+  padding: 6px 12px; /* Giữ kích thước hợp lý */
+  font-size: 0.9em;
+  border-radius: 5px;
+  text-align: center;
+  white-space: nowrap; /* Ngăn nút bị dãn rộng */
+  min-width: 100px; /* Định kích thước tối thiểu */
+}
+.auth-buttons {
+  display: flex;
+  gap: 5px; /* Giảm khoảng cách giữa các nút */
+}
+
+.auth-buttons .btn {
+  padding: 5px 10px; /* Thu nhỏ kích thước nút */
+  font-size: 0.85em; /* Giảm cỡ chữ một chút */
+  min-width: 90px; /* Giảm chiều rộng tối thiểu */
+}
+
+.navbar-menu {
+  display: flex;
+  gap: 10px; /* Giảm khoảng cách giữa các mục trong menu */
+}
+
+.navbar-menu .menu-item {
+  padding: 5px 8px; /* Giảm padding để các mục gần nhau hơn */
+}
+.toolbar {
+  display: flex;
+  gap: 5px; /* Giảm khoảng cách giữa các tùy chọn */
+  padding: 5px 10px; /* Thu gọn khoảng cách tổng thể */
+}
+
+.toolbar .tool-item {
+  margin: 2px 4px; /* Giảm margin của từng mục */
+  padding: 4px 8px; /* Giảm padding để mục nhỏ hơn */
+}
+/* Giảm khoảng cách giữa các mục navbar */
+.navbar-nav .nav-item {
+  margin: 0 8px; /* Giảm khoảng cách hai bên */
+}
+
+.navbar-nav .nav-link {
+  padding: 8px 10px; /* Thu gọn khoảng cách trong mỗi mục */
+  font-size: 14px; /* Có thể giảm nhẹ kích thước chữ */
+}
+
+/* Căn chỉnh lại nút đăng nhập và đăng ký */
+.auth-buttons {
+  display: flex;
+  gap: 8px; /* Giảm khoảng cách giữa hai nút */
+}
+
+.auth-buttons .btn {
+  padding: 6px 12px; /* Thu gọn nút để không chiếm quá nhiều không gian */
+  font-size: 14px;
+}
+
+    body {
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(to right, #E0F7FA, #ffffff);
+      color: #333;
+      margin-top: 70px;
+    }
+
+    .navbar-custom {
+      background-color: #0A3D62;
+      padding: 10px 0;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .navbar-custom .navbar-brand {
+      font-size: 1.2em;
+      font-weight: bold;
+      color: #ffffff;
+    }
+
+    .navbar-custom .navbar-nav .nav-link {
+      color: #f8f9fa;
+      font-size: 0.9em;
+      padding: 8px 12px;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .navbar-custom .navbar-nav .nav-link:hover {
+      background-color: #1B98E0;
+      color: #ffffff;
+      border-radius: 5px;
+    }
+
+    .navbar-custom .navbar-nav .active {
+      font-weight: bold;
+      background-color: #1B98E0;
+      color: white;
+      border-radius: 5px;
+    }
+
+    .auth-buttons .btn {
+      padding: 5px 12px;
+      font-size: 0.85em;
+      border-radius: 20px;
+      transition: 0.3s ease;
+    }
+
+    .auth-buttons .btn-primary {
+      background-color: #1B98E0;
+      border: none;
+    }
+
+    .auth-buttons .btn-primary:hover {
+      background-color: #0A3D62;
+    }
+
+    .auth-buttons .btn-success {
+      background-color: #0F9D58;
+      border: none;
+    }
+
+    .auth-buttons .btn-success:hover {
+      background-color: #0A3D62;
+    }
+
+    .container {
+      background-color: rgba(255, 255, 255, 0.9);
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      margin-top: 40px;
+      backdrop-filter: blur(5px);
+    }
+
+    header h1 {
+      font-size: 2em;
+      font-weight: bold;
+      color: #0A3D62;
+    }
+
+    header p {
+      font-size: 0.95em;
+      color: #555;
+      margin-top: 10px;
+    }
+
+   
+    .footer-compact {
+      background: linear-gradient(135deg, #1a2a6c, #0A3D62, #003973);
+      color: #220b7e;
+      padding: 0;
+      font-family: 'Arial', sans-serif;
+      position: relative;
+      margin-top: 1px;
+      box-shadow: 0 -3px 10px rgba(0, 0, 0, 0.1);
+    }
+    
+    .footer-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 25px 15px 15px;
+    }
+    
+    .footer-main {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 15px;
+    }
+    
+    .footer-info {
+      flex-basis: 30%;
+      margin-bottom: 15px;
+    }
+    
+    .footer-info h3 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #fff;
+      position: relative;
+      padding-bottom: 6px;
+    }
+    
+    .footer-info h3:after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 40px;
+      height: 2px;
+      background: #FFD700;
+    }
+    
+    .footer-info p {
+      color: rgba(255, 255, 255, 0.8);
+      line-height: 1.4;
+      margin-bottom: 10px;
+      font-size: 12px;
+    }
+    
+    .contact-info {
+      margin-top: 12px;
+    }
+    
+    .contact-item {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+    
+    .contact-item i {
+      color: #FFD700;
+      font-size: 14px;
+      margin-right: 8px;
+      margin-top: 2px;
+    }
+    
+    .contact-item span {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 12px;
+    }
+    
+    .footer-links {
+      flex-basis: 40%;
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+    }
+    
+    .link-group {
+      flex-basis: 45%;
+      margin-bottom: 10px;
+    }
+    
+    .link-group h4 {
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      position: relative;
+      padding-bottom: 6px;
+    }
+    
+    .link-group h4:after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 30px;
+      height: 2px;
+      background: #FFD700;
+    }
+    
+    .link-group ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .link-group ul li {
+      margin-bottom: 6px;
+    }
+    
+    .link-group ul li a {
+      color: rgba(255, 255, 255, 0.8);
+      text-decoration: none;
+      font-size: 12px;
+      transition: all 0.3s ease;
+      display: inline-block;
+    }
+    
+    .link-group ul li a:hover {
+      color: #FFD700;
+      padding-left: 5px;
+    }
+    
+    .social-newsletter {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      margin-bottom: 15px;
+    }
+    
+    .social-media, .newsletter {
+      flex-basis: 45%;
+      margin-bottom: 10px;
+    }
+    
+    .social-media h4, .newsletter h4 {
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      position: relative;
+      padding-bottom: 6px;
+    }
+    
+    .social-media h4:after, .newsletter h4:after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 30px;
+      height: 2px;
+      background: #FFD700;
+    }
+    
+    .social-icons {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .social-icons a {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      color: #fff;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      background: rgba(255, 255, 255, 0.1);
+    }
+    
+    .icon-facebook:hover { background: #3b5998; }
+    .icon-twitter:hover { background: #1da1f2; }
+    .icon-youtube:hover { background: #ff0000; }
+    .icon-linkedin:hover { background: #0077b5; }
+    
+    .newsletter p {
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 8px;
+      font-size: 12px;
+    }
+    
+    .newsletter-form {
+      display: flex;
+      height: 32px;
+    }
+    
+    .newsletter-form input {
+      flex-grow: 1;
+      padding: 6px 10px;
+      border: none;
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      border-radius: 4px 0 0 4px;
+      outline: none;
+      font-size: 12px;
+    }
+    
+    .newsletter-form input::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+    }
+    
+    .newsletter-form button {
+      width: 32px;
+      background: #FFD700;
+      color: #0A3D62;
+      border: none;
+      border-radius: 0 4px 4px 0;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .newsletter-form button:hover {
+      background: #f0c800;
+    }
+    
+    .footer-bottom {
+      background: rgba(0, 0, 0, 0.2);
+      padding: 8px 15px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .copyright p {
+      margin: 0;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.7);
+    }
+    
+    .footer-bottom-links {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .footer-bottom-links a {
+      color: rgba(255, 255, 255, 0.7);
+      text-decoration: none;
+      font-size: 11px;
+      transition: all 0.3s ease;
+    }
+    
+    .footer-bottom-links a:hover {
+      color: #FFD700;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .footer-container {
+        max-width: 95%;
+      }
+      
+      .footer-info, .footer-links {
+        flex-basis: 100%;
+      }
+      
+      .social-media, .newsletter {
+        flex-basis: 100%;
+      }
+      
+      .footer-bottom {
+        flex-direction: column;
+        text-align: center;
+      }
+      
+      .copyright {
+        margin-bottom: 5px;
+      }
+      
+      .footer-bottom-links {
+        justify-content: center;
+      }
+    }
+    html, body {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.container {
+    flex: 1; /* Đẩy footer xuống dưới */
+}
+
+footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 10px;
+}
+footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 5px 10px; /* Giảm khoảng cách trên dưới */
+    font-size: 14px; /* Giảm kích thước chữ */
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background-image: url('https://th.bing.com/th/id/R.e43669baf8745a178b81b68c18ee0efc?rik=NYfRhmW8vdU5WQ&riu=http%3a%2f%2fvass.net.vn%2fwp-content%2fuploads%2f2021%2f08%2fhe-thong-kiem-soat-xe-vao-ra-vass.jpg&ehk=Pjgzmg31lYE0oYgM5p%2fzl16P2W8QPvBue37MSV75byQ%3d&risl=&pid=ImgRaw&r=0');
+    background-size: cover; /* Ảnh phủ toàn bộ */
+    background-position: center;
+    background-repeat: no-repeat;
+    height: 100vh; /* Chiều cao 100% màn hình */
+}
+body {
+    background-color: #f8f9fa; /* Chọn màu nền cho toàn bộ trang */
+}
+
+header {
+    background-color: inherit; /* Kế thừa màu nền từ body */
+}
+
+
+
+
+:root {
+  --primary: #2c3e50;
+  --secondary: #3498db;
+  --light: #ecf0f1;
+  --dark: #2c3e50;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+}
+
+.navbar {
+  background: rgba(44, 62, 80, 0.95);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s;
+}
+
+.navbar-brand {
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.hero {
+  height: 100vh;
+  background: linear-gradient(rgba(44, 62, 80, 0.8), rgba(44, 62, 80, 0.8)),
+              url('https://source.unsplash.com/random/1920x1080/?parking') center/cover;
+  padding-top: 80px;
+}
+
+.feature-card {
+  border: none;
+  border-radius: 15px;
+  transition: transform 0.3s;
+}
+
+.feature-card:hover {
+  transform: translateY(-10px);
+}
+
+.icon-wrapper {
+  width: 80px;
+  height: 80px;
+  background: var(--secondary);
+  border-radius: 50%;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 2rem;
+}
+
+.stats {
+  background: var(--primary);
+}
+
+.social-links .btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .hero h1 {
+    font-size: 2.5rem;
+  }
+  
+  .hero p {
+    font-size: 1rem;
+  }
+}
