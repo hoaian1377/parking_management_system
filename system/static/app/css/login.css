@@ -9,10 +9,12 @@
 
 body {
     background: url('https://th.bing.com/th/id/R.7ac2e540b6dfb75a380d4ba05ebd2aa5?rik=Q%2bNo2n4yeXxpNQ&pid=ImgRaw&r=0') no-repeat center center/cover;
-    height: 100vh;
+    min-height: 100vh;
+    height: auto;
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-direction: column; /* Để footer xuống dưới */
     padding: 20px;
 }
 
@@ -110,7 +112,8 @@ footer {
 /* Responsive Design */
 @media (max-width: 768px) {
     body {
-        background-size: contain; /* Hiển thị toàn bộ ảnh trên màn hình nhỏ */
+        background-size: cover;  /* Duy trì đẹp và full screen */
+        background-attachment: fixed;
         background-position: center;
         background-repeat: no-repeat;
     }
@@ -138,9 +141,10 @@ footer {
     }
 }
 .home-button {
-    position: absolute;
-    top: 10px;
-    left: 10px;
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 10;
 }
 .logo-img {
     width: 40px; /* bạn có thể thay đổi kích thước nếu muốn */
