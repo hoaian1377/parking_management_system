@@ -1,147 +1,190 @@
-{% load static %} 
+{% load static %}
 <!DOCTYPE html>
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link href="{% static 'app/css/home.css' %}" rel="stylesheet" />
   <title>Hệ thống quản lý bãi giữ xe thông minh</title>
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-
-
+  <link href="{% static 'app/css/home.css' %}" rel="stylesheet" />
+ 
 </head>
 <body>
-
-<!-- Thanh điều hướng trên cùng -->
-<nav class="navbar navbar-expand-lg navbar-dark navbar-custom fixed-top">
-  <a class="navbar-brand" href="#">Quản lý Bãi giữ xe</a>
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#topNavbar" aria-controls="topNavbar" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-
-  <div class="collapse navbar-collapse" id="topNavbar">
-    <ul class="navbar-nav mx-auto">
-      <li class="nav-item">
-        <a class="nav-link" href="{% url 'vehicle_management' %}"> Quản lý xe</a>
-
-      </li>
-
-      <li class="nav-item">
-        <a class="nav-link" href="{% url 'parking_status'%}"> Tình trạng bãi xe</a>
-      </li>
-  
-      <li class="nav-item">
-        <a class="nav-link" href="{% url 'vehicle_report'%}"> Báo cáo & thống kê</a>
-      </li>>
-      </li>
-    </ul>
-    <div class="auth-buttons">
-      <span id="user-name"></span>
-  </div>
-  <a class="logout" href="{% url 'login' %}">Thoát</a>
-
-  </div>
-</nav>
-
-<!-- Nội dung chính -->
-<div class="container">
-  <header class="mb-4">
-    <h1 class="mt-4">Hệ thống quản lý bãi giữ xe thông minh</h1>
-    <p>Xin chào, bạn đã đến với dịch vụ của chúng tôi</p>
-  </header>
-</div>
-
-
-<img src="https://th.bing.com/th/id/R.e43669baf8745a178b81b68c18ee0efc?rik=NYfRhmW8vdU5WQ&riu=http%3a%2f%2fvass.net.vn%2fwp-content%2fuploads%2f2021%2f08%2fhe-thong-kiem-soat-xe-vao-ra-vass.jpg&ehk=Pjgzmg31lYE0oYgM5p%2fzl16P2W8QPvBue37MSV75byQ%3d&risl=&pid=ImgRaw&r=0" alt="Mô tả về ảnh" width="500" height="300">
-
-
-<!-- Footer mới có kích thước nhỏ hơn -->
-<footer class="footer-compact">
-  <div class="footer-container">
-    <div class="footer-main">
-      <div class="footer-info">
-        <h3>Hệ thống quản lý bãi giữ xe</h3>
-        <p>Giải pháp quản lý bãi đỗ xe thông minh, tiện lợi và an toàn</p>
-        <div class="contact-info">
-          <div class="contact-item">
-            <i class="fas fa-map-marker-alt"></i>
-            <span>123 Nguyễn Văn A, Q.1, TP.HCM</span>
-          </div>
-          <div class="contact-item">
-            <i class="fas fa-phone-alt"></i>
-            <span>0987 654 321</span>
-          </div>
-          <div class="contact-item">
-            <i class="fas fa-envelope"></i>
-            <span>support@baigiu.com</span>
-          </div>
-        </div>
-      </div>
-      
-      <div class="footer-links">
-        <div class="link-group">
-          <h4>Dịch vụ</h4>
-          <ul>
-            <li><a href="#">Quản lý bãi giữ xe</a></li>
-            <li><a href="#">Đặt chỗ trước</a></li>
-            <li><a href="#">Báo cáo thống kê</a></li>
-          </ul>
-        </div>
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-custom fixed-top">
+    <a class="navbar-brand" href="#">Quản lý Bãi giữ xe</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#topNavbar" aria-controls="topNavbar" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="topNavbar">
+      <ul class="navbar-nav mx-auto">
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'vehicle_management' %}">Quản lý xe</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'parking_status' %}">Tình trạng bãi xe</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'vehicle_report' %}">Báo cáo & thống kê</a>
+        </li>
+      </ul>
+      <div class="auth-buttons">
         
-        <div class="link-group">
-          <h4>Hỗ trợ</h4>
-          <ul>
-            <li><a href="#">Hướng dẫn sử dụng</a></li>
-            <li><a href="#">Câu hỏi thường gặp</a></li>
-            <li><a href="#">Điều khoản dịch vụ</a></li>
-          </ul>
+        <a class="logout" href="{% url 'login' %}">Thoát</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section: License Plate Capture -->
+  <section class="hero">
+    <div class="container text-center">
+      <h1></h1>
+      <p></p>
+      <div class="capture-container">
+        <video id="video" autoplay playsinline></video>
+        <canvas id="canvas" style="display: none;"></canvas>
+        <button id="capture-btn" class="btn btn-primary mt-3"><i class="fas fa-camera"></i> Chụp biển số</button>
+        <div id="result" class="mt-3">
+          <img id="captured-image" style="max-width: 100%; display: none;" alt="Captured License Plate">
+          <p id="plate-text" class="mt-2"></p>
         </div>
       </div>
     </div>
-    
-    <div class="social-newsletter">
-      <div class="social-media">
-        <h4>Kết nối với chúng tôi</h4>
-        <div class="social-icons">
-          <a href="#" class="icon-facebook"><i class="fab fa-facebook-f"></i></a>
-          <a href="#" class="icon-twitter"><i class="fab fa-twitter"></i></a>
-          <a href="#" class="icon-youtube"><i class="fab fa-youtube"></i></a>
-          <a href="#" class="icon-linkedin"><i class="fab fa-linkedin-in"></i></a>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features">
+    <div class="container">
+      <div class="row g-4">
+        <div class="col-md-4">
+          <div class="feature-card">
+            <i class="fas fa-car"></i>
+            <h3>Quản lý xe</h3>
+            <p>Dễ dàng theo dõi và quản lý thông tin xe ra vào bãi đỗ.</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="feature-card">
+            <i class="fas fa-parking"></i>
+            <h3>Tình trạng bãi xe</h3>
+            <p>Xem trạng thái bãi xe theo thời gian thực, tối ưu hóa không gian.</p>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="feature-card">
+            <i class="fas fa-chart-bar"></i>
+            <h3>Báo cáo & thống kê</h3>
+            <p>Phân tích dữ liệu chi tiết để đưa ra quyết định hiệu quả.</p>
+          </div>
         </div>
       </div>
-      
-      <div class="newsletter">
-        <h4>Đăng ký nhận tin</h4>
-        <p>Nhận thông báo về tính năng mới</p>
-        <form class="newsletter-form">
-          <input type="email" placeholder="Email của bạn">
-          <button type="submit"><i class="fas fa-paper-plane"></i></button>
-        </form>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-main">
+        <div class="footer-info">
+          <h3>Hệ thống quản lý bãi giữ xe</h3>
+          <p>Giải pháp quản lý bãi đỗ xe thông minh, tiện lợi và an toàn.</p>
+          <div class="contact-info">
+            <div class="contact-item">
+              <i class="fas fa-map-marker-alt"></i>
+              <span>123 Nguyễn Văn A, Q.1, TP.HCM</span>
+            </div>
+            <div class="contact-item">
+              <i class="fas fa-phone-alt"></i>
+              <span>0987 654 321</span>
+            </div>
+            <div class="contact-item">
+              <i class="fas fa-envelope"></i>
+              <span>support@baigiu.com</span>
+            </div>
+          </div>
+        </div>
+        <div class="footer-links">
+          <div class="link-group">
+            <h4>Dịch vụ</h4>
+            <ul>
+              <li><a href="#">Quản lý bãi giữ xe</a></li>
+              <li><a href="#">Đặt chỗ trước</a></li>
+              <li><a href="#">Báo cáo thống kê</a></li>
+            </ul>
+          </div>
+          <div class="link-group">
+            <h4>Hỗ trợ</h4>
+            <ul>
+              <li><a href="#">Hướng dẫn sử dụng</a></li>
+              <li><a href="#">Câu hỏi thường gặp</a></li>
+              <li><a href="#">Điều khoản dịch vụ</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="social-newsletter">
+          <div class="social-media">
+            <h4>Kết nối với chúng tôi</h4>
+            <div class="social-icons">
+              <a href="#" class="icon-facebook"><i class="fab fa-facebook-f"></i></a>
+              <a href="#" class="icon-twitter"><i class="fab fa-twitter"></i></a>
+              <a href="#" class="icon-youtube"><i class="fab fa-youtube"></i></a>
+              <a href="#" class="icon-linkedin"><i class="fab fa-linkedin-in"></i></a>
+            </div>
+          </div>
+          <div class="newsletter">
+            <h4>Đăng ký nhận tin</h4>
+            <p>Nhận thông báo về tính năng mới.</p>
+            <div class="newsletter-form">
+              <input type="email" placeholder="Email của bạn">
+              <button type="submit"><i class="fas fa-paper-plane"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2025 Quản lý bãi giữ xe. Tất cả quyền được bảo lưu.</p>
       </div>
     </div>
-  </div>
-  
-  <div class="footer-bottom">
-    <div class="copyright">
-      <p>&copy; 2025 Quản lý bãi giữ xe. Tất cả quyền được bảo lưu.</p>
-    </div>
-    <div class="footer-bottom-links">
-      <a href="#">Điều khoản</a>
-      <a href="#">Bảo mật</a>
-      <a href="#">Cookies</a>
-    </div>
-  </div>
-</footer>
+  </footer>
 
-<script>let userName = "LoC chym to";
-document.getElementById("user-name").textContent = userName;</script>
+  <script>
+    let userName = "LoC chym to";
+    document.getElementById("user-name").textContent = userName;
 
+    // Webcam and capture functionality
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const captureBtn = document.getElementById('capture-btn');
+    const capturedImage = document.getElementById('captured-image');
+    const plateText = document.getElementById('plate-text');
 
+    // Access webcam
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => {
+        video.srcObject = stream;
+      })
+      .catch(err => {
+        console.error("Error accessing webcam: ", err);
+        plateText.textContent = "Không thể truy cập camera. Vui lòng kiểm tra quyền truy cập.";
+      });
 
-<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    // Capture image
+    captureBtn.addEventListener('click', () => {
+      const context = canvas.getContext('2d');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
+      // Convert to image
+      const dataUrl = canvas.toDataURL('image/png');
+      capturedImage.src = dataUrl;
+      capturedImage.style.display = 'block';
+
+      // Placeholder for license plate recognition
+      plateText.textContent = "Đang xử lý biển số... (Chức năng nhận diện chưa được triển khai)";
+    });
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

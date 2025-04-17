@@ -3,165 +3,688 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tình Trạng Bãi Giữ Xe</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <link href="{% static 'app/css/parking_status.css' %}" rel="stylesheet" />
 </head>
 <body>
-  <div class="container">
-    <h1>Tình Trạng Bãi Giữ Xe</h1>
+  <!-- Navigation -->
+  <nav class="navbar-custom fixed top-0 left-0 right-0 z-50">
+    <div class="container mx-auto px-4 sm:px-6 flex justify-between items-center py-4">
+      <a class="navbar-brand" href="{% url 'home' %}">Quản lý Bãi giữ xe</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#topNavbar" aria-controls="topNavbar" aria-expanded="false" aria-label="Toggle navigation">
+        <i class="fas fa-bars"></i>
+      </button>
+      <div class="hidden sm:flex sm:items-center sm:space-x-4" id="navbarMenu">
+        <a class="nav-link" href="{% url 'vehicle_management' %}">Quản lý xe</a>
+        <a class="nav-link" href="{% url 'parking_status' %}">Tình trạng bãi xe</a>
+        <a class="nav-link" href="{% url 'vehicle_report' %}">Báo cáo & thống kê</a>
+        <div class="auth-buttons">
+          
+          <a class="logout" href="{% url 'login' %}">Thoát</a>
+        </div>
+      </div>
+    </div>
+  </nav>
 
-    <div class="search-container">
-      <input type="text" id="searchInput" placeholder="Tìm vị trí xe (ví dụ: A1, B2)..." />
-      <label><input type="checkbox" id="filterAvailable" ><button>Tìm Kiếm </button></label>
+  <!-- Main Content -->
+  <main class="container mx-auto p-4 sm:p-6 max-w-6xl mt-20">
+    <header class="text-center mb-8">
+      <h1 class="text-3xl sm:text-4xl font-bold text-gray-800">Tình Trạng Bãi Giữ Xe</h1>
+    </header>
+
+
+    <!-- Admin Dashboard -->
+    <div id="adminPanel" class="bg-white shadow-lg rounded-lg p-6 mb-6 hidden">
+      <h2 class="text-xl font-semibold text-gray-700 mb-4">Bảng điều khiển quản trị</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Overview -->
+        <div class="bg-gray-50 p-4 rounded-lg shadow">
+          <h3 class="text-lg font-medium text-gray-600">Tổng quan</h3>
+          <p class="mt-2">Tổng số chỗ đỗ: <span id="totalSlots" class="font-bold">0</span></p>
+          <p>Chỗ trống: <span id="totalAvailable" class="font-bold">0</span></p>
+          <p>Đã có xe: <span id="totalOccupied" class="font-bold">0</span></p>
+          <p>Đặt trước: <span id="totalReserved" class="font-bold">0</span></p>
+        </div>
+        <!-- Slot Management -->
+        <div class="bg-gray-50 p-4 rounded-lg shadow">
+          <h3 class="text-lg font-medium text-gray-600">Quản lý chỗ đỗ</h3>
+          <div class="mt-2 space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-600">Thêm chỗ đỗ</label>
+              <input id="newSlotId" type="text" placeholder="ID chỗ đỗ (ví dụ: B6)" class="border border-gray-300 rounded-lg p-2 w-full mt-1">
+              <select id="vehicleType" class="border border-gray-300 rounded-lg p-2 w-full mt-1">
+                <option value="bike">Xe Đạp</option>
+                <option value="motorbike">Xe Máy</option>
+                <option value="car">Ô Tô</option>
+              </select>
+              <button onclick="addSlot()" class="mt-2 bg-green-600 text-white rounded-lg p-2 w-full hover:bg-green-700 transition"><i class="fas fa-plus"></i> Thêm</button>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-600">Xóa chỗ đỗ</label>
+              <input id="removeSlotId" type="text" placeholder="ID chỗ đỗ" class="border border-gray-300 rounded-lg p-2 w-full mt-1">
+              <button onclick="removeSlot()" class="mt-2 bg-red-600 text-white rounded-lg p-2 w-full hover:bg-red-700 transition"><i class="fas fa-trash"></i> Xóa</button>
+            </div>
+          </div>
+        </div>
+        <!-- Booking Management -->
+        <div class="bg-gray-50 p-4 rounded-lg shadow">
+          <h3 class="text-lg font-medium text-gray-600">Quản lý đặt chỗ</h3>
+          <div class="mt-2 space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-600">Đặt trước</label>
+              <input id="reserveSlotId" type="text" placeholder="ID chỗ đỗ" class="border border-gray-300 rounded-lg p-2 w-full mt-1">
+              <input id="reserveLicense" type="text" placeholder="Biển số xe" class="border border-gray-300 rounded-lg p-2 w-full mt-1">
+              <input id="reserveOwner" type="text" placeholder="Tên chủ xe" class="border border-gray-300 rounded-lg p-2 w-full mt-1">
+              <input id="reserveTime" type="datetime-local" class="border border-gray-300 rounded-lg p-2 w-full mt-1">
+              <button onclick="reserveSlot()" class="mt-2 bg-blue-600 text-white rounded-lg p-2 w-full hover:bg-blue-700 transition"><i class="fas fa-bookmark"></i> Đặt</button>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-600">Hủy đặt chỗ</label>
+              <input id="cancelSlotId" type="text" placeholder="ID chỗ đỗ" class="border border-gray-300 rounded-lg p-2 w-full mt-1">
+              <button onclick="cancelReservation()" class="mt-2 bg-yellow-600 text-white rounded-lg p-2 w-full hover:bg-yellow-700 transition"><i class="fas fa-times"></i> Hủy</button>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-600">Xem lịch sử</label>
+              <input id="historySlotId" type="text" placeholder="ID chỗ đỗ" class="border border-gray-300 rounded-lg p-2 w-full mt-1">
+              <button onclick="showHistory()" class="mt-2 bg-purple-600 text-white rounded-lg p-2 w-full hover:bg-purple-700 transition"><i class="fas fa-history"></i> Xem</button>
+            </div>
+          </div>
+        </div>
+        <!-- Data Export -->
+        <div class="bg-gray-50 p-4 rounded-lg shadow">
+          <h3 class="text-lg font-medium text-gray-600">Xuất dữ liệu</h3>
+          <div class="mt-2 space-y-4">
+            <button onclick="exportStats()" class="bg-teal-600 text-white rounded-lg p-2 w-full hover:bg-teal-700 transition"><i class="fas fa-file-csv"></i> Xuất thống kê</button>
+            <button onclick="exportBookings()" class="bg-indigo-600 text-white rounded-lg p-2 w-full hover:bg-indigo-700 transition"><i class="fas fa-file-csv"></i> Xuất đặt chỗ</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search Container -->
+    <div class="bg-white shadow-lg rounded-lg p-6 mb-6">
+      <div class="flex flex-col sm:flex-row gap-4 items-center">
+        <input id="searchInput" type="text" placeholder="Tìm vị trí xe (ví dụ: A1, B2)..." class="border border-gray-300 rounded-lg p-2 flex-1 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <label class="flex items-center gap-2 text-gray-600">
+          <input id="filterAvailable" type="checkbox" class="h-4 w-4">
+          Chỉ hiển thị chỗ trống
+        </label>
+        <button onclick="filterSlots()" class="bg-blue-600 text-white rounded-lg p-2 hover:bg-blue-700 transition"><i class="fas fa-search"></i> Tìm Kiếm</button>
+      </div>
     </div>
 
     <!-- Tabs -->
-    <div class="vehicle-tabs">
-      <button onclick="showParking('bike')">Xe Đạp</button>
-      <button onclick="showParking('motorbike')">Xe Máy</button>
-      <button onclick="showParking('car')">Ô Tô</button>
+    <div class="vehicle-tabs flex justify-center gap-4 mb-6">
+      <button onclick="showParking('bike')" class="bg-blue-600 text-white rounded-lg p-2 hover:bg-blue-700 transition">Xe Đạp</button>
+      <button onclick="showParking('motorbike')" class="bg-blue-600 text-white rounded-lg p-2 hover:bg-blue-700 transition">Xe Máy</button>
+      <button onclick="showParking('car')" class="bg-blue-600 text-white rounded-lg p-2 hover:bg-blue-700 transition">Ô Tô</button>
     </div>
 
     <!-- Bãi Xe Đạp -->
-    <div id="bike" class="parking-section">
-      <div class="legend">
-        <div><span class="box available"></span> Trống</div>
-        <div><span class="box occupied"></span> Đã có xe</div>
-        <div><span class="box reserved"></span> Đặt trước</div>
+    <div id="bike" class="parking-section bg-white shadow-lg rounded-lg p-6 mb-6">
+      <div class="legend flex justify-center gap-6 mb-4">
+        <div class="flex items-center"><span class="w-5 h-5 bg-green-400 rounded mr-2"></span> Trống</div>
+        <div class="flex items-center"><span class="w-5 h-5 bg-red-500 rounded mr-2"></span> Đã có xe</div>
+        <div class="flex items-center"><span class="w-5 h-5 bg-yellow-400 rounded mr-2"></span> Đặt trước</div>
       </div>
-      <div class="parking-lot">
-        <div class="parking-row">
-          <div class="slot available">B1</div>
-          <div class="slot occupied">B2</div>
-          <div class="slot reserved">B3</div>
-          <div class="slot available">B4</div>
-          <div class="slot occupied">B5</div>
+      <div class="parking-lot flex flex-col gap-4">
+        <div class="parking-row flex justify-center gap-4 flex-wrap">
+          <div class="slot available bg-green-400 text-white rounded-lg w-16 h-16 flex items-center justify-center font-bold cursor-pointer hover:scale-105 transition" data-id="B1">B1</div>
+          <div class="slot occupied bg-red-500 text-white rounded-lg w-16 h-16 flex items-center justify-center font-bold cursor-pointer hover:scale-105 transition" data-id="B2">B2</div>
+          <div class="slot reserved bg-yellow-400 text-gray-800 rounded-lg w-16 h-16 flex items-center justify-center font-bold cursor-pointer hover:scale-105 transition" data-id="B3">B3</div>
+          <div class="slot available bg-green-400 text-white rounded-lg w-16 h-16 flex items-center justify-center font-bold cursor-pointer hover:scale-105 transition" data-id="B4">B4</div>
+          <div class="slot occupied bg-red-500 text-white rounded-lg w-16 h-16 flex items-center justify-center font-bold cursor-pointer hover:scale-105 transition" data-id="B5">B5</div>
+        </div>
+      </div>
+      <div class="stats mt-6 bg-gray-50 p-4 rounded-lg">
+        <h2 class="text-lg font-semibold text-gray-700">Thống kê vị trí</h2>
+        <div class="stats-grid grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
+          <div class="stat-box bg-green-100 border border-green-400 p-4 rounded-lg text-center">
+            <h3 class="text-sm font-medium">Chỗ trống</h3>
+            <p class="text-2xl font-bold">0</p>
+          </div>
+          <div class="stat-box bg-red-100 border border-red-500 p-4 rounded-lg text-center">
+            <h3 class="text-sm font-medium">Đã có xe</h3>
+            <p class="text-2xl font-bold">0</p>
+          </div>
+          <div class="stat-box bg-yellow-100 border border-yellow-400 p-4 rounded-lg text-center">
+            <h3 class="text-sm font-medium">Đặt trước</h3>
+            <p class="text-2xl font-bold">0</p>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- Bãi Xe Máy -->
-    <div id="motorbike" class="parking-section" style="display:none;">
-      <div class="legend">
-        <div><span class="box available"></span> Trống</div>
-        <div><span class="box occupied"></span> Đã có xe</div>
-        <div><span class="box reserved"></span> Đặt trước</div>
+    <div id="motorbike" class="parking-section bg-white shadow-lg rounded-lg p-6 mb-6 hidden">
+      <div class="legend flex justify-center gap-6 mb-4">
+        <div class="flex items-center"><span class="w-5 h-5 bg-green-400 rounded mr-2"></span> Trống</div>
+        <div class="flex items-center"><span class="w-5 h-5 bg-red-500 rounded mr-2"></span> Đã có xe</div>
+        <div class="flex items-center"><span class="w-5 h-5 bg-yellow-400 rounded mr-2"></span> Đặt trước</div>
       </div>
-      <div class="parking-lot">
-        <div class="parking-row">
-          <div class="slot available">M1</div>
-          <div class="slot occupied">M2</div>
-          <div class="slot reserved">M3</div>
-          <div class="slot available">M4</div>
-          <div class="slot occupied">M5</div>
+      <div class="parking-lot flex flex-col gap-4">
+        <div class="parking-row flex justify-center gap-4 flex-wrap">
+          <div class="slot available bg-green-400 text-white rounded-lg w-16 h-16 flex items-center justify-center font-bold cursor-pointer hover:scale-105 transition" data-id="M1">M1</div>
+          <div class="slot occupied bg-red-500 text-white rounded-lg w-16 h-16 flex items-center justify-center font-bold cursor-pointer hover:scale-105 transition" data-id="M2">M2</div>
+          <div class="slot reserved bg-yellow-400 text-gray-800 rounded-lg w-16 h-16 flex items-center justify-center font-bold cursor-pointer hover:scale-105 transition" data-id="M3">M3</div>
+          <div class="slot available bg-green-400 text-white rounded-lg w-16 h-16 flex items-center justify-center font-bold cursor-pointer hover:scale-105 transition" data-id="M4">M4</div>
+          <div class="slot occupied bg-red-500 text-white rounded-lg w-16 h-16 flex items-center justify-center font-bold cursor-pointer hover:scale-105 transition" data-id="M5">M5</div>
         </div>
       </div>
-      <div class="stats">
-        <h2>Thống kê vị trí</h2>
-        <div class="stats-grid">
-          <div class="stat-box available"><h3>Chỗ trống</h3><p>0</p></div>
-          <div class="stat-box occupied"><h3>Đã có xe</h3><p>0</p></div>
-          <div class="stat-box reserved"><h3>Đặt trước</h3><p>0</p></div>
+      <div class="stats mt-6 bg-gray-50 p-4 rounded-lg">
+        <h2 class="text-lg font-semibold text-gray-700">Thống kê vị trí</h2>
+        <div class="stats-grid grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
+          <div class="stat-box bg-green-100 border border-green-400 p-4 rounded-lg text-center">
+            <h3 class="text-sm font-medium">Chỗ trống</h3>
+            <p class="text-2xl font-bold">0</p>
+          </div>
+          <div class="stat-box bg-red-100 border border-red-500 p-4 rounded-lg text-center">
+            <h3 class="text-sm font-medium">Đã có xe</h3>
+            <p class="text-2xl font-bold">0</p>
+          </div>
+          <div class="stat-box bg-yellow-100 border border-yellow-400 p-4 rounded-lg text-center">
+            <h3 class="text-sm font-medium">Đặt trước</h3>
+            <p class="text-2xl font-bold">0</p>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- Bãi Ô Tô -->
-    <div id="car" class="parking-section" style="display:none;">
-      <div class="legend">
-        <div><span class="box available"></span> Trống</div>
-        <div><span class="box occupied"></span> Đã có xe</div>
-        <div><span class="box reserved"></span> Đặt trước</div>
+    <div id="car" class="parking-section bg-white shadow-lg rounded-lg p-6 mb-6 hidden">
+      <div class="legend flex justify-center gap-6 mb-4">
+        <div class="flex items-center"><span class="w-5 h-5 bg-green-400 rounded mr-2"></span> Trống</div>
+        <div class="flex items-center"><span class="w-5 h-5 bg-red-500 rounded mr-2"></span> Đã có xe</div>
+        <div class="flex items-center"><span class="w-5 h-5 bg-yellow-400 rounded mr-2"></span> Đặt trước</div>
       </div>
-      <div class="parking-lot">
-        <div class="parking-row">
-          <div class="slot available">C1</div>
-          <div class="slot occupied">C2</div>
-          <div class="slot reserved">C3</div>
-          <div class="slot available">C4</div>
-          <div class="slot occupied">C5</div>
+      <div class="parking-lot flex flex-col gap-4">
+        <div class="parking-row flex justify-center gap-4 flex-wrap">
+          <div class="slot available bg-green-400 text-white rounded-lg w-16 h-16 flex items-center justify-center font-bold cursor-pointer hover:scale-105 transition" data-id="C1">C1</div>
+          <div class="slot occupied bg-red-500 text-white rounded-lg w-16 h-16 flex items-center justify-center font-bold cursor-pointer hover:scale-105 transition" data-id="C2">C2</div>
+          <div class="slot reserved bg-yellow-400 text-gray-800 rounded-lg w-16 h-16 flex items-center justify-center font-bold cursor-pointer hover:scale-105 transition" data-id="C3">C3</div>
+          <div class="slot available bg-green-400 text-white rounded-lg w-16 h-16 flex items-center justify-center font-bold cursor-pointer hover:scale-105 transition" data-id="C4">C4</div>
+          <div class="slot occupied bg-red-500 text-white rounded-lg w-16 h-16 flex items-center justify-center font-bold cursor-pointer hover:scale-105 transition" data-id="C5">C5</div>
+        </div>
+      </div>
+      <div class="stats mt-6 bg-gray-50 p-4 rounded-lg">
+        <h2 class="text-lg font-semibold text-gray-700">Thống kê vị trí</h2>
+        <div class="stats-grid grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
+          <div class="stat-box bg-green-100 border border-green-400 p-4 rounded-lg text-center">
+            <h3 class="text-sm font-medium">Chỗ trống</h3>
+            <p class="text-2xl font-bold">0</p>
+          </div>
+          <div class="stat-box bg-red-100 border border-red-500 p-4 rounded-lg text-center">
+            <h3 class="text-sm font-medium">Đã có xe</h3>
+            <p class="text-2xl font-bold">0</p>
+          </div>
+          <div class="stat-box bg-yellow-100 border border-yellow-400 p-4 rounded-lg text-center">
+            <h3 class="text-sm font-medium">Đặt trước</h3>
+            <p class="text-2xl font-bold">0</p>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+
+    <!-- History Display -->
+    <div id="historyDisplay" class="bg-white shadow-lg rounded-lg p-6 mb-6 hidden">
+      <h2 class="text-lg font-semibold text-gray-700">Lịch sử trạng thái</h2>
+      <ul id="historyList" class="list-disc pl-5 mt-4"></ul>
+    </div>
+
+    <!-- Notifications -->
+    <div id="notifications" class="fixed top-4 right-4 z-50"></div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-main">
+        <div class="footer-info">
+          <h3>Hệ thống quản lý bãi giữ xe</h3>
+          <p>Giải pháp quản lý bãi đỗ xe thông minh, tiện lợi và an toàn.</p>
+          <div class="contact-info">
+            <div class="contact-item">
+              <i class="fas fa-map-marker-alt"></i>
+              <span>123 Nguyễn Văn A, Q.1, TP.HCM</span>
+            </div>
+            <div class="contact-item">
+              <i class="fas fa-phone-alt"></i>
+              <span>0987 654 321</span>
+            </div>
+            <div class="contact-item">
+              <i class="fas fa-envelope"></i>
+              <span>support@baigiu.com</span>
+            </div>
+          </div>
+        </div>
+        <div class="footer-links">
+          <div class="link-group">
+            <h4>Dịch vụ</h4>
+            <ul>
+              <li><a href="#">Quản lý bãi giữ xe</a></li>
+              <li><a href="#">Đặt chỗ trước</a></li>
+              <li><a href="#">Báo cáo thống kê</a></li>
+            </ul>
+          </div>
+          <div class="link-group">
+            <h4>Hỗ trợ</h4>
+            <ul>
+              <li><a href="#">Hướng dẫn sử dụng</a></li>
+              <li><a href="#">Câu hỏi thường gặp</a></li>
+              <li><a href="#">Điều khoản dịch vụ</a></li>
+            </ul>
+          </div>
+        </div>
+        <div class="social-newsletter">
+          <div class="social-media">
+            <h4>Kết nối với chúng tôi</h4>
+            <div class="social-icons">
+              <a href="#" class="icon-facebook"><i class="fab fa-facebook-f"></i></a>
+              <a href="#" class="icon-twitter"><i class="fab fa-twitter"></i></a>
+              <a href="#" class="icon-youtube"><i class="fab fa-youtube"></i></a>
+              <a href="#" class="icon-linkedin"><i class="fab fa-linkedin-in"></i></a>
+            </div>
+          </div>
+          <div class="newsletter">
+            <h4>Đăng ký nhận tin</h4>
+            <p>Nhận thông báo về tính năng mới.</p>
+            <div class="newsletter-form">
+              <input type="email" placeholder="Email của bạn">
+              <button type="submit"><i class="fas fa-paper-plane"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2025 Quản lý bãi giữ xe. Tất cả quyền được bảo lưu.</p>
+      </div>
+    </div>
+  </footer>
 
   <script>
-    // Function to show the correct parking section
-    function showParking(type) {
-      // Hide all sections first
-      ['bike', 'motorbike', 'car'].forEach(id => {
-        const section = document.getElementById(id);
-        if (section) {
-          section.style.display = 'none'; // Hide all sections
-        }
-      });
+    let isAdmin = false;
+    const slotHistory = {};
+    const bookings = {};
+    const vehicleInfo = {};
 
-      // Show the selected section
-      const selectedSection = document.getElementById(type);
-      if (selectedSection) {
-        selectedSection.style.display = 'block'; // Show the selected section
+    // Toggle mobile menu
+    function toggleMenu() {
+      const menu = document.getElementById('navbarMenu');
+      menu.classList.toggle('hidden');
+    }
+
+    // Admin Login
+    function login() {
+      const username = document.getElementById('adminUsername').value;
+      const password = document.getElementById('adminPassword').value;
+      if (username === 'admin' && password === 'password') {
+        isAdmin = true;
+        document.getElementById('adminPanel').classList.remove('hidden');
+        document.getElementById('adminLogin').classList.add('hidden');
+        document.getElementById('logoutBtn').classList.remove('hidden');
+        showNotification('Đăng nhập thành công!', 'success');
+        updateDashboard();
+      } else {
+        showNotification('Sai tên đăng nhập hoặc mật khẩu.', 'error');
       }
     }
 
-    // Event listener for DOMContentLoaded
-    document.addEventListener('DOMContentLoaded', function () {
-      function updateStats(section) {
+    // Admin Logout
+    function logout() {
+      isAdmin = false;
+      document.getElementById('adminPanel').classList.add('hidden');
+      document.getElementById('adminLogin').classList.remove('hidden');
+      document.getElementById('logoutBtn').classList.add('hidden');
+      document.getElementById('adminUsername').value = '';
+      document.getElementById('adminPassword').value = '';
+      showNotification('Đăng xuất thành công!', 'success');
+    }
+
+    // Show Parking Section
+    function showParking(type) {
+      ['bike', 'motorbike', 'car'].forEach(id => {
+        const section = document.getElementById(id);
+        if (section) section.classList.add('hidden');
+      });
+      const selectedSection = document.getElementById(type);
+      if (selectedSection) selectedSection.classList.remove('hidden');
+      updateDashboard();
+    }
+
+    // Add New Slot
+    function addSlot() {
+      if (!isAdmin) {
+        showNotification('Vui lòng đăng nhập admin!', 'error');
+        return;
+      }
+      const slotId = document.getElementById('newSlotId').value.trim().toUpperCase();
+      const vehicleType = document.getElementById('vehicleType').value;
+      if (!slotId) {
+        showNotification('Vui lòng nhập ID chỗ đỗ!', 'error');
+        return;
+      }
+      const section = document.getElementById(vehicleType);
+      const existingSlot = section.querySelector(`.slot[data-id="${slotId}"]`);
+      if (existingSlot) {
+        showNotification('Chỗ đỗ này đã tồn tại!', 'error');
+        return;
+      }
+      const row = section.querySelector('.parking-row');
+      const newSlot = document.createElement('div');
+      newSlot.className = 'slot available bg-green-400 text-white rounded-lg w-16 h-16 flex items-center justify-center font-bold cursor-pointer hover:scale-105 transition';
+      newSlot.dataset.id = slotId;
+      newSlot.textContent = slotId;
+      row.appendChild(newSlot);
+      updateStats(section);
+      addSlotEvent(newSlot, section);
+      slotHistory[slotId] = [{ status: 'available', timestamp: new Date().toLocaleString() }];
+      showNotification(`Đã thêm chỗ đỗ ${slotId}`, 'success');
+      updateDashboard();
+    }
+
+    // Remove Slot
+    function removeSlot() {
+      if (!isAdmin) {
+        showNotification('Vui lòng đăng nhập admin!', 'error');
+        return;
+      }
+      const slotId = document.getElementById('removeSlotId').value.trim().toUpperCase();
+      const sections = document.querySelectorAll('.parking-section');
+      let found = false;
+      sections.forEach(section => {
+        const slot = section.querySelector(`.slot[data-id="${slotId}"]`);
+        if (slot) {
+          slot.remove();
+          updateStats(section);
+          found = true;
+          delete slotHistory[slotId];
+          delete bookings[slotId];
+          delete vehicleInfo[slotId];
+        }
+      });
+      if (found) {
+        showNotification(`Đã xóa chỗ đỗ ${slotId}`, 'success');
+        updateDashboard();
+      } else {
+        showNotification('Không tìm thấy chỗ đỗ!', 'error');
+      }
+    }
+
+    // Reserve Slot
+    function reserveSlot() {
+      if (!isAdmin) {
+        showNotification('Vui lòng đăng nhập admin!', 'error');
+        return;
+      }
+      const slotId = document.getElementById('reserveSlotId').value.trim().toUpperCase();
+      const license = document.getElementById('reserveLicense').value.trim();
+      const owner = document.getElementById('reserveOwner').value.trim();
+      const reserveTime = document.getElementById('reserveTime').value;
+      if (!slotId || !license || !owner || !reserveTime) {
+        showNotification('Vui lòng điền đầy đủ thông tin!', 'error');
+        return;
+      }
+      const sections = document.querySelectorAll('.parking-section');
+      let found = false;
+      sections.forEach(section => {
+        const slot = section.querySelector(`.slot[data-id="${slotId}"]`);
+        if (slot && slot.classList.contains('available')) {
+          slot.classList.remove('available', 'bg-green-400');
+          slot.classList.add('reserved', 'bg-yellow-400', 'text-gray-800');
+          updateStats(section);
+          found = true;
+          slotHistory[slotId] = slotHistory[slotId] || [];
+          slotHistory[slotId].push({ status: 'reserved', timestamp: new Date().toLocaleString() });
+          bookings[slotId] = { license, owner, time: new Date(reserveTime).toLocaleString(), expires: new Date(new Date(reserveTime).getTime() + 60 * 60 * 1000) };
+          vehicleInfo[slotId] = { license, owner };
+          setTimeout(() => autoReleaseSlot(slotId, section), 60 * 60 * 1000);
+          slot.title = `Biển số: ${license}\nChủ xe: ${owner}\nThời gian đặt: ${bookings[slotId].time}`;
+        }
+      });
+      if (found) {
+        showNotification(`Đã đặt trước chỗ đỗ ${slotId}`, 'success');
+        updateDashboard();
+      } else {
+        showNotification('Chỗ đỗ không tồn tại hoặc không trống!', 'error');
+      }
+    }
+
+    // Cancel Reservation
+    function cancelReservation() {
+      if (!isAdmin) {
+        showNotification('Vui lòng đăng nhập admin!', 'error');
+        return;
+      }
+      const slotId = document.getElementById('cancelSlotId').value.trim().toUpperCase();
+      const sections = document.querySelectorAll('.parking-section');
+      let found = false;
+      sections.forEach(section => {
+        const slot = section.querySelector(`.slot[data-id="${slotId}"]`);
+        if (slot && slot.classList.contains('reserved')) {
+          slot.classList.remove('reserved', 'bg-yellow-400', 'text-gray-800');
+          slot.classList.add('available', 'bg-green-400', 'text-white');
+          updateStats(section);
+          found = true;
+          slotHistory[slotId] = slotHistory[slotId] || [];
+          slotHistory[slotId].push({ status: 'available', timestamp: new Date().toLocaleString() });
+          delete bookings[slotId];
+          delete vehicleInfo[slotId];
+          slot.title = '';
+        }
+      });
+      if (found) {
+        showNotification(`Đã hủy đặt chỗ ${slotId}`, 'success');
+        updateDashboard();
+      } else {
+        showNotification('Chỗ đỗ không tồn tại hoặc không được đặt trước!', 'error');
+      }
+    }
+
+    // Auto-Release Slot
+    function autoReleaseSlot(slotId, section) {
+      const slot = section.querySelector(`.slot[data-id="${slotId}"]`);
+      if (slot && slot.classList.contains('reserved')) {
+        slot.classList.remove('reserved', 'bg-yellow-400', 'text-gray-800');
+        slot.classList.add('available', 'bg-green-400', 'text-white');
+        updateStats(section);
+        slotHistory[slotId].push({ status: 'available', timestamp: new Date().toLocaleString() });
+        delete bookings[slotId];
+        delete vehicleInfo[slotId];
+        slot.title = '';
+        showNotification(`Đặt chỗ ${slotId} đã hết hạn và được thả tự động.`, 'info');
+        updateDashboard();
+      }
+    }
+
+    // Show Slot History
+    function showHistory() {
+      const slotId = document.getElementById('historySlotId').value.trim().toUpperCase();
+      const historyList = document.getElementById('historyList');
+      historyList.innerHTML = '';
+      if (slotHistory[slotId]) {
+        slotHistory[slotId].forEach(entry => {
+          const li = document.createElement('li');
+          li.textContent = `Trạng thái: ${entry.status}, Thời gian: ${entry.timestamp}`;
+          historyList.appendChild(li);
+        });
+        document.getElementById('historyDisplay').classList.remove('hidden');
+      } else {
+        showNotification('Không có lịch sử cho chỗ đỗ này!', 'error');
+      }
+    }
+
+    // Export Statistics
+    function exportStats() {
+      if (!isAdmin) {
+        showNotification('Vui lòng đăng nhập admin!', 'error');
+        return;
+      }
+      const sections = document.querySelectorAll('.parking-section');
+      let csvContent = 'Loại xe,Chỗ trống,Đã có xe,Đặt trước\n';
+      sections.forEach(section => {
+        const type = section.id;
         const available = section.querySelectorAll('.slot.available').length;
         const occupied = section.querySelectorAll('.slot.occupied').length;
         const reserved = section.querySelectorAll('.slot.reserved').length;
+        csvContent += `${type},${available},${occupied},${reserved}\n`;
+      });
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'parking_stats.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+      showNotification('Đã xuất thống kê!', 'success');
+    }
 
-        section.querySelector('.stat-box.available p')?.textContent = available;
-        section.querySelector('.stat-box.occupied p')?.textContent = occupied;
-        section.querySelector('.stat-box.reserved p')?.textContent = reserved;
+    // Export Bookings
+    function exportBookings() {
+      if (!isAdmin) {
+        showNotification('Vui lòng đăng nhập admin!', 'error');
+        return;
       }
+      let csvContent = 'Chỗ đỗ,Loại xe,Biển số,Chủ xe,Thời gian đặt,Hết hạn\n';
+      Object.keys(bookings).forEach(slotId => {
+        const booking = bookings[slotId];
+        const section = Array.from(document.querySelectorAll('.parking-section')).find(s => s.querySelector(`.slot[data-id="${slotId}"]`));
+        const type = section ? section.id : 'Unknown';
+        csvContent += `${slotId},${type},${booking.license},${booking.owner},${booking.time},${booking.expires.toLocaleString()}\n`;
+      });
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'parking_bookings.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+      showNotification('Đã xuất danh sách đặt chỗ!', 'success');
+    }
 
+    // Update Dashboard
+    function updateDashboard() {
+      if (!isAdmin) return;
+      const sections = document.querySelectorAll('.parking-section');
+      let totalSlots = 0, totalAvailable = 0, totalOccupied = 0, totalReserved = 0;
+      sections.forEach(section => {
+        totalSlots += section.querySelectorAll('.slot').length;
+        totalAvailable += section.querySelectorAll('.slot.available').length;
+        totalOccupied += section.querySelectorAll('.slot.occupied').length;
+        totalReserved += section.querySelectorAll('.slot.reserved').length;
+      });
+      document.getElementById('totalSlots').textContent = totalSlots;
+      document.getElementById('totalAvailable').textContent = totalAvailable;
+      document.getElementById('totalOccupied').textContent = totalOccupied;
+      document.getElementById('totalReserved').textContent = totalReserved;
+    }
+
+    // Update Statistics
+    function updateStats(section) {
+      const available = section.querySelectorAll('.slot.available').length;
+      const occupied = section.querySelectorAll('.slot.occupied').length;
+      const reserved = section.querySelectorAll('.slot.reserved').length;
+
+      const availableBox = section.querySelector('.stat-box.bg-green-100 p');
+      const occupiedBox = section.querySelector('.stat-box.bg-red-100 p');
+      const reservedBox = section.querySelector('.stat-box.bg-yellow-100 p');
+
+      if (availableBox) availableBox.textContent = available;
+      if (occupiedBox) occupiedBox.textContent = occupied;
+      if (reservedBox) reservedBox.textContent = reserved;
+      updateDashboard();
+    }
+
+    // Add Event Listener to Slots
+    function addSlotEvent(slot, section) {
+      slot.addEventListener('click', function () {
+        let newStatus;
+        if (this.classList.contains('available')) {
+          this.classList.remove('available', 'bg-green-400', 'text-white');
+          this.classList.add('occupied', 'bg-red-500', 'text-white');
+          newStatus = 'occupied';
+          vehicleInfo[slot.dataset.id] = { license: 'N/A', owner: 'N/A' };
+          this.title = `Biển số: N/A\nChủ xe: N/A`;
+        } else if (this.classList.contains('occupied')) {
+          this.classList.remove('occupied', 'bg-red-500', 'text-white');
+          this.classList.add('reserved', 'bg-yellow-400', 'text-gray-800');
+          newStatus = 'reserved';
+        } else {
+          this.classList.remove('reserved', 'bg-yellow-400', 'text-gray-800');
+          this.classList.add('available', 'bg-green-400', 'text-white');
+          newStatus = 'available';
+          delete vehicleInfo[slot.dataset.id];
+          delete bookings[slot.dataset.id];
+          this.title = '';
+        }
+        updateStats(section);
+        const slotId = this.dataset.id;
+        slotHistory[slotId] = slotHistory[slotId] || [];
+        slotHistory[slotId].push({ status: newStatus, timestamp: new Date().toLocaleString() });
+      });
+      slot.addEventListener('mouseover', function () {
+        if (vehicleInfo[slot.dataset.id]) {
+          const info = vehicleInfo[slot.dataset.id];
+          this.title = `Biển số: ${info.license}\nChủ xe: ${info.owner}${bookings[slot.dataset.id] ? `\nThời gian đặt: ${bookings[slot.dataset.id].time}` : ''}`;
+        }
+      });
+    }
+
+    // Filter Slots
+    function filterSlots() {
+      const searchText = document.getElementById('searchInput').value.trim().toUpperCase();
+      const onlyAvailable = document.getElementById('filterAvailable').checked;
+      const currentSection = Array.from(document.querySelectorAll('.parking-section')).find(
+        section => !section.classList.contains('hidden')
+      );
+
+      if (!currentSection) return;
+
+      const slots = currentSection.querySelectorAll('.slot');
+      slots.forEach(slot => {
+        const slotName = slot.dataset.id.toUpperCase();
+        const isAvailable = slot.classList.contains('available');
+        const matches = slotName.includes(searchText);
+
+        slot.style.display = (matches || searchText === '') && (!onlyAvailable || isAvailable)
+          ? 'flex'
+          : 'none';
+      });
+    }
+
+    // Show Notification
+    function showNotification(message, type) {
+      const notifications = document.getElementById('notifications');
+      const notification = document.createElement('div');
+      notification.className = `p-4 mb-2 rounded-lg text-white shadow-lg animate-slide-in ${
+        type === 'success' ? 'bg-green-500' :
+        type === 'error' ? 'bg-red-500' :
+        'bg-blue-500'
+      }`;
+      notification.textContent = message;
+      notifications.appendChild(notification);
+      setTimeout(() => notification.remove(), 3000);
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function () {
       document.querySelectorAll('.parking-section').forEach(section => {
         section.querySelectorAll('.slot').forEach(slot => {
-          slot.addEventListener('click', function () {
-            if (this.classList.contains('available')) {
-              this.classList.remove('available');
-              this.classList.add('occupied');
-            } else if (this.classList.contains('occupied')) {
-              this.classList.remove('occupied');
-              this.classList.add('reserved');
-            } else {
-              this.classList.remove('reserved');
-              this.classList.add('available');
-            }
-
-            updateStats(section);
-          });
+          slot.dataset.id = slot.textContent.trim();
+          addSlotEvent(slot, section);
         });
-
         updateStats(section);
       });
 
-      const searchInput = document.getElementById('searchInput');
-      const filterAvailable = document.getElementById('filterAvailable');
+      document.getElementById('searchInput').addEventListener('input', filterSlots);
+      document.getElementById('filterAvailable').addEventListener('change', filterSlots);
+      updateDashboard();
 
-      function filterSlots() {
-        const searchText = searchInput.value.trim().toUpperCase();
-        const onlyAvailable = filterAvailable.checked;
-        const currentSection = Array.from(document.querySelectorAll('.parking-section')).find(
-          section => section.style.display !== 'none'
-        );
-
-        if (!currentSection) return;
-
-        const slots = currentSection.querySelectorAll('.slot');
-        slots.forEach(slot => {
-          const slotName = slot.textContent.trim().toUpperCase();
-          const isAvailable = slot.classList.contains('available');
-          const matches = slotName.includes(searchText);
-
-          slot.style.display = (matches || searchText === "") && (!onlyAvailable || isAvailable)
-            ? 'inline-block'
-            : 'none';
-        });
-      }
-
-      searchInput.addEventListener('input', filterSlots);
-      filterAvailable.addEventListener('change', filterSlots);
+      // Set user name
+      let userName = "LoC chym to";
+      document.getElementById("user-name").textContent = userName;
     });
   </script>
 </body>

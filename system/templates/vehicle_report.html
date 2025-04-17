@@ -4,178 +4,279 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="{% static 'app/css/vehicle_report.css' %}" rel="stylesheet" />
     <title>Dữ liệu giữ xe theo ngày tháng năm</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="{% static 'app/css/vehicle_report.css' %}" rel="stylesheet" />
     
 </head>
 <body>
-    <div class="container">
-        <h1>Dữ liệu giữ xe theo ngày tháng năm</h1>
+    <!-- Navigation -->
+    <nav class="navbar-custom fixed top-0 left-0 right-0 z-50">
+        <div class="container mx-auto px-4 sm:px-6 flex justify-between items-center py-4">
+            <a class="navbar-brand" href="{% url 'home' %}">Quản lý Bãi giữ xe</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#topNavbar" aria-controls="topNavbar" aria-expanded="false" aria-label="Toggle navigation">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="hidden sm:flex sm:items-center sm:space-x-4" id="navbarMenu">
+                <a class="nav-link" href="{% url 'vehicle_management' %}">Quản lý xe</a>
+                <a class="nav-link" href="{% url 'parking_status' %}">Tình trạng bãi xe</a>
+                <a class="nav-link" href="{% url 'vehicle_report' %}">Báo cáo & thống kê</a>
+                <div class="auth-buttons">
+                    
+                    <a class="logout" href="{% url 'login' %}">Thoát</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mx-auto p-4 sm:p-6 max-w-6xl mt-20">
+        <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 text-center mb-8">Dữ liệu giữ xe theo ngày tháng năm</h1>
         
-        <div class="control-panel">
-            <div>
-                <label for="fromDate">Từ ngày:</label>
-                <input type="date" id="fromDate">
-            </div>
-            <div>
-                <label for="toDate">Đến ngày:</label>
-                <input type="date" id="toDate">
-            </div>
-            <div>
-                <label for="vehicleType">Loại xe:</label>
-                <select id="vehicleType">
-                    <option value="all">Tất cả</option>
-                    <option value="car">Ô tô</option>
-                    <option value="motorcycle">Xe máy</option>
-                    <option value="bike">Xe đạp</option>
-                </select>
-            </div>
-            <div>
-                <button id="filterButton">Lọc dữ liệu</button>
-                <button id="exportButton">Xuất Excel</button>
+        <div class="control-panel bg-white shadow-lg rounded-lg p-6 mb-6">
+            <div class="flex flex-col sm:flex-row gap-4 items-center">
+                <div class="flex-1">
+                    <label for="fromDate" class="block text-sm font-medium text-gray-600">Từ ngày:</label>
+                    <input type="date" id="fromDate" class="border border-gray-300 rounded-lg p-2 w-full mt-1">
+                </div>
+                <div class="flex-1">
+                    <label for="toDate" class="block text-sm font-medium text-gray-600">Đến ngày:</label>
+                    <input type="date" id="toDate" class="border border-gray-300 rounded-lg p-2 w-full mt-1">
+                </div>
+                <div class="flex-1">
+                    <label for="vehicleType" class="block text-sm font-medium text-gray-600">Loại xe:</label>
+                    <select id="vehicleType" class="border border-gray-300 rounded-lg p-2 w-full mt-1">
+                        <option value="all">Tất cả</option>
+                        <option value="car">Ô tô</option>
+                        <option value="motorcycle">Xe máy</option>
+                        <option value="bike">Xe đạp</option>
+                    </select>
+                </div>
+                <div class="flex gap-4">
+                    <button id="filterButton" class="bg-blue-600 text-white rounded-lg p-2 hover:bg-blue-700 transition"><i class="fas fa-filter"></i> Lọc dữ liệu</button>
+                    <button id="exportButton" class="bg-teal-600 text-white rounded-lg p-2 hover:bg-teal-700 transition"><i class="fas fa-file-excel"></i> Xuất Excel</button>
+                </div>
             </div>
         </div>
         
-        <table id="parkingTable">
-            <thead>
-                <tr>
-                    <th>STT</th>
-                    <th>Ngày</th>
-                    <th>Biển số xe</th>
-                    <th>Loại xe</th>
-                    <th>Giờ vào</th>
-                    <th>Giờ ra</th>
-                    <th>Thời gian giữ</th>
-                    <th>Phí (VNĐ)</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Dữ liệu mẫu -->
-                <tr>
-                    <td>1</td>
-                    <td>01/04/2025</td>
-                    <td>29A-12345</td>
-                    <td>Ô tô</td>
-                    <td>08:30</td>
-                    <td>17:45</td>
-                    <td>9 giờ 15 phút</td>
-                    <td>50,000</td>
-                </tr>
-                <tr>
-                    <td>2</td>
-                    <td>01/04/2025</td>
-                    <td>29H-56789</td>
-                    <td>Xe máy</td>
-                    <td>07:15</td>
-                    <td>18:30</td>
-                    <td>11 giờ 15 phút</td>
-                    <td>15,000</td>
-                </tr>
-                <tr>
-                    <td>3</td>
-                    <td>02/04/2025</td>
-                    <td>30A-98765</td>
-                    <td>Ô tô</td>
-                    <td>09:00</td>
-                    <td>12:30</td>
-                    <td>3 giờ 30 phút</td>
-                    <td>30,000</td>
-                </tr>
-                <tr>
-                    <td>4</td>
-                    <td>02/04/2025</td>
-                    <td>30K-54321</td>
-                    <td>Xe máy</td>
-                    <td>10:15</td>
-                    <td>16:45</td>
-                    <td>6 giờ 30 phút</td>
-                    <td>10,000</td>
-                </tr>
-                <tr>
-                    <td>5</td>
-                    <td>03/04/2025</td>
-                    <td>29A-67890</td>
-                    <td>Ô tô</td>
-                    <td>08:45</td>
-                    <td>19:00</td>
-                    <td>10 giờ 15 phút</td>
-                    <td>55,000</td>
-                </tr>
-                <tr>
-                    <td>6</td>
-                    <td>03/04/2025</td>
-                    <td>XĐ-12345</td>
-                    <td>Xe đạp</td>
-                    <td>07:30</td>
-                    <td>17:30</td>
-                    <td>10 giờ 0 phút</td>
-                    <td>5,000</td>
-                </tr>
-                <tr>
-                    <td>7</td>
-                    <td>04/04/2025</td>
-                    <td>29A-24680</td>
-                    <td>Ô tô</td>
-                    <td>09:30</td>
-                    <td>13:45</td>
-                    <td>4 giờ 15 phút</td>
-                    <td>35,000</td>
-                </tr>
-                <tr>
-                    <td>8</td>
-                    <td>04/04/2025</td>
-                    <td>29H-13579</td>
-                    <td>Xe máy</td>
-                    <td>08:00</td>
-                    <td>18:15</td>
-                    <td>10 giờ 15 phút</td>
-                    <td>15,000</td>
-                </tr>
-            </tbody>
-        </table>
-        
-        <div class="pagination">
-            <button id="prevPage" disabled>Trang trước</button>
-            <span id="currentPage">Trang 1/1</span>
-            <button id="nextPage" disabled>Trang sau</button>
+        <div class="bg-white shadow-lg rounded-lg p-6 mb-6">
+            <table id="parkingTable" class="w-full table-auto">
+                <thead>
+                    <tr class="bg-gray-100">
+                        <th class="px-4 py-2">STT</th>
+                        <th class="px-4 py-2">Ngày</th>
+                        <th class="px-4 py-2">Biển số xe</th>
+                        <th class="px-4 py-2">Loại xe</th>
+                        <th class="px-4 py-2">Giờ vào</th>
+                        <th class="px-4 py-2">Giờ ra</th>
+                        <th class="px-4 py-2">Thời gian giữ</th>
+                        <th class="px-4 py-2">Phí (VNĐ)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="border px-4 py-2">1</td>
+                        <td class="border px-4 py-2">01/04/2025</td>
+                        <td class="border px-4 py-2">29A-12345</td>
+                        <td class="border px-4 py-2">Ô tô</td>
+                        <td class="border px-4 py-2">08:30</td>
+                        <td class="border px-4 py-2">17:45</td>
+                        <td class="border px-4 py-2">9 giờ 15 phút</td>
+                        <td class="border px-4 py-2">50,000</td>
+                    </tr>
+                    <tr>
+                        <td class="border px-4 py-2">2</td>
+                        <td class="border px-4 py-2">01/04/2025</td>
+                        <td class="border px-4 py-2">29H-56789</td>
+                        <td class="border px-4 py-2">Xe máy</td>
+                        <td class="border px-4 py-2">07:15</td>
+                        <td class="border px-4 py-2">18:30</td>
+                        <td class="border px-4 py-2">11 giờ 15 phút</td>
+                        <td class="border px-4 py-2">15,000</td>
+                    </tr>
+                    <tr>
+                        <td class="border px-4 py-2">3</td>
+                        <td class="border px-4 py-2">02/04/2025</td>
+                        <td class="border px-4 py-2">30A-98765</td>
+                        <td class="border px-4 py-2">Ô tô</td>
+                        <td class="border px-4 py-2">09:00</td>
+                        <td class="border px-4 py-2">12:30</td>
+                        <td class="border px-4 py-2">3 giờ 30 phút</td>
+                        <td class="border px-4 py-2">30,000</td>
+                    </tr>
+                    <tr>
+                        <td class="border px-4 py-2">4</td>
+                        <td class="border px-4 py-2">02/04/2025</td>
+                        <td class="border px-4 py-2">30K-54321</td>
+                        <td class="border px-4 py-2">Xe máy</td>
+                        <td class="border px-4 py-2">10:15</td>
+                        <td class="border px-4 py-2">16:45</td>
+                        <td class="border px-4 py-2">6 giờ 30 phút</td>
+                        <td class="border px-4 py-2">10,000</td>
+                    </tr>
+                    <tr>
+                        <td class="border px-4 py-2">5</td>
+                        <td class="border px-4 py-2">03/04/2025</td>
+                        <td class="border px-4 py-2">29A-67890</td>
+                        <td class="border px-4 py-2">Ô tô</td>
+                        <td class="border px-4 py-2">08:45</td>
+                        <td class="border px-4 py-2">19:00</td>
+                        <td class="border px-4 py-2">10 giờ 15 phút</td>
+                        <td class="border px-4 py-2">55,000</td>
+                    </tr>
+                    <tr>
+                        <td class="border px-4 py-2">6</td>
+                        <td class="border px-4 py-2">03/04/2025</td>
+                        <td class="border px-4 py-2">XĐ-12345</td>
+                        <td class="border px-4 py-2">Xe đạp</td>
+                        <td class="border px-4 py-2">07:30</td>
+                        <td class="border px-4 py-2">17:30</td>
+                        <td class="border px-4 py-2">10 giờ 0 phút</td>
+                        <td class="border px-4 py-2">5,000</td>
+                    </tr>
+                    <tr>
+                        <td class="border px-4 py-2">7</td>
+                        <td class="border px-4 py-2">04/04/2025</td>
+                        <td class="border px-4 py-2">29A-24680</td>
+                        <td class="border px-4 py-2">Ô tô</td>
+                        <td class="border px-4 py-2">09:30</td>
+                        <td class="border px-4 py-2">13:45</td>
+                        <td class="border px-4 py-2">4 giờ 15 phút</td>
+                        <td class="border px-4 py-2">35,000</td>
+                    </tr>
+                    <tr>
+                        <td class="border px-4 py-2">8</td>
+                        <td class="border px-4 py-2">04/04/2025</td>
+                        <td class="border px-4 py-2">29H-13579</td>
+                        <td class="border px-4 py-2">Xe máy</td>
+                        <td class="border px-4 py-2">08:00</td>
+                        <td class="border px-4 py-2">18:15</td>
+                        <td class="border px-4 py-2">10 giờ 15 phút</td>
+                        <td class="border px-4 py-2">15,000</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
         
-        <div class="summary">
-            <h3>Thống kê</h3>
+        <div class="pagination flex justify-center gap-4 mb-6">
+            <button id="prevPage" class="bg-gray-300 text-gray-700 rounded-lg p-2 hover:bg-gray-400 transition" disabled>Trang trước</button>
+            <span id="currentPage" class="self-center">Trang 1/1</span>
+            <button id="nextPage" class="bg-gray-300 text-gray-700 rounded-lg p-2 hover:bg-gray-400 transition" disabled>Trang sau</button>
+        </div>
+        
+        <div class="summary bg-white shadow-lg rounded-lg p-6">
+            <h3 class="text-lg font-semibold text-gray-700">Thống kê</h3>
             <p>Tổng số lượt xe: <span id="totalEntries">8</span></p>
             <p>Ô tô: <span id="carCount">4</span></p>
             <p>Xe máy: <span id="motorcycleCount">3</span></p>
             <p>Xe đạp: <span id="bikeCount">1</span></p>
             <p>Tổng doanh thu: <span id="totalRevenue">215,000 VNĐ</span></p>
         </div>
-    </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-main">
+                <div class="footer-info">
+                    <h3>Hệ thống quản lý bãi giữ xe</h3>
+                    <p>Giải pháp quản lý bãi đỗ xe thông minh, tiện lợi và an toàn.</p>
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <span>123 Nguyễn Văn A, Q.1, TP.HCM</span>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-phone-alt"></i>
+                            <span>0987 654 321</span>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-envelope"></i>
+                            <span>support@baigiu.com</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="footer-links">
+                    <div class="link-group">
+                        <h4>Dịch vụ</h4>
+                        <ul>
+                            <li><a href="#">Quản lý bãi giữ xe</a></li>
+                            <li><a href="#">Đặt chỗ trước</a></li>
+                            <li><a href="#">Báo cáo thống kê</a></li>
+                        </ul>
+                    </div>
+                    <div class="link-group">
+                        <h4>Hỗ trợ</h4>
+                        <ul>
+                            <li><a href="#">Hướng dẫn sử dụng</a></li>
+                            <li><a href="#">Câu hỏi thường gặp</a></li>
+                            <li><a href="#">Điều khoản dịch vụ</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="social-newsletter">
+                    <div class="social-media">
+                        <h4>Kết nối với chúng tôi</h4>
+                        <div class="social-icons">
+                            <a href="#" class="icon-facebook"><i class="fab fa-facebook-f"></i></a>
+                            <a href="#" class="icon-twitter"><i class="fab fa-twitter"></i></a>
+                            <a href="#" class="icon-youtube"><i class="fab fa-youtube"></i></a>
+                            <a href="#" class="icon-linkedin"><i class="fab fa-linkedin-in"></i></a>
+                        </div>
+                    </div>
+                    <div class="newsletter">
+                        <h4>Đăng ký nhận tin</h4>
+                        <p>Nhận thông báo về tính năng mới.</p>
+                        <div class="newsletter-form">
+                            <input type="email" placeholder="Email của bạn">
+                            <button type="submit"><i class="fas fa-paper-plane"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2025 Quản lý bãi giữ xe. Tất cả quyền được bảo lưu.</p>
+            </div>
+        </div>
+    </footer>
 
     <script>
+        // Toggle mobile menu
+        function toggleMenu() {
+            const menu = document.getElementById('navbarMenu');
+            menu.classList.toggle('hidden');
+        }
 
+        // Filter data
         document.getElementById('filterButton').addEventListener('click', function() {
             const fromDate = document.getElementById('fromDate').value;
             const toDate = document.getElementById('toDate').value;
             const vehicleType = document.getElementById('vehicleType').value;
             
-    
             alert(`Đang lọc dữ liệu từ ${fromDate || 'không giới hạn'} đến ${toDate || 'không giới hạn'} với loại xe: ${vehicleType}`);
-            
-         
         });
         
-        // lọc dữ liệu 
+        // Export to Excel
         document.getElementById('exportButton').addEventListener('click', function() {
             alert('Đang xuất dữ liệu ra file Excel...');
-        
         });
-    
+
+        // Initialize date inputs
         const today = new Date();
         const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
         
         document.getElementById('fromDate').valueAsDate = firstDayOfMonth;
         document.getElementById('toDate').valueAsDate = today;
-        
-       
+
+        // Set user name
+        document.addEventListener('DOMContentLoaded', function () {
+            let userName = "LoC chym to";
+            document.getElementById("user-name").textContent = userName;
+
+            // Add event listener for mobile menu toggle
+            document.querySelector('.navbar-toggler').addEventListener('click', toggleMenu);
+        });
     </script>
 </body>
 </html>
