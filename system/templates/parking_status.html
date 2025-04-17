@@ -10,74 +10,114 @@
   <div class="container">
     <h1>Tình Trạng Bãi Giữ Xe</h1>
 
-    <div class="legend">
-      <div><span class="box available"></span> Trống</div>
-      <div><span class="box occupied"></span> Đã có xe</div>
-      <div><span class="box reserved"></span> Đặt trước</div>
+    <div class="search-container">
+      <input type="text" id="searchInput" placeholder="Tìm vị trí xe (ví dụ: A1, B2)..." />
+      <label><input type="checkbox" id="filterAvailable" ><button>Tìm Kiếm </button></label>
     </div>
 
-    <div class="parking-lot">
-      <div class="parking-row">
-        <div class="slot available">A1</div>
-        <div class="slot occupied">A2</div>
-        <div class="slot reserved">A3</div>
-        <div class="slot available">A4</div>
-        <div class="slot occupied">A5</div>
-      </div>
-      <div class="parking-row">
-        <div class="slot available">B1</div>
-        <div class="slot available">B2</div>
-        <div class="slot reserved">B3</div>
-        <div class="slot occupied">B4</div>
-        <div class="slot available">B5</div>
-      </div>
-      <div class="parking-row">
-        <div class="slot reserved">C1</div>
-        <div class="slot available">C2</div>
-        <div class="slot available">C3</div>
-        <div class="slot occupied">C4</div>
-        <div class="slot reserved">C5</div>
-      </div>
-      <div class="parking-row">
-        <div class="slot occupied">D1</div>
-        <div class="slot available">D2</div>
-        <div class="slot available">D3</div>
-        <div class="slot reserved">D4</div>
-        <div class="slot occupied">D5</div>
-      </div>
+    <!-- Tabs -->
+    <div class="vehicle-tabs">
+      <button onclick="showParking('bike')">Xe Đạp</button>
+      <button onclick="showParking('motorbike')">Xe Máy</button>
+      <button onclick="showParking('car')">Ô Tô</button>
     </div>
-    
-    <div class="stats">
-      <h2>Thống kê vị trí</h2>
-      <div class="stats-grid">
-        <div class="stat-box available">
-          <h3>Chỗ trống</h3>
-          <p>9</p>
-        </div>
-        <div class="stat-box occupied">
-          <h3>Đã có xe</h3>
-          <p>7</p>
-        </div>
-        <div class="stat-box reserved">
-          <h3>Đặt trước</h3>
-          <p>4</p>
-        </div>
-      </div>
-    </div>
-    
-    <script>
 
-      document.demsoluongxe('DOMContentLoaded', function() {
-        const availableSlots = document.querySelectorAll('.slot.available').length;
-        const occupiedSlots = document.querySelectorAll('.slot.occupied').length;
-        const reservedSlots = document.querySelectorAll('.slot.reserved').length;
-        
-        document.querySelector('.stat-box.available p').textContent = availableSlots;
-        document.querySelector('.stat-box.occupied p').textContent = occupiedSlots;
-        document.querySelector('.stat-box.reserved p').textContent = reservedSlots;
-        
-        document.querySelectorAll('.slot').forEach(slot => {
-          slot.addEventListener('click', function() {
+    <!-- Bãi Xe Đạp -->
+    <div id="bike" class="parking-section">
+      <div class="legend">
+        <div><span class="box available"></span> Trống</div>
+        <div><span class="box occupied"></span> Đã có xe</div>
+        <div><span class="box reserved"></span> Đặt trước</div>
+      </div>
+      <div class="parking-lot">
+        <div class="parking-row">
+          <div class="slot available">B1</div>
+          <div class="slot occupied">B2</div>
+          <div class="slot reserved">B3</div>
+          <div class="slot available">B4</div>
+          <div class="slot occupied">B5</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bãi Xe Máy -->
+    <div id="motorbike" class="parking-section" style="display:none;">
+      <div class="legend">
+        <div><span class="box available"></span> Trống</div>
+        <div><span class="box occupied"></span> Đã có xe</div>
+        <div><span class="box reserved"></span> Đặt trước</div>
+      </div>
+      <div class="parking-lot">
+        <div class="parking-row">
+          <div class="slot available">M1</div>
+          <div class="slot occupied">M2</div>
+          <div class="slot reserved">M3</div>
+          <div class="slot available">M4</div>
+          <div class="slot occupied">M5</div>
+        </div>
+      </div>
+      <div class="stats">
+        <h2>Thống kê vị trí</h2>
+        <div class="stats-grid">
+          <div class="stat-box available"><h3>Chỗ trống</h3><p>0</p></div>
+          <div class="stat-box occupied"><h3>Đã có xe</h3><p>0</p></div>
+          <div class="stat-box reserved"><h3>Đặt trước</h3><p>0</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bãi Ô Tô -->
+    <div id="car" class="parking-section" style="display:none;">
+      <div class="legend">
+        <div><span class="box available"></span> Trống</div>
+        <div><span class="box occupied"></span> Đã có xe</div>
+        <div><span class="box reserved"></span> Đặt trước</div>
+      </div>
+      <div class="parking-lot">
+        <div class="parking-row">
+          <div class="slot available">C1</div>
+          <div class="slot occupied">C2</div>
+          <div class="slot reserved">C3</div>
+          <div class="slot available">C4</div>
+          <div class="slot occupied">C5</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Function to show the correct parking section
+    function showParking(type) {
+      // Hide all sections first
+      ['bike', 'motorbike', 'car'].forEach(id => {
+        const section = document.getElementById(id);
+        if (section) {
+          section.style.display = 'none'; // Hide all sections
+        }
+      });
+
+      // Show the selected section
+      const selectedSection = document.getElementById(type);
+      if (selectedSection) {
+        selectedSection.style.display = 'block'; // Show the selected section
+      }
+    }
+
+    // Event listener for DOMContentLoaded
+    document.addEventListener('DOMContentLoaded', function () {
+      function updateStats(section) {
+        const available = section.querySelectorAll('.slot.available').length;
+        const occupied = section.querySelectorAll('.slot.occupied').length;
+        const reserved = section.querySelectorAll('.slot.reserved').length;
+
+        section.querySelector('.stat-box.available p')?.textContent = available;
+        section.querySelector('.stat-box.occupied p')?.textContent = occupied;
+        section.querySelector('.stat-box.reserved p')?.textContent = reserved;
+      }
+
+      document.querySelectorAll('.parking-section').forEach(section => {
+        section.querySelectorAll('.slot').forEach(slot => {
+          slot.addEventListener('click', function () {
             if (this.classList.contains('available')) {
               this.classList.remove('available');
               this.classList.add('occupied');
@@ -88,18 +128,41 @@
               this.classList.remove('reserved');
               this.classList.add('available');
             }
-            
-            const newAvailableSlots = document.querySelectorAll('.slot.available').length;
-            const newOccupiedSlots = document.querySelectorAll('.slot.occupied').length;
-            const newReservedSlots = document.querySelectorAll('.slot.reserved').length;
-            
-            document.querySelector('.stat-box.available p').textContent = newAvailableSlots;
-            document.querySelector('.stat-box.occupied p').textContent = newOccupiedSlots;
-            document.querySelector('.stat-box.reserved p').textContent = newReservedSlots;
+
+            updateStats(section);
           });
         });
+
+        updateStats(section);
       });
-    </script>
-  </div>
+
+      const searchInput = document.getElementById('searchInput');
+      const filterAvailable = document.getElementById('filterAvailable');
+
+      function filterSlots() {
+        const searchText = searchInput.value.trim().toUpperCase();
+        const onlyAvailable = filterAvailable.checked;
+        const currentSection = Array.from(document.querySelectorAll('.parking-section')).find(
+          section => section.style.display !== 'none'
+        );
+
+        if (!currentSection) return;
+
+        const slots = currentSection.querySelectorAll('.slot');
+        slots.forEach(slot => {
+          const slotName = slot.textContent.trim().toUpperCase();
+          const isAvailable = slot.classList.contains('available');
+          const matches = slotName.includes(searchText);
+
+          slot.style.display = (matches || searchText === "") && (!onlyAvailable || isAvailable)
+            ? 'inline-block'
+            : 'none';
+        });
+      }
+
+      searchInput.addEventListener('input', filterSlots);
+      filterAvailable.addEventListener('change', filterSlots);
+    });
+  </script>
 </body>
 </html>

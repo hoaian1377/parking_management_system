@@ -137,3 +137,12 @@ footer {
         font-size: 13px;
     }
 }
+.home-button {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+}
+.logo-img {
+    width: 40px; /* bạn có thể thay đổi kích thước nếu muốn */
+    height: auto;
+}

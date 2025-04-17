@@ -580,3 +580,10 @@ body {
     font-size: 1rem;
   }
 }
+.auth-buttons {
+  color: white;  
+}
+.log-out{
+  color: white;
+}
+

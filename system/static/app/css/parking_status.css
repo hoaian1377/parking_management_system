@@ -3,6 +3,9 @@ body {
     background: #f9fafb;
     padding: 30px;
   }
+  .button{
+    color:redred
+  }
   
   .container {
     max-width: 800px;
@@ -231,4 +234,78 @@ body {
         grid-template-columns: 1fr;
       }
     }
-  
+    .vehicle-tabs {
+      margin-bottom: 20px;
+      display: flex;
+      gap: 10px;
+    }
+    
+    .vehicle-tabs button {
+      padding: 10px 20px;
+      cursor: pointer;
+      border: none;
+      background-color: #007bff;
+      color: white;
+      border-radius: 4px;
+    }
+    
+    .vehicle-tabs button:hover {
+      background-color: #0056b3;
+    }
+    .vehicle-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    
+    .vehicle-tabs button {
+      padding: 10px 20px;
+      cursor: pointer;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: background-color 0.3s ease;
+    }
+    
+    .vehicle-tabs button:hover {
+      background-color: #0056b3;
+    }
+    .search-container {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    .search-container input[type="text"] {
+      padding: 8px 12px;
+      width: 250px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+    
+    .search-container label {
+      margin-left: 10px;
+      font-size: 16px;
+    }
+    .search-container {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    .search-container input[type="text"] {
+      padding: 8px 12px;
+      width: 250px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+    
+    .vehicle-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+    
