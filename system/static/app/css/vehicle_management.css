@@ -1,4 +1,17 @@
-
+.parking-slot {
+  border: 2px solid #ddd;
+  padding: 1rem;
+  text-align: center;
+  cursor: pointer;
+  border-radius: 1rem;
+  transition: background-color 0.3s ease;
+}
+.parking-slot.available {
+  background-color: #f3f4f6;
+}
+.parking-slot.occupied {
+  background-color: #fee2e2;
+}
 :root {
   --primary-color: #3b82f6;
   --primary-light: #bfdbfe;

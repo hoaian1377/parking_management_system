@@ -1,512 +1,189 @@
-{% load static %}
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quản lý Xe Ra Vào</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <link href="{% static 'app/css/vehicle_management.css' %}" rel="stylesheet" />
-  
-  
-</head>           
-<body>
-  
-  <!-- Navigation -->
-  <nav class="navbar-custom fixed top-0 left-0 right-0 z-50">
-    <div class="container mx-auto px-4 sm:px-6 flex justify-between items-center py-4">
-      <a class="navbar-brand" href="{% url 'home' %}">Quản lý Bãi giữ xe</a>
-      <button class="sm:hidden text-white focus:outline-none" onclick="toggleMenu()">
-        <i class="fas fa-bars"></i>
-      </button>
-      <div class="hidden sm:flex sm:items-center sm:space-x-4" id="navbarMenu">
-        <a class="nav-link active" href="{% url 'vehicle_management' %}">Quản lý xe</a>
-        <a class="nav-link" href="{% url 'parking_status' %}">Tình trạng bãi xe</a>
-        <a class="nav-link" href="{% url 'vehicle_report' %}">Báo cáo & thống kê</a>
-        <div class="auth-buttons">
-          
-          <a class="logout" href="{% url 'login' %}">Thoát</a>
-        </div>
-      </div>
-    </div>
-  </nav>
-
-  <!-- Main Content -->
-  <main class="container mx-auto p-4 sm:p-6 mt-20">
-    <h1></h1>
-    <h1>-</h1>
-    <h1></h1>
-    <h1></h1>
-    <h1>-</h1>
-    <h1></h1>
-    
-    <div class="dashboard">
-      <div class="dashboard-card">
-        <h3>Tổng số chỗ</h3>
-        <p>20</p>
-      </div>
-      <div class="dashboard-card">
-        <h3>Chỗ trống</h3>
-        <p class="text-success">8</p>
-      </div>
-      <div class="dashboard-card">
-        <h3>Đã sử dụng</h3>
-        <p class="text-danger">12</p>
-      </div>
-    </div>
-    
-    <div class="content">
-      <div class="forms-container">
-        <!-- Form xe vào -->
-        <div class="form-box">
-          <h2>Xe Vào</h2>
-          <form id="vehicle-in-form">
-            <div class="form-row">
-              <div class="form-group">
-                <label for="license-plate-in">Biển số xe</label>
-                <input type="text" id="license-plate-in" placeholder="Nhập biển số xe" required>
-              </div>
-              <div class="form-group">
-                <label for="vehicle-type-in">Loại xe</label>
-                <select id="vehicle-type-in" required>
-                  <option value="">-- Chọn loại xe --</option>
-                  <option value="car">Ô tô</option>
-                  <option value="motorcycle">Xe máy</option>
-                  <option value="bicycle">Xe đạp</option>
-                </select>
-              </div>
-            </div>
-            
-            <div class="form-row">
-              <div class="form-group">
-                <label for="parking-slot">Vị trí đỗ</label>
-                <select id="parking-slot" required>
-                  <option value="">-- Chọn vị trí --</option>
-                  <option value="A1">A1</option>
-                  <option value="A2">A2</option>
-                  <option value="A3">A3</option>
-                  <option value="A4">A4</option>
-                  <option value="A5">A5</option>
-                  <option value="B1">B1</option>
-                  <option value="B2">B2</option>
-                  <option value="B3">B3</option>
-                  <option value="B4">B4</option>
-                  <option value="B5">B5</option>
-                </select>
-              </div>
-             
-              <section class="hero">
-                <div class="container text-center">
-                  <h1></h1>
-                  <p></p>
-                  <div class="capture-container">
-                    <video id="video" autoplay playsinline></video>
-                    <canvas id="canvas" style="display: none;"></canvas>
-                    <button id="capture-btn" class="btn btn-primary mt-3"><i class="fas fa-camera"></i> quét biển số</button>
-                    <div id="result" class="mt-3">
-                      <img id="captured-image" style="max-width: 100%; display: none;" alt="Captured License Plate">
-                      <p id="plate-text" class="mt-2"></p>
-                    </div>
-                  </div>
-                </div>
-              </section>
-        <!-- Lịch sử gần đây -->
-        <div class="form-box recent-entries">
-          <h2>Lịch sử gần đây</h2>
-          <table>
-            <thead>
-              <tr>
-                <th>Biển số</th>
-                <th>Loại xe</th>
-                <th>Vị trí</th>
-                <th>Vào</th>
-                <th>Ra</th>
-                <th>Phí</th>
-              </tr>
-            </thead>
-            <tbody id="history-table">
-              <tr>
-                <td>29A-12345</td>
-                <td>Ô tô</td>
-                <td>A1</td>
-                <td>08:30</td>
-                <td>11:45</td>
-                <td>45.000đ</td>
-              </tr>
-              <tr>
-                <td>30F-56789</td>
-                <td>Xe máy</td>
-                <td>B3</td>
-                <td>09:15</td>
-                <td>17:20</td>
-                <td>20.000đ</td>
-              </tr>
-              <tr>
-                <td>29H-98765</td>
-                <td>Ô tô</td>
-                <td>A4</td>
-                <td>07:45</td>
-                <td>18:30</td>
-                <td>90.000đ</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-      
-      <div class="parking-area">
-        <h2>Sơ đồ bãi đỗ xe</h2>
-        
-        <div class="legend">
-          <div class="legend-item">
-            <div class="legend-color available"></div>
-            <span>Trống</span>
-          </div>
-          <div class="legend-item">
-            <div class="legend-color occupied"></div>
-            <span>Đã có xe</span>
-          </div>
-          <div class="legend-item">
-            <div class="legend-color reserved"></div>
-            <span>Đặt trước</span>
-          </div>
-        </div>
-        
-        <div class="parking-grid">
-          <div class="parking-slot available" id="A1" onclick="selectParkingSlot('A1')">
-            A1
-            <div class="parking-info">
-              <div class="info-item"><span>Trạng thái:</span> <span>Trống</span></div>
-              <div class="info-item"><span>Loại:</span> <span>Ô tô</span></div>
-            </div>
-          </div>
-          <div class="parking-slot occupied" id="A2" onclick="selectParkingSlot('A2')">
-            A2
-            <div class="parking-info">
-              <div class="info-item"><span>Trạng thái:</span> <span>Đã có xe</span></div>
-              <div class="info-item"><span>Biển số:</span> <span>29A-12345</span></div>
-              <div class="info-item"><span>Vào lúc:</span> <span>09:30</span></div>
-            </div>
-          </div>
-          <div class="parking-slot occupied" id="A3" onclick="selectParkingSlot('A3')">
-            A3
-            <div class="parking-info">
-              <div class="info-item"><span>Trạng thái:</span> <span>Đã có xe</span></div>
-              <div class="info-item"><span>Biển số:</span> <span>30F-56789</span></div>
-              <div class="info-item"><span>Vào lúc:</span> <span>10:15</span></div>
-            </div>
-          </div>
-          <div class="parking-slot available" id="A4" onclick="selectParkingSlot('A4')">
-            A4
-            <div class="parking-info">
-              <div class="info-item"><span>Trạng thái:</span> <span>Trống</span></div>
-              <div class="info-item"><span>Loại:</span> <span>Ô tô</span></div>
-            </div>
-          </div>
-          <div class="parking-slot reserved" id="A5" onclick="selectParkingSlot('A5')">
-            A5
-            <div class="parking-info">
-              <div class="info-item"><span>Trạng thái:</span> <span>Đặt trước</span></div>
-              <div class="info-item"><span>Người đặt:</span> <span>Nguyễn Văn A</span></div>
-              <div class="info-item"><span>Đến lúc:</span> <span>14:00</span></div>
-            </div>
-          </div>
-          <div class="parking-slot occupied" id="B1" onclick="selectParkingSlot('B1')">
-            B1
-            <div class="parking-info">
-              <div class="info-item"><span>Trạng thái:</span> <span>Đã có xe</span></div>
-              <div class="info-item"><span>Biển số:</span> <span>29H-98765</span></div>
-              <div class="info-item"><span>Vào lúc:</span> <span>08:45</span></div>
-            </div>
-          </div>
-          <div class="parking-slot available" id="B2" onclick="selectParkingSlot('B2')">
-            B2
-            <div class="parking-info">
-              <div class="info-item"><span>Trạng thái:</span> <span>Trống</span></div>
-              <div class="info-item"><span>Loại:</span> <span>Xe máy</span></div>
-            </div>
-          </div>
-          <div class="parking-slot occupied" id="B3" onclick="selectParkingSlot('B3')">
-            B3
-            <div class="parking-info">
-              <div class="info-item"><span>Trạng thái:</span> <span>Đã có xe</span></div>
-              <div class="info-item"><span>Biển số:</span> <span>30K-54321</span></div>
-              <div class="info-item"><span>Vào lúc:</span> <span>11:30</span></div>
-            </div>
-          </div>
-          <div class="parking-slot occupied" id="B4" onclick="selectParkingSlot('B4')">
-            B4
-            <div class="parking-info">
-              <div class="info-item"><span>Trạng thái:</span> <span>Đã có xe</span></div>
-              <div class="info-item"><span>Biển số:</span> <span>29A-54321</span></div>
-              <div class="info-item"><span>Vào lúc:</span> <span>12:15</span></div>
-            </div>
-          </div>
-          <div class="parking-slot available" id="B5" onclick="selectParkingSlot('B5')">
-            B5
-            <div class="parking-info">
-              <div class="info-item"><span>Trạng thái:</span> <span>Trống</span></div>
-              <div class="info-item"><span>Loại:</span> <span>Xe máy</span></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </main>
-
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="footer-container">
-      <div class="footer-main">
-        <div class="footer-info">
-          <h3>Smart Parking</h3>
-          <p>Giải pháp quản lý bãi đỗ xe thông minh, tiện lợi và an toàn.</p>
-          <div class="contact-info">
-            <div class="contact-item">
-              <i class="fas fa-map-marker-alt"></i>
-              <span>123 Nguyễn Văn A, Q.1, TP.HCM</span>
-            </div>
-            <div class="contact-item">
-              <i class="fas fa-phone-alt"></i>
-              <span>0987 654 321</span>
-            </div>
-            <div class="contact-item">
-              <i class="fas fa-envelope"></i>
-              <span>support@smartparking.com</span>
-            </div>
-          </div>
-        </div>
-        <div class="footer-links">
-          <div class="link-group">
-            <h4>Dịch vụ</h4>
-            <ul>
-              <li><a href="#">Quản lý bãi giữ xe</a></li>
-              <li><a href="#">Đặt chỗ trước</a></li>
-              <li><a href="#">Báo cáo thống kê</a></li>
-            </ul>
-          </div>
-          <div class="link-group">
-            <h4>Hỗ trợ</h4>
-            <ul>
-              <li><a href="#">Hướng dẫn sử dụng</a></li>
-              <li><a href="#">Câu hỏi thường gặp</a></li>
-              <li><a href="#">Điều khoản dịch vụ</a></li>
-            </ul>
-          </div>
-        </div>
-        <div class="social-newsletter">
-          <div class="social-media">
-            <h4>Kết nối với chúng tôi</h4>
-            <div class="social-icons">
-              <a href="#" class="icon-facebook"><i class="fab fa-facebook-f"></i></a>
-              <a href="#" class="icon-twitter"><i class="fab fa-twitter"></i></a>
-              <a href="#" class="icon-youtube"><i class="fab fa-youtube"></i></a>
-              <a href="#" class="icon-linkedin"><i class="fab fa-linkedin-in"></i></a>
-            </div>
-          </div>
-          <div class="newsletter">
-            <h4>Đăng ký nhận tin</h4>
-            <p>Nhận thông báo về tính năng mới.</p>
-            <div class="newsletter-form">
-              <input type="email" placeholder="Email của bạn">
-              <button type="submit"><i class="fas fa-paper-plane"></i></button>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        <p>© 2025 Smart Parking. Tất cả quyền được bảo lưu.</p>
-      </div>
-    </div>
-  </footer>
+  <title>Quản lý xe ra vào</title>
+  <script src="https://cdn.tailwindcss.com"></script>
  
+</head>
+<body class="bg-gray-100 text-gray-800 p-8">
 
-  
-    
-  
+  <h1 class="text-4xl font-bold text-center mb-10">Hệ thống quản lý xe ra vào</h1>
 
+  <!-- Main layout -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+    <!-- Cột trái -->
+    <div class="space-y-8">
+
+      <!-- Xe Vào -->
+      <div class="bg-white p-6 rounded-2xl shadow">
+        <h2 class="text-2xl font-semibold mb-4">Xe Vào</h2>
+        <form id="vehicle-in-form" class="space-y-4">
+          <div>
+            <label class="block font-medium">Biển số xe</label>
+            <input type="text" id="license-plate-in" placeholder="Nhập biển số" required class="w-full p-2 border rounded">
+          </div>
+          <div>
+            <label class="block font-medium">Thời gian vào</label>
+            <input type="datetime-local" id="time-in" required class="w-full p-2 border rounded">
+          </div>
+          <div>
+            <label class="block font-medium">Chọn chỗ đậu</label>
+            <select id="slot-in" required class="w-full p-2 border rounded">
+              <option value="">-- Chọn chỗ đậu --</option>
+            </select>
+          </div>
+          <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Ghi nhận xe vào</button>
+        </form>
+      </div>
+
+      <!-- Camera -->
+      <div class="bg-white p-6 rounded-2xl shadow">
+        <h2 class="text-2xl font-semibold mb-4">Camera quét biển số</h2>
+        <video id="video" width="100%" autoplay class="rounded mb-2"></video>
+        <canvas id="canvas" style="display: none;"></canvas>
+        <img id="captured-image" class="mt-2 rounded" style="display: none;" />
+        <p class="mt-2 text-gray-600" id="plate-text"></p>
+        <button id="capture-btn" class="mt-2 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 w-full">Quét biển số</button>
+      </div>
+
+    </div>
+
+    <!-- Cột phải -->
+    <div class="space-y-8">
+
+      <!-- Xe Ra -->
+      <div class="bg-white p-6 rounded-2xl shadow">
+        <h2 class="text-2xl font-semibold mb-4">Xe Ra</h2>
+        <form id="vehicle-out-form" class="space-y-4">
+          <div>
+            <label class="block font-medium">Biển số xe</label>
+            <input type="text" id="license-plate-out" placeholder="Nhập biển số xe ra" required class="w-full p-2 border rounded">
+          </div>
+          <div>
+            <label class="block font-medium">Thời gian ra</label>
+            <input type="datetime-local" id="time-out" required class="w-full p-2 border rounded">
+          </div>
+          <button type="submit" class="w-full bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Xác nhận xe ra</button>
+        </form>
+      </div>
+
+      <!-- Sơ đồ bãi đỗ -->
+      <div class="bg-white p-6 rounded-2xl shadow">
+        <h2 class="text-2xl font-semibold mb-4">Sơ đồ bãi đỗ</h2>
+        <div id="parking-map" class="grid grid-cols-2 gap-4"></div>
+      </div>
+
+      <!-- Lịch sử -->
+      <div class="bg-white p-6 rounded-2xl shadow">
+        <h2 class="text-2xl font-semibold mb-4">Lịch sử gần đây</h2>
+        <ul id="history-list" class="space-y-2 text-sm text-gray-700 list-disc list-inside"></ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Script giữ nguyên -->
   <script>
-    // Toggle mobile menu
-    function toggleMenu() {
-      const menu = document.getElementById('navbarMenu');
-      menu.classList.toggle('hidden');
+    const parkingMap = document.getElementById("parking-map");
+    const historyList = document.getElementById("history-list");
+    const slotSelect = document.getElementById("slot-in");
+
+    const slots = Array.from({ length: 6 }, (_, i) => ({ id: i + 1, license: "", timeIn: null }));
+
+    function renderMap() {
+      parkingMap.innerHTML = "";
+      slotSelect.innerHTML = '<option value="">-- Chọn chỗ đậu --</option>';
+      slots.forEach(slot => {
+        const div = document.createElement("div");
+        div.className = "parking-slot " + (slot.license ? "occupied" : "available");
+        div.dataset.id = slot.id;
+        div.innerHTML = `
+          <p class="font-bold">Slot ${slot.id}</p>
+          ${slot.license ? `
+            <div class="text-left text-sm mt-2">
+              <p><strong>Biển số:</strong> ${slot.license}</p>
+              <p><strong>Vào:</strong> ${slot.timeIn}</p>
+            </div>` : `<p class="text-sm text-gray-500 mt-2">Trống</p>`}
+        `;
+        div.onclick = () => selectParkingSlot(slot);
+        parkingMap.appendChild(div);
+
+        if (!slot.license) {
+          const option = document.createElement("option");
+          option.value = slot.id;
+          option.textContent = `Slot ${slot.id}`;
+          slotSelect.appendChild(option);
+        }
+      });
     }
 
-    // Thiết lập thời gian mặc định
-    document.addEventListener('DOMContentLoaded', function() {
-      const now = new Date();
-      const timeInInput = document.getElementById('time-in');
-      const timeOutInput = document.getElementById('time-out');
-      
-      // Format datetime-local
-      now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-      const nowStr = now.toISOString().slice(0, 16);
-      
-      timeInInput.value = nowStr;
-      timeOutInput.value = nowStr;
+    function selectParkingSlot(slot) {
+      if (!slot.license) return;
+      document.getElementById("license-plate-out").value = slot.license;
+      document.getElementById("time-out").value = new Date().toISOString().slice(0, 16);
+    }
 
-      // Display user name
-      let userName = "Admin";
-      document.getElementById("user-name").textContent = userName;
+    document.getElementById("vehicle-in-form").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const license = document.getElementById("license-plate-in").value.trim();
+      const time = document.getElementById("time-in").value;
+      const slotId = parseInt(document.getElementById("slot-in").value);
+      const slot = slots.find(s => s.id === slotId);
+
+      if (slot && !slot.license) {
+        slot.license = license;
+        slot.timeIn = time;
+        historyList.innerHTML += `<li>Xe <strong>${license}</strong> vào Slot ${slotId} lúc ${time}</li>`;
+        renderMap();
+        e.target.reset();
+      } else {
+        alert("Chỗ đậu không hợp lệ!");
+      }
     });
-    
-    // Hàm chọn vị trí đỗ xe
-    function selectParkingSlot(slotId) {
-      const slot = document.getElementById(slotId);
-      
-      // Nếu vị trí trống, thì có thể chọn để đỗ xe
-      if (slot.classList.contains('available')) {
-        document.getElementById('parking-slot').value = slotId;
-      } else if (slot.classList.contains('occupied')) {
-        // Nếu vị trí đã có xe, lấy thông tin xe để form xe ra
-        const infoItems = slot.querySelectorAll('.info-item');
-        const licensePlate = infoItems[1].querySelector('span:last-child').textContent;
-        const timeIn = infoItems[2].querySelector('span:last-child').textContent;
-        
-        document.getElementById('license-plate-out').value = licensePlate;
-        document.getElementById('time-in-display').value = timeIn + ' (04/04/2025)';
-        
-        // Tính phí dựa trên thời gian
-        const currentTime = new Date();
-        const hours = currentTime.getHours();
-        const minutes = currentTime.getMinutes();
-        const timeInParts = timeIn.split(':');
-        const hoursIn = parseInt(timeInParts[0]);
-        const minutesIn = parseInt(timeInParts[1]);
-        
-        let durationHours = hours - hoursIn;
-        let durationMinutes = minutes - minutesIn;
-        
-        if (durationMinutes < 0) {
-          durationHours--;
-          durationMinutes += 60;
-        }
-        
-        const duration = durationHours + ' giờ ' + durationMinutes + ' phút';
-        document.getElementById('duration').value = duration;
-        
-        // Tính phí (ví dụ: 10.000đ/giờ)
-        const fee = Math.ceil(durationHours * 10000);
-        document.getElementById('fee').value = fee.toLocaleString() + ' VNĐ';
-      }
-    }
-    
-    // Ghi nhận xe vào
-    function recordVehicleIn() {
-      const licensePlate = document.getElementById('license-plate-in').value;
-      const vehicleType = document.getElementById('vehicle-type-in');
-      const parkingSlot = document.getElementById('parking-slot').value;
-      const timeIn = document.getElementById('time-in').value;
-      
-      if (!licensePlate || vehicleType.selectedIndex === 0 || !parkingSlot || !timeIn) {
-        alert('Vui lòng điền đầy đủ thông tin xe vào!');
-        return;
-      }
-      
-      // Cập nhật trạng thái chỗ đỗ
-      const slot = document.getElementById(parkingSlot);
-      if (slot && slot.classList.contains('available')) {
-        slot.classList.remove('available');
-        slot.classList.add('occupied');
-        
-        // Cập nhật thông tin tooltip
-        const info = slot.querySelector('.parking-info');
-        info.innerHTML = `
-          <div class="info-item"><span>Trạng thái:</span> <span>Đã có xe</span></div>
-          <div class="info-item"><span>Biển số:</span> <span>${licensePlate}</span></div>
-          <div class="info-item"><span>Vào lúc:</span> <span>${new Date(timeIn).toLocaleTimeString('vi-VN', {hour: '2-digit', minute: '2-digit'})}</span></div>
-        `;
-        
-        // Cập nhật thống kê
-        const availableCount = document.querySelectorAll('.parking-slot.available').length;
-        const occupiedCount = document.querySelectorAll('.parking-slot.occupied').length;
-        
-        document.querySelector('.dashboard-card:nth-child(2) p').textContent = availableCount;
-        document.querySelector('.dashboard-card:nth-child(3) p').textContent = occupiedCount;
-        
-        // Reset form
-        document.getElementById('vehicle-in-form').reset();
-        
-        alert('Đã ghi nhận xe vào thành công!');
+
+    document.getElementById("vehicle-out-form").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const license = document.getElementById("license-plate-out").value.trim();
+      const time = document.getElementById("time-out").value;
+      const slot = slots.find(s => s.license === license);
+
+      if (slot) {
+        historyList.innerHTML += `<li>Xe <strong>${license}</strong> rời Slot ${slot.id} lúc ${time}</li>`;
+        slot.license = "";
+        slot.timeIn = null;
+        renderMap();
+        e.target.reset();
       } else {
-        alert('Vị trí đỗ xe đã được sử dụng hoặc không hợp lệ!');
+        alert("Không tìm thấy xe trong bãi!");
       }
-    }
-    
-    // Ghi nhận xe ra
-    function recordVehicleOut() {
-      const licensePlate = document.getElementById('license-plate-out').value;
-      const timeInDisplay = document.getElementById('time-in-display').value;
-      const timeOut = document.getElementById('time-out').value;
-      const fee = document.getElementById('fee').value;
-      
-      if (!licensePlate || !timeInDisplay || !timeOut || !fee) {
-        alert('Vui lòng điền đầy đủ thông tin xe ra!');
-        return;
-      }
-      
-      // Tìm chỗ đỗ xe có biển số này
-      let foundSlot = null;
-      const occupiedSlots = document.querySelectorAll('.parking-slot.occupied');
-      
-      for (let slot of occupiedSlots) {
-        const info = slot.querySelector('.parking-info');
-        const infoItems = slot.querySelectorAll('.info-item');
-        if (infoItems.length > 1) {
-          const slotLicensePlate = infoItems[1].querySelector('span:last-child').textContent;
-          if (slotLicensePlate === licensePlate) {
-            foundSlot = slot;
-            break;
-          }
-        }
-      }
-      
-      if (foundSlot) {
-        // Cập nhật trạng thái chỗ đỗ
-        foundSlot.classList.remove('occupied');
-        foundSlot.classList.add('available');
-        
-        // Cập nhật thông tin tooltip
-        const vehicleTypeText = foundSlot.id.startsWith('A') ? 'Ô tô' : 'Xe máy';
-        const info = foundSlot.querySelector('.parking-info');
-        info.innerHTML = `
-          <div class="info-item"><span>Trạng thái:</span> <span>Trống</span></div>
-          <div class="info-item"><span>Loại:</span> <span>${vehicleTypeText}</span></div>
-        `;
-        
-        // Thêm vào lịch sử
-        const historyTable = document.getElementById('history-table');
-        const newRow = historyTable.insertRow(0);
-        
-        const timeInText = timeInDisplay.split(' ')[0];
-        const timeOutText = new Date(timeOut).toLocaleTimeString('vi-VN', {hour: '2-digit', minute: '2-digit'});
-        
-        newRow.innerHTML = `
-          <td>${licensePlate}</td>
-          <td>${vehicleTypeText}</td>
-          <td>${foundSlot.id}</td>
-          <td>${timeInText}</td>
-          <td>${timeOutText}</td>
-          <td>${fee}</td>
-        `;
-        
-        // Cập nhật thống kê
-        const availableCount = document.querySelectorAll('.parking-slot.available').length;
-        const occupiedCount = document.querySelectorAll('.parking-slot.occupied').length;
-        
-        document.querySelector('.dashboard-card:nth-child(2) p').textContent = availableCount;
-        document.querySelector('.dashboard-card:nth-child(3) p').textContent = occupiedCount;
-        
-        // Reset form
-        document.getElementById('vehicle-out-form').reset();
-        
-        alert('Đã ghi nhận xe ra thành công!');
-      } else {
-        alert('Không tìm thấy xe với biển số này!');
-      }
-    }
+    });
+
+    // Camera
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const captureBtn = document.getElementById('capture-btn');
+    const plateText = document.getElementById('plate-text');
+    const capturedImage = document.getElementById('captured-image');
+
+    navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
+      video.srcObject = stream;
+    });
+
+    captureBtn.addEventListener('click', () => {
+      const context = canvas.getContext('2d');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      context.drawImage(video, 0, 0, canvas.width, canvas.height);
+      capturedImage.src = canvas.toDataURL('image/png');
+      capturedImage.style.display = 'block';
+      const fakePlate = "29A-99999";
+      plateText.textContent = "Biển số giả lập: " + fakePlate;
+      document.getElementById('license-plate-in').value = fakePlate;
+    });
+
+    renderMap();
   </script>
 </body>
 </html>
