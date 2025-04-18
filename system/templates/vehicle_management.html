@@ -13,6 +13,7 @@
   
 </head>           
 <body>
+  
   <!-- Navigation -->
   <nav class="navbar-custom fixed top-0 left-0 right-0 z-50">
     <div class="container mx-auto px-4 sm:px-6 flex justify-between items-center py-4">
@@ -95,51 +96,22 @@
                   <option value="B5">B5</option>
                 </select>
               </div>
-              <div class="form-group">
-                <label for="time-in">Thời gian vào</label>
-                <input type="datetime-local" id="time-in" value="" required>
-              </div>
-            </div>
-            
-            <button type="button" onclick="recordVehicleIn()">Ghi nhận xe vào</button>
-          </form>
-        </div>
-        
-        <!-- Form xe ra -->
-        <div class="form-box">
-          <h2>Xe Ra</h2>
-          <form id="vehicle-out-form">
-            <div class="form-group">
-              <label for="license-plate-out">Biển số xe</label>
-              <input type="text" id="license-plate-out" placeholder="Nhập biển số xe" required>
-            </div>
-            
-            <div class="form-row">
-              <div class="form-group">
-                <label for="time-in-display">Thời gian vào</label>
-                <input type="text" id="time-in-display" readonly disabled>
-              </div>
-              <div class="form-group">
-                <label for="time-out">Thời gian ra</label>
-                <input type="datetime-local" id="time-out" required>
-              </div>
-            </div>
-            
-            <div class="form-row">
-              <div class="form-group">
-                <label for="duration">Thời gian giữ xe</label>
-                <input type="text" id="duration" readonly disabled>
-              </div>
-              <div class="form-group">
-                <label for="fee">Phí (VNĐ)</label>
-                <input type="text" id="fee" readonly disabled>
-              </div>
-            </div>
-            
-            <button type="button" onclick="recordVehicleOut()">Ghi nhận xe ra</button>
-          </form>
-        </div>
-        
+             
+              <section class="hero">
+                <div class="container text-center">
+                  <h1></h1>
+                  <p></p>
+                  <div class="capture-container">
+                    <video id="video" autoplay playsinline></video>
+                    <canvas id="canvas" style="display: none;"></canvas>
+                    <button id="capture-btn" class="btn btn-primary mt-3"><i class="fas fa-camera"></i> quét biển số</button>
+                    <div id="result" class="mt-3">
+                      <img id="captured-image" style="max-width: 100%; display: none;" alt="Captured License Plate">
+                      <p id="plate-text" class="mt-2"></p>
+                    </div>
+                  </div>
+                </div>
+              </section>
         <!-- Lịch sử gần đây -->
         <div class="form-box recent-entries">
           <h2>Lịch sử gần đây</h2>
@@ -349,6 +321,11 @@
       </div>
     </div>
   </footer>
+ 
+
+  
+    
+  
 
   <script>
     // Toggle mobile menu
