@@ -81,8 +81,15 @@ WSGI_APPLICATION = 'parking_system.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'mssql',
+        'NAME': 'QLBGX', 
+        'USER': '',
+        'PASSWORD': '',
+        'HOST': 'localhost\SQLEXPRESS',
+        'OPTIONS': {
+            'driver': 'ODBC Driver 17 for SQL Server',
+            'trusted_connection': 'yes', 
+        },
     }
 }
 

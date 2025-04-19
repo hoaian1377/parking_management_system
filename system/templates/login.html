@@ -9,38 +9,44 @@
 </head>   
 <body>
     
-    
-    <!--Form đăng nhập-->
-   
-    <div class="login-container">
-        <h2>LOGIN</h2>
+<div class="login-container">
+    <h2>LOGIN</h2>
 
-        <!--Nhập email-->
+    <form method="post" action="{% url 'login' %}">
+        {% csrf_token %}
+        
+        <!-- Nhập email hoặc tên đăng nhập -->
         <div class="input-group">
-            <input type="email or user" placeholder="Email or user" required>
+            <input type="text" name="tendangnhap" placeholder="Email or Username" required>
         </div>
 
-        <!--Nhập mật khẩu-->
+        <!-- Nhập mật khẩu -->
         <div class="input-group">
-            <input type="password" placeholder="Password" required>
+            <input type="password" name="matkhau" placeholder="Password" required>
         </div>
 
-        <!--Mục quên mật khẩu-->
+        <!-- Mục quên mật khẩu -->
         <div class="options">
             <label><input type="checkbox"> Remember me</label>
             <a href="#" style="color: lightgray;">Forgot password?</a>
         </div>
 
-        <button class="login-btn">LOGIN</button>
+        <button type="submit" class="login-btn">LOGIN</button>
+    </form>
 
-        <!--Mục Đăng Ký-->
-        <div class="register-link">
-            To Register Home→ <a href="{% url "home" %}">Click Here</a>
-        </div>
+    <!-- Mục Đăng Ký -->
+    <div class="register-link">
+        To Register Home → <a href="{% url 'home' %}">Click Here</a>
     </div>
 
-    <footer>
-        © 2025 Login Form. All Rights Reserved
-    </footer>
+    <!-- Hiển thị lỗi nếu có -->
+    {% if error %}
+        <p style="color: red; margin-top: 10px;">{{ error }}</p>
+    {% endif %}
+</div>
+
+<footer>
+    © 2025 Login Form. All Rights Reserved
+</footer>
 </body>
 </html>
