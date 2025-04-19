@@ -131,7 +131,7 @@ class Xe(models.Model):
     loaixe = models.CharField(db_column='LoaiXe', max_length=50, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
     chuxe = models.ForeignKey(Khachhang, models.DO_NOTHING, db_column='ChuXe', blank=True, null=True)  # Field name made lowercase.
     anhxe = models.BinaryField(db_column='AnhXe', blank=True, null=True)  # Field name made lowercase.
-    imgurl = models.BinaryField(db_column='Imgurl', blank=True, null=True)  # Field name made lowercase.
+    imgurl = models.CharField(db_column='Imgurl', blank=True, null=True)  # Field name made lowercase.
 
     class Meta:
         managed = False
