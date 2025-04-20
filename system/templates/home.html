@@ -1,4 +1,3 @@
-{% load static %}
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -7,136 +6,597 @@
   <title>Hệ thống quản lý bãi giữ xe thông minh</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-  <link href="{% static 'app/css/home.css' %}" rel="stylesheet" />
- 
+  <style>
+    :root {
+      --primary: #1E2A44;
+      --secondary: #00A8E8;
+      --accent: #FFCA28;
+      --light: #F5F7FA;
+      --dark: #0F172A;
+      --success: #22C55E;
+      --danger: #EF4444;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, #E0F2FE, #F1F5F9);
+      color: var(--dark);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    .wrapper {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    main {
+      flex: 1;
+    }
+
+    /* Navbar */
+    .navbar-custom {
+      background: linear-gradient(90deg, var(--primary), #2A3B5A);
+      backdrop-filter: blur(12px);
+      padding: 1rem 2rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .navbar-brand {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: var(--light);
+      letter-spacing: 0.5px;
+      transition: color 0.3s ease;
+    }
+
+    .navbar-brand:hover {
+      color: var(--accent);
+    }
+
+    .navbar-nav .nav-link {
+      color: var(--light);
+      font-size: 1.1rem;
+      padding: 0.75rem 1.25rem;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .navbar-nav .nav-link:hover {
+      background: var(--secondary);
+      color: #fff;
+      transform: translateY(-2px);
+    }
+
+    .auth-buttons {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .auth-buttons #user-name {
+      color: var(--light);
+      font-weight: 600;
+      font-size: 1rem;
+    }
+
+    .logout {
+      color: var(--light);
+      text-decoration: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      background: var(--danger);
+      transition: all 0.3s ease;
+    }
+
+    .logout:hover {
+      background: #DC2626;
+      transform: translateY(-2px);
+    }
+
+    /* Hero Section */
+    .hero {
+      padding: 5rem 2rem;
+      background: linear-gradient(135deg, rgba(30, 42, 68, 0.85), rgba(30, 42, 68, 0.65)),
+                  url('https://source.unsplash.com/random/1920x1080/?parking') center/cover no-repeat;
+      color: #fff;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle, transparent 20%, rgba(0, 0, 0, 0.3) 100%);
+      z-index: 0;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .hero h1 {
+      font-size: 3rem;
+      font-weight: 800;
+      margin-bottom: 1.5rem;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .hero p {
+      font-size: 1.25rem;
+      margin-bottom: 2rem;
+      opacity: 0.9;
+    }
+
+    .capture-container {
+      max-width: 700px;
+      margin: 2rem auto;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 2rem;
+      border-radius: 15px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    }
+
+    #video {
+      width: 100%;
+      max-width: 600px;
+      border-radius: 12px;
+      border: 3px solid var(--accent);
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    #canvas {
+      display: none;
+    }
+
+    #capture-btn {
+      padding: 1rem 2rem;
+      font-size: 1.1rem;
+      font-weight: 600;
+      background: var(--secondary);
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      transition: all 0.3s ease;
+    }
+
+    #capture-btn:hover {
+      background: var(--accent);
+      color: var(--primary);
+      transform: translateY(-3px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    #result {
+      margin-top: 2rem;
+    }
+
+    #captured-image {
+      border-radius: 12px;
+      border: 2px solid var(--secondary);
+      max-width: 100%;
+      margin-top: 1rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    #plate-text {
+      color: var(--light);
+      font-size: 1.1rem;
+      font-weight: 500;
+      background: rgba(0, 0, 0, 0.5);
+      padding: 0.75rem;
+      border-radius: 8px;
+      margin-top: 1rem;
+    }
+
+    /* Features Section */
+    .features {
+      padding: 4rem 2rem;
+      background: var(--light);
+    }
+
+    .feature-card {
+      background: #fff;
+      border-radius: 15px;
+      padding: 2.5rem;
+      text-align: center;
+      transition: all 0.3s ease;
+      flex: 1;
+      max-width: 350px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .feature-card:hover {
+      transform: translateY(-10px) scale(1.02);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+      border-color: var(--secondary);
+    }
+
+    .feature-card i {
+      font-size: 3rem;
+      color: var(--secondary);
+      margin-bottom: 1.5rem;
+      transition: color 0.3s ease;
+    }
+
+    .feature-card:hover i {
+      color: var(--accent);
+    }
+
+    .feature-card h3 {
+      font-size: 1.75rem;
+      color: var(--primary);
+      margin-bottom: 1rem;
+      font-weight: 700;
+    }
+
+    .feature-card p {
+      color: #4B5563;
+      font-size: 1rem;
+    }
+
+    /* Footer */
+    .footer {
+      background: linear-gradient(135deg, var(--primary), #0F1A33);
+      color: var(--light);
+      padding: 4rem 2rem 2rem;
+      position: relative;
+    }
+
+    .footer-container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .footer-main {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .footer-info h3, .footer-links h4, .social-newsletter h4 {
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .footer-info p, .contact-item span, .newsletter p {
+      font-size: 0.95rem;
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    .contact-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1rem;
+      font-size: 0.95rem;
+    }
+
+    .contact-item i {
+      color: var(--accent);
+      margin-right: 0.75rem;
+      font-size: 1.2rem;
+    }
+
+    .link-group ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .link-group ul li {
+      margin-bottom: 0.75rem;
+    }
+
+    .link-group ul li a {
+      color: rgba(255, 255, 255, 0.85);
+      text-decoration: none;
+      font-size: 0.95rem;
+      transition: color 0.3s ease;
+    }
+
+    .link-group ul li a:hover {
+      color: var(--accent);
+    }
+
+    .social-icons {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .social-icons a {
+      width: 40px;
+      height: 40px;
+      background: rgba(255, 255, 255, 0.15);
+      color: var(--light);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .social-icons a:hover {
+      background: var(--accent);
+      color: var(--primary);
+      transform: translateY(-3px);
+    }
+
+    .newsletter-form {
+      display: flex;
+      height: 48px;
+      max-width: 300px;
+      margin-top: 1rem;
+    }
+
+    .newsletter-form input {
+      flex-grow: 1;
+      padding: 0.75rem;
+      border: none;
+      background: rgba(255, 255, 255, 0.15);
+      color: var(--light);
+      border-radius: 8px 0 0 8px;
+      font-size: 0.95rem;
+    }
+
+    .newsletter-form input::placeholder {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .newsletter-form button {
+      width: 48px;
+      background: var(--accent);
+      border: none;
+      border-radius: 0 8px 8px 0;
+      color: var(--primary);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .newsletter-form button:hover {
+      background: #FBBF24;
+      transform: translateY(-2px);
+    }
+
+    .footer-bottom {
+      border-top: 1px solid rgba(255, 255, 255, 0.15);
+      padding-top: 1.5rem;
+      text-align: center;
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.75);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 992px) {
+      .navbar-nav {
+        text-align: center;
+        margin-top: 1rem;
+      }
+
+      .auth-buttons {
+        justify-content: center;
+        margin-top: 1.5rem;
+      }
+
+      .hero h1 {
+        font-size: 2.5rem;
+      }
+
+      .hero p {
+        font-size: 1.1rem;
+      }
+
+      .capture-container {
+        padding: 1.5rem;
+      }
+
+      .feature-card {
+        max-width: 100%;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .hero {
+        padding: 3rem 1rem;
+      }
+
+      #video {
+        max-width: 100%;
+      }
+
+      .feature-card {
+        padding: 2rem;
+      }
+
+      .footer-main {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+
+      .social-icons {
+        justify-content: center;
+      }
+
+      .newsletter-form {
+        max-width: 100%;
+      }
+    }
+  </style>
 </head>
 <body>
   <div class="wrapper">
-  <!-- Navigation -->
-  <nav class="navbar navbar-expand-lg navbar-custom fixed-top">
-    <a class="navbar-brand" href="#">Quản lý Bãi giữ xe</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#topNavbar" aria-controls="topNavbar" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="topNavbar">
-      <ul class="navbar-nav mx-auto">
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'vehicle_management' %}">Quản lý xe</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'parking_status' %}">Tình trạng bãi xe</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="{% url 'vehicle_report' %}">Báo cáo & thống kê</a>
-        </li>
-      </ul>
-      <div class="auth-buttons">
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-custom">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="{% url 'home' %}">Quản lý Bãi giữ xe</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#topNavbar" aria-controls="topNavbar" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="topNavbar">
+          <ul class="navbar-nav mx-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'vehicle_management' %}">Quản lý xe</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'parking_status' %}">Tình trạng bãi xe</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'vehicle_report' %}">Báo cáo & thống kê</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="">Quản lý nhân viên</a>
+            </li>
+          </ul>
+          <div class="auth-buttons">
+           
+            <a class="logout" href="{% url 'login' %}">Thoát</a>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero Section: License Plate Capture -->
+    <section class="hero">
+      <div class="hero-content">
+        <h1>Hệ thống quản lý bãi giữ xe thông minh</h1>
+        <p>Quản lý bãi đỗ xe dễ dàng với công nghệ nhận diện biển số hiện đại và giao diện thân thiện.</p>
         
-        <a class="logout" href="{% url 'login' %}">Thoát</a>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+<section class="features">
+  <div class="container">
+    <div class="row g-4 justify-content-center">
+      <div class="col-md-4 d-flex">
+        <div class="feature-card">
+          <i class="fas fa-car"></i>
+          <h3>Quản lý xe</h3>
+          <p>Theo dõi và quản lý thông tin xe ra vào bãi đỗ một cách chính xác và nhanh chóng.</p>
+        </div>
+      </div>
+      <div class="col-md-4 d-flex">
+        <div class="feature-card">
+          <i class="fas fa-parking"></i>
+          <h3>Tình trạng bãi xe</h3>
+          <p>Xem trạng thái bãi xe theo thời gian thực, tối ưu hóa không gian và vận hành.</p>
+        </div>
+      </div>
+      <div class="col-md-4 d-flex">
+        <div class="feature-card">
+          <i class="fas fa-chart-bar"></i>
+          <h3>Báo cáo & thống kê</h3>
+          <p>Phân tích dữ liệu chi tiết để đưa ra quyết định hiệu quả và cải thiện hiệu suất.</p>
+        </div>
+      </div>
+      <div class="col-md-4 d-flex">
+        <div class="feature-card">
+          <i class="fas fa-users"></i>
+          <h3>Quản lý nhân viên</h3>
+          <p>Quản lý thông tin nhân viên, phân công ca làm việc và theo dõi hiệu suất làm việc.</p>
+        </div>
       </div>
     </div>
-  </nav>
+  </div>
+</section>
 
-  <!-- Hero Section: License Plate Capture -->
-  
-
-  <!-- Features Section -->
-  <section class="features">
-    <div class="container">
-      <div class="row g-4">
-        <div class="col-md-4">
-          <div class="feature-card">
-            <i class="fas fa-car"></i>
-            <h3>Quản lý xe</h3>
-            <p>Dễ dàng theo dõi và quản lý thông tin xe ra vào bãi đỗ.</p>
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-container">
+        <div class="footer-main">
+          <div class="footer-info">
+            <h3>Hệ thống quản lý bãi giữ xe</h3>
+            <p>Giải pháp quản lý bãi đỗ xe thông minh, tiện lợi và an toàn.</p>
+            <div class="contact-info">
+              <div class="contact-item">
+                <i class="fas fa-map-marker-alt"></i>
+                <span>123 Nguyễn Văn A, Q.1, TP.HCM</span>
+              </div>
+              <div class="contact-item">
+                <i class="fas fa-phone-alt"></i>
+                <span>0987 654 321</span>
+              </div>
+              <div class="contact-item">
+                <i class="fas fa-envelope"></i>
+                <span>support@baigiu.com</span>
+              </div>
+            </div>
+          </div>
+          <div class="footer-links">
+            <div class="link-group">
+              <h4>Dịch vụ</h4>
+              <ul>
+                <li><a href="#">Quản lý bãi giữ xe</a></li>
+                <li><a href="#">Đặt chỗ trước</a></li>
+                <li><a href="#">Báo cáo thống kê</a></li>
+              </ul>
+            </div>
+            <div class="link-group">
+              <h4>Hỗ trợ</h4>
+              <ul>
+                <li><a href="#">Hướng dẫn sử dụng</a></li>
+                <li><a href="#">Câu hỏi thường gặp</a></li>
+                <li><a href="#">Điều khoản dịch vụ</a></li>
+              </ul>
+            </div>
+          </div>
+          <div class="social-newsletter">
+            <div class="social-media">
+              <h4>Kết nối với chúng tôi</h4>
+              <div class="social-icons">
+                <a href="#" class="icon-facebook"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" class="icon-twitter"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="icon-youtube"><i class="fab fa-youtube"></i></a>
+                <a href="#" class="icon-linkedin"><i class="fab fa-linkedin-in"></i></a>
+              </div>
+            </div>
+            <div class="newsletter">
+              <h4>Đăng ký nhận tin</h4>
+              <p>Nhận thông báo về tính năng mới và cập nhật hệ thống.</p>
+              <div class="newsletter-form">
+                <input type="email" placeholder="Email của bạn">
+                <button type="submit"><i class="fas fa-paper-plane"></i></button>
+              </div>
+            </div>
           </div>
         </div>
-        <div class="col-md-4">
-          <div class="feature-card">
-            <i class="fas fa-parking"></i>
-            <h3>Tình trạng bãi xe</h3>
-            <p>Xem trạng thái bãi xe theo thời gian thực, tối ưu hóa không gian.</p>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="feature-card">
-            <i class="fas fa-chart-bar"></i>
-            <h3>Báo cáo & thống kê</h3>
-            <p>Phân tích dữ liệu chi tiết để đưa ra quyết định hiệu quả.</p>
-          </div>
+        <div class="footer-bottom">
+          <p>© 2025 Quản lý bãi giữ xe. Tất cả quyền được bảo lưu.</p>
         </div>
       </div>
-    </div>
-  </section>
-
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="footer-container">
-      <div class="footer-main">
-        <div class="footer-info">
-          <h3>Hệ thống quản lý bãi giữ xe</h3>
-          <p>Giải pháp quản lý bãi đỗ xe thông minh, tiện lợi và an toàn.</p>
-          <div class="contact-info">
-            <div class="contact-item">
-              <i class="fas fa-map-marker-alt"></i>
-              <span>123 Nguyễn Văn A, Q.1, TP.HCM</span>
-            </div>
-            <div class="contact-item">
-              <i class="fas fa-phone-alt"></i>
-              <span>0987 654 321</span>
-            </div>
-            <div class="contact-item">
-              <i class="fas fa-envelope"></i>
-              <span>support@baigiu.com</span>
-            </div>
-          </div>
-        </div>
-        <div class="footer-links">
-          <div class="link-group">
-            <h4>Dịch vụ</h4>
-            <ul>
-              <li><a href="#">Quản lý bãi giữ xe</a></li>
-              <li><a href="#">Đặt chỗ trước</a></li>
-              <li><a href="#">Báo cáo thống kê</a></li>
-            </ul>
-          </div>
-          <div class="link-group">
-            <h4>Hỗ trợ</h4>
-            <ul>
-              <li><a href="#">Hướng dẫn sử dụng</a></li>
-              <li><a href="#">Câu hỏi thường gặp</a></li>
-              <li><a href="#">Điều khoản dịch vụ</a></li>
-            </ul>
-          </div>
-        </div>
-        <div class="social-newsletter">
-          <div class="social-media">
-            <h4>Kết nối với chúng tôi</h4>
-            <div class="social-icons">
-              <a href="#" class="icon-facebook"><i class="fab fa-facebook-f"></i></a>
-              <a href="#" class="icon-twitter"><i class="fab fa-twitter"></i></a>
-              <a href="#" class="icon-youtube"><i class="fab fa-youtube"></i></a>
-              <a href="#" class="icon-linkedin"><i class="fab fa-linkedin-in"></i></a>
-            </div>
-          </div>
-          <div class="newsletter">
-            <h4>Đăng ký nhận tin</h4>
-            <p>Nhận thông báo về tính năng mới.</p>
-            <div class="newsletter-form">
-              <input type="email" placeholder="Email của bạn">
-              <button type="submit"><i class="fas fa-paper-plane"></i></button>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        <p>© 2025 Quản lý bãi giữ xe. Tất cả quyền được bảo lưu.</p>
-      </div>
-    </div>
-  </footer>
+    </footer>
+  </div>
 
   <script>
-    let userName = "LoC chym to";
+    // User name display
+    const userName = "LoC chym to";
     document.getElementById("user-name").textContent = userName;
 
     // Webcam and capture functionality
@@ -154,6 +614,7 @@
       .catch(err => {
         console.error("Error accessing webcam: ", err);
         plateText.textContent = "Không thể truy cập camera. Vui lòng kiểm tra quyền truy cập.";
+        plateText.style.color = '#EF4444';
       });
 
     // Capture image
