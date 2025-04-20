@@ -85,7 +85,7 @@ DATABASES = {
         'NAME': 'QLBGX', 
         'USER': '',
         'PASSWORD': '',
-        'HOST': 'DESKTOP-J6O1B30',
+        'HOST': 'localhost\SQLEXPRESS',
         'OPTIONS': {
             'driver': 'ODBC Driver 17 for SQL Server',
             'trusted_connection': 'yes', 

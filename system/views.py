@@ -242,3 +242,5 @@ def password_reset_confirm(request, uidb64, token):
         return render(request, "password_reset_confirm.html", {"validlink": True})
     else:
         return render(request, "password_reset_confirm.html", {"validlink": False})
+def employee_management(request):
+    return render(request, 'employee_management.html')
