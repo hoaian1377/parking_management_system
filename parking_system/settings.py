@@ -85,7 +85,7 @@ DATABASES = {
         'NAME': 'QLBGX', 
         'USER': '',
         'PASSWORD': '',
-        'HOST': 'localhost\SQLEXPRESS',
+        'HOST': 'TIN-LOC',
         'OPTIONS': {
             'driver': 'ODBC Driver 17 for SQL Server',
             'trusted_connection': 'yes', 
@@ -134,3 +134,4 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
