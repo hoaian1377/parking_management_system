@@ -15,15 +15,11 @@
     <nav class="navbar-custom fixed top-0 left-0 right-0 z-50">
         <div class="container mx-auto px-4 sm:px-6 flex justify-between items-center py-4">
             <a class="navbar-brand" href="{% url 'home' %}">Quản lý Bãi giữ xe</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#topNavbar" aria-controls="topNavbar" aria-expanded="false" aria-label="Toggle navigation">
-                <i class="fas fa-bars"></i>
-            </button>
             <div class="hidden sm:flex sm:items-center sm:space-x-4" id="navbarMenu">
                 <a class="nav-link" href="{% url 'vehicle_management' %}">Quản lý xe</a>
                 <a class="nav-link" href="{% url 'parking_status' %}">Tình trạng bãi xe</a>
                 <a class="nav-link" href="{% url 'vehicle_report' %}">Báo cáo & thống kê</a>
-                <a class="nav-link" href="">Quản lí nhân viên</a>
-                <div class="auth-buttons">
+                <a class="nav-link" href="{% url 'employee_management' %}">Quản lý nhân viên</a>
                     
                     <a class="logout" href="{% url 'login' %}">Thoát</a>
                 </div>
