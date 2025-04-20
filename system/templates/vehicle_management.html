@@ -37,19 +37,58 @@
           <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Ghi nhận xe vào</button>
         </form>
       </div>
-
-      <!-- Camera -->
-      <div class="bg-white p-6 rounded-2xl shadow">
-        <h2 class="text-2xl font-semibold mb-4">Camera quét biển số</h2>
-        <video id="video" width="100%" autoplay class="rounded mb-2"></video>
-        <canvas id="canvas" style="display: none;"></canvas>
-        <img id="captured-image" class="mt-2 rounded" style="display: none;" />
-        <p class="mt-2 text-gray-600" id="plate-text"></p>
-        <button id="capture-btn" class="mt-2 bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 w-full">Quét biển số</button>
-      </div>
-
-    </div>
-
+      
+      
+          <div class="container mx-auto mt-10">
+              <h1 class="text-3xl font-semibold mb-5">Danh sách xe đã quét</h1>
+              
+              <!-- Table to display vehicles -->
+              <table class="table-auto w-full bg-white shadow-md rounded-lg">
+                  <thead>
+                      <tr class="bg-gray-200 text-left">
+                          <th class="px-4 py-2">Biển số</th>
+                          <th class="px-4 py-2">Loại xe</th>
+                          <th class="px-4 py-2">Ảnh xe</th>
+                          <th class="px-4 py-2">Chủ xe</th>
+                          <th class="px-4 py-2">Hành động</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                      {% for vehicle in vehicles %}
+                          <tr class="border-b">
+                              <td class="px-4 py-2">{{ vehicle.bienso }}</td>
+                              <td class="px-4 py-2">{{ vehicle.loaixe }}</td>
+                              <td class="px-4 py-2">
+                                  {% if vehicle.anhxe %}
+                                      <img src="{{ vehicle.anhxe.url }}" alt="Vehicle Image" class="w-16 h-16 object-cover rounded-full">
+                                  {% elif vehicle.imgurl %}
+                                      <img src="{{ vehicle.imgurl }}" alt="Vehicle Image" class="w-16 h-16 object-cover rounded-full">
+                                  {% else %}
+                                      <span>Không có ảnh</span>
+                                  {% endif %}
+                              </td>
+                              <td class="px-4 py-2">
+                                  {% if vehicle.chuxe %}
+                                      {{ vehicle.chuxe.ten }}
+                                  {% else %}
+                                      Chưa có chủ xe
+                                  {% endif %}
+                              </td>
+                              <td class="px-4 py-2">
+                                  <button class="bg-blue-500 text-white px-4 py-2 rounded-md">Xem chi tiết</button>
+                              </td>
+                          </tr>
+                      {% empty %}
+                          <tr>
+                              <td colspan="5" class="text-center py-2">Không có xe nào trong hệ thống</td>
+                          </tr>
+                      {% endfor %}
+                  </tbody>
+              </table>
+          </div>
+      
+      
+      
     <!-- Cột phải -->
     <div class="space-y-8">
 
@@ -160,30 +199,7 @@
       }
     });
 
-    // Camera
-    const video = document.getElementById('video');
-    const canvas = document.getElementById('canvas');
-    const captureBtn = document.getElementById('capture-btn');
-    const plateText = document.getElementById('plate-text');
-    const capturedImage = document.getElementById('captured-image');
-
-    navigator.mediaDevices.getUserMedia({ video: true }).then((stream) => {
-      video.srcObject = stream;
-    });
-
-    captureBtn.addEventListener('click', () => {
-      const context = canvas.getContext('2d');
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      context.drawImage(video, 0, 0, canvas.width, canvas.height);
-      capturedImage.src = canvas.toDataURL('image/png');
-      capturedImage.style.display = 'block';
-      const fakePlate = "29A-99999";
-      plateText.textContent = "Biển số giả lập: " + fakePlate;
-      document.getElementById('license-plate-in').value = fakePlate;
-    });
-
-    renderMap();
+    
   </script>
 </body>
 </html>
