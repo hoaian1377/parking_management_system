@@ -15,6 +15,38 @@ from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
+from .models import Xe
+# yourapp/templatetags/base64_filter.py
+
+
+
+@require_http_methods(["GET"])
+def get_vehicles(request):
+    try:
+        # Lấy xe KHÔNG có bản ghi vào bãi mà chưa ra
+        xe_da_trong_bai = LichSuXe.objects.filter(thoigianra__isnull=True).values_list('xeid', flat=True)
+        vehicles = Xe.objects.exclude(xeid__in=xe_da_trong_bai)
+
+        data = []
+        for vehicle in vehicles:
+            vehicle_data = {
+                'xeid': vehicle.xeid,
+                'bienso': vehicle.bienso,
+                'loaixe': vehicle.loaixe,
+                'imgurl': vehicle.imgurl
+            }
+            if vehicle.chuxe:
+                vehicle_data['chuxe'] = {
+                    'id': vehicle.chuxe.id,
+                    'ten': getattr(vehicle.chuxe, 'ten', 'Không xác định')
+                }
+
+            data.append(vehicle_data)
+
+        return JsonResponse(data, safe=False)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
 
 # View hiển thị danh sách xe
 def vehicle_management(request):
@@ -48,7 +80,6 @@ def get_vehicles(request):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
-# API tìm kiếm xe
 @require_http_methods(["GET"])
 def search_vehicles(request):
     try:

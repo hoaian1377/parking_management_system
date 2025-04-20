@@ -1,23 +1,24 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>Quản lý xe ra vào</title>
   <script src="https://cdn.tailwindcss.com"></script>
- 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-<body class="bg-gray-100 text-gray-800 p-8">
+<body class="bg-gray-100 text-gray-800 min-h-screen p-4 md:p-8">
 
   <h1 class="text-4xl font-bold text-center mb-10">Hệ thống quản lý xe ra vào</h1>
 
-  <!-- Main layout -->
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+  <div class="grid grid-cols-1 xl:grid-cols-2 gap-8 max-w-7xl mx-auto">
 
-    <!-- Cột trái -->
+    <!-- Left column -->
     <div class="space-y-8">
 
       <!-- Xe Vào -->
-      <div class="bg-white p-6 rounded-2xl shadow">
+      <div class="bg-white p-6 rounded-2xl shadow-lg">
         <h2 class="text-2xl font-semibold mb-4">Xe Vào</h2>
         <form id="vehicle-in-form" class="space-y-4">
           <div>
@@ -37,63 +38,65 @@
           <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Ghi nhận xe vào</button>
         </form>
       </div>
-      
-      
-          <div class="container mx-auto mt-10">
-              <h1 class="text-3xl font-semibold mb-5">Danh sách xe đã quét</h1>
-              
-              <!-- Table to display vehicles -->
-              <table class="table-auto w-full bg-white shadow-md rounded-lg">
-                  <thead>
-                      <tr class="bg-gray-200 text-left">
-                          <th class="px-4 py-2">Biển số</th>
-                          <th class="px-4 py-2">Loại xe</th>
-                          <th class="px-4 py-2">Ảnh xe</th>
-                          <th class="px-4 py-2">Chủ xe</th>
-                          <th class="px-4 py-2">Hành động</th>
-                      </tr>
-                  </thead>
-                  <tbody>
-                      {% for vehicle in vehicles %}
-                          <tr class="border-b">
-                              <td class="px-4 py-2">{{ vehicle.bienso }}</td>
-                              <td class="px-4 py-2">{{ vehicle.loaixe }}</td>
-                              <td class="px-4 py-2">
-                                  {% if vehicle.anhxe %}
-                                      <img src="{{ vehicle.anhxe.url }}" alt="Vehicle Image" class="w-16 h-16 object-cover rounded-full">
-                                  {% elif vehicle.imgurl %}
-                                      <img src="{{ vehicle.imgurl }}" alt="Vehicle Image" class="w-16 h-16 object-cover rounded-full">
-                                  {% else %}
-                                      <span>Không có ảnh</span>
-                                  {% endif %}
-                              </td>
-                              <td class="px-4 py-2">
-                                  {% if vehicle.chuxe %}
-                                      {{ vehicle.chuxe.ten }}
-                                  {% else %}
-                                      Chưa có chủ xe
-                                  {% endif %}
-                              </td>
-                              <td class="px-4 py-2">
-                                  <button class="bg-blue-500 text-white px-4 py-2 rounded-md">Xem chi tiết</button>
-                              </td>
-                          </tr>
-                      {% empty %}
-                          <tr>
-                              <td colspan="5" class="text-center py-2">Không có xe nào trong hệ thống</td>
-                          </tr>
-                      {% endfor %}
-                  </tbody>
-              </table>
-          </div>
-      
-      
-      
-    <!-- Cột phải -->
+
+      <!-- Danh sách xe -->
+      <div class="bg-white p-6 rounded-2xl shadow-lg">
+        <h2 class="text-2xl font-semibold mb-4">Danh sách xe đã quét</h2>
+        <div class="overflow-auto">
+          <table class="table-auto w-full text-sm">
+            <thead class="bg-gray-200">
+              <tr>
+                <th class="px-4 py-2 text-left">Biển số</th>
+                <th class="px-4 py-2 text-left">Loại xe</th>
+                <th class="px-4 py-2 text-left">Ảnh xe</th>
+                <th class="px-4 py-2 text-left">Chủ xe</th>
+                <th class="px-4 py-2 text-left">Hành động</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for vehicle in vehicles %}
+              <tr class="border-b">
+                <td class="px-4 py-2">{{ vehicle.bienso }}</td>
+                <td class="px-4 py-2">{{ vehicle.loaixe }}</td>
+                <td class="px-4 py-2">
+                  {% if vehicle.anhxe %}
+                    <!-- Nếu có ảnh trong trường anhxe (binary data) -->
+                    <img src="data:image/jpeg,{{ vehicle.anhxe }}" alt="Vehicle Image" class="w-16 h-16 object-cover rounded-full">
+                  {% elif vehicle.imgurl %}
+                    <!-- Nếu có URL trong trường imgurl -->
+                    <img src="{{ vehicle.imgurl }}" alt="Vehicle Image" class="w-16 h-16 object-cover rounded-full">
+                  {% else %}
+                    <span>Không có ảnh</span>
+                  {% endif %}
+                </td>
+                <td class="px-4 py-2">
+                  {% if vehicle.chuxe %}
+                    {{ vehicle.chuxe.ten }}
+                  {% else %}
+                    Chưa có chủ xe
+                  {% endif %}
+                </td>
+                <td class="px-4 py-2">
+                  <button onclick="fillVehicleInForm('{{ vehicle.bienso }}')" class="bg-blue-500 text-white px-3 py-1 rounded-md">Thêm </button>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="5" class="text-center py-2">Không có xe nào trong hệ thống</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+            
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right column -->
     <div class="space-y-8">
 
       <!-- Xe Ra -->
-      <div class="bg-white p-6 rounded-2xl shadow">
+      <div class="bg-white p-6 rounded-2xl shadow-lg">
         <h2 class="text-2xl font-semibold mb-4">Xe Ra</h2>
         <form id="vehicle-out-form" class="space-y-4">
           <div>
@@ -109,21 +112,20 @@
       </div>
 
       <!-- Sơ đồ bãi đỗ -->
-      <div class="bg-white p-6 rounded-2xl shadow">
+      <div class="bg-white p-6 rounded-2xl shadow-lg">
         <h2 class="text-2xl font-semibold mb-4">Sơ đồ bãi đỗ</h2>
-        <div id="parking-map" class="grid grid-cols-2 gap-4"></div>
+        <div id="parking-map" class="grid grid-cols-2 sm:grid-cols-3 gap-4"></div>
       </div>
 
       <!-- Lịch sử -->
-      <div class="bg-white p-6 rounded-2xl shadow">
+      <div class="bg-white p-6 rounded-2xl shadow-lg">
         <h2 class="text-2xl font-semibold mb-4">Lịch sử gần đây</h2>
         <ul id="history-list" class="space-y-2 text-sm text-gray-700 list-disc list-inside"></ul>
       </div>
-
     </div>
   </div>
 
-  <!-- Script giữ nguyên -->
+  <!-- JavaScript -->
   <script>
     const parkingMap = document.getElementById("parking-map");
     const historyList = document.getElementById("history-list");
@@ -136,12 +138,12 @@
       slotSelect.innerHTML = '<option value="">-- Chọn chỗ đậu --</option>';
       slots.forEach(slot => {
         const div = document.createElement("div");
-        div.className = "parking-slot " + (slot.license ? "occupied" : "available");
+        div.className = "border rounded-xl p-4 cursor-pointer hover:bg-gray-100 " + (slot.license ? "bg-red-100" : "bg-green-100");
         div.dataset.id = slot.id;
         div.innerHTML = `
           <p class="font-bold">Slot ${slot.id}</p>
           ${slot.license ? `
-            <div class="text-left text-sm mt-2">
+            <div class="text-sm mt-2">
               <p><strong>Biển số:</strong> ${slot.license}</p>
               <p><strong>Vào:</strong> ${slot.timeIn}</p>
             </div>` : `<p class="text-sm text-gray-500 mt-2">Trống</p>`}
@@ -164,6 +166,12 @@
       document.getElementById("time-out").value = new Date().toISOString().slice(0, 16);
     }
 
+    function fillVehicleInForm(licensePlate) {
+      document.getElementById("license-plate-in").value = licensePlate;
+      document.getElementById("time-in").value = new Date().toISOString().slice(0, 16);
+      document.getElementById("slot-in").focus();
+    }
+
     document.getElementById("vehicle-in-form").addEventListener("submit", (e) => {
       e.preventDefault();
       const license = document.getElementById("license-plate-in").value.trim();
@@ -177,6 +185,7 @@
         historyList.innerHTML += `<li>Xe <strong>${license}</strong> vào Slot ${slotId} lúc ${time}</li>`;
         renderMap();
         e.target.reset();
+        autoFillTime();
       } else {
         alert("Chỗ đậu không hợp lệ!");
       }
@@ -194,12 +203,20 @@
         slot.timeIn = null;
         renderMap();
         e.target.reset();
+        autoFillTime();
       } else {
         alert("Không tìm thấy xe trong bãi!");
       }
     });
 
-    
+    function autoFillTime() {
+      const now = new Date().toISOString().slice(0, 16);
+      document.getElementById("time-in").value = now;
+      document.getElementById("time-out").value = now;
+    }
+
+    renderMap();
+    autoFillTime();
   </script>
 </body>
 </html>
