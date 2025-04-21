@@ -1,46 +1,51 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link href="{% static 'app/css/login.css' %}" rel="stylesheet" />
     <title>Login Form</title>
-</head>   
-<body>
-    
-<div class="login-container">
-    <h2>LOGIN</h2>
+  </head>
+  <body>
+    <div class="login-container">
+      <h2>LOGIN</h2>
 
-    <form method="post" action="{% url 'login' %}">
+      <form method="post">
         {% csrf_token %}
         
         <!-- Nhập email hoặc tên đăng nhập -->
         <div class="input-group">
-            <input type="text" name="tendangnhap" placeholder="Email or Username" required>
+          <input
+            type="text"
+            name="tendangnhap"
+            placeholder="Email or Username"
+            required
+            autofocus
+          />
         </div>
 
         <!-- Nhập mật khẩu -->
         <div class="input-group">
-            <input type="password" name="matkhau" placeholder="Password" required>
+          <input
+            type="password"
+            name="matkhau"
+            placeholder="Password"
+            required
+          />
         </div>
 
         <button type="submit" class="login-btn">LOGIN</button>
-    </form>
+      </form>
 
-    <!-- Mục Đăng Ký -->
-    <div class="register-link">
-        To Register Home → <a href="{% url 'home' %}">Click Here</a>
+
+
+      <!-- Hiển thị lỗi nếu có -->
+      {% if error %}
+        <p style="color: red; margin-top: 10px;">{{ error }}</p>
+      {% endif %}
     </div>
 
-    <!-- Hiển thị lỗi nếu có -->
-    {% if error %}
-        <p style="color: red; margin-top: 10px;">{{ error }}</p>
-    {% endif %}
-</div>
-
-<footer>
-    © 2025 Quản lý bãi giữ xe. Tất cả quyền được bảo lưu
-</footer>
-</body>
+    <footer>© 2025 Quản lý bãi giữ xe. Tất cả quyền được bảo lưu</footer>
+  </body>
 </html>

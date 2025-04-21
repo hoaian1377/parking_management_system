@@ -1,11 +1,11 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.db import transaction
 from django.contrib.auth.models import User
-from .models import Xe, Vitridoxe
+from .models import Xe, Vitridoxe, Nhanvien
 import json
 import uuid
 from datetime import datetime
@@ -15,7 +15,8 @@ from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
-from .models import Xe
+from django.contrib.auth.decorators import login_required , permission_required
+from django.contrib.auth.forms import AuthenticationForm
 # yourapp/templatetags/base64_filter.py
 
 
@@ -200,22 +201,27 @@ def vehicle_exit(request):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
-# View đăng nhập
+
+
 def login_view(request):
     if request.method == 'POST':
         username = request.POST.get('tendangnhap')
         password = request.POST.get('matkhau')
 
+        # Kiểm tra tài khoản và mật khẩu hợp lệ
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
+            # Nếu thông tin đúng, đăng nhập người dùng
             login(request, user)
-            return redirect('home')
+            return redirect('home')  # Chuyển hướng đến trang home sau khi đăng nhập thành công
         else:
+            # Nếu thông tin không hợp lệ, hiển thị thông báo lỗi
             return render(request, 'login.html', {
                 'error': 'Sai tài khoản hoặc mật khẩu'
             })
     
+    # Nếu không phải POST (tức là GET), hiển thị form đăng nhập
     return render(request, 'login.html')
 
 # Các view khác
@@ -273,5 +279,13 @@ def password_reset_confirm(request, uidb64, token):
         return render(request, "password_reset_confirm.html", {"validlink": True})
     else:
         return render(request, "password_reset_confirm.html", {"validlink": False})
+
+@login_required
+@permission_required('app.view_nhanvien', raise_exception=True)  # Kiểm tra quyền xem nhân viên
 def employee_management(request):
-    return render(request, 'employee_management.html')
+    # Lấy danh sách nhân viên
+    nhanviens = Nhanvien.objects.all()
+
+    return render(request, 'employee_management.html', {
+        'nhanviens': nhanviens
+    })

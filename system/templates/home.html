@@ -22,7 +22,12 @@
         <a class="nav-link" href="{% url 'vehicle_report' %}">Báo cáo & thống kê</a>
         <a class="nav-link" href="{% url 'employee_management' %}">Quản lý nhân viên</a>
         <div class="auth-buttons">
-          <a class="logout" href="{% url 'login' %}">Đăng xuất</a>
+          {% if user.is_authenticated %}
+        <!-- Hiển thị liên kết đăng xuất nếu người dùng đã đăng nhập -->
+        <div class="auth-buttons">
+          <a href="{% url 'login' %}" class="text-white">Đăng xuất</a>
+        </div>
+        {% endif %}
         </div>
       </div>
     </div>
@@ -44,29 +49,34 @@
       <div class="col-md-4 d-flex">
         <div class="feature-card">
           <i class="fas fa-car"></i>
+          <a href="{% url 'vehicle_management' %}">
           <h3>Quản lý xe</h3>
           <p>Theo dõi và quản lý thông tin xe ra vào bãi đỗ một cách chính xác và nhanh chóng.</p>
+        </a>
         </div>
       </div>
       <div class="col-md-4 d-flex">
-        <div class="feature-card">
+        <div class="feature-card"><a >
           <i class="fas fa-parking"></i>
+          <a href="{% url 'parking_status' %}">
           <h3>Tình trạng bãi xe</h3>
-          <p>Xem trạng thái bãi xe theo thời gian thực, tối ưu hóa không gian và vận hành.</p>
+          <p>Xem trạng thái bãi xe theo thời gian thực, tối ưu hóa không gian và vận hành.</p></a>
         </div>
       </div>
       <div class="col-md-4 d-flex">
         <div class="feature-card">
           <i class="fas fa-chart-bar"></i>
+          <a href="{% url 'vehicle_report' %}">
           <h3>Báo cáo & thống kê</h3>
-          <p>Phân tích dữ liệu chi tiết để đưa ra quyết định hiệu quả và cải thiện hiệu suất.</p>
+          <p>Phân tích dữ liệu chi tiết để đưa ra quyết định hiệu quả và cải thiện hiệu suất.</p></a>
         </div>
       </div>
       <div class="col-md-4 d-flex">
         <div class="feature-card">
           <i class="fas fa-users"></i>
+          <a href="{% url 'employee_management' %}">
           <h3>Quản lý nhân viên</h3>
-          <p>Quản lý thông tin nhân viên, phân công ca làm việc và theo dõi hiệu suất làm việc.</p>
+          <p>Quản lý thông tin nhân viên, phân công ca làm việc và theo dõi hiệu suất làm việc.</p></a>
         </div>
       </div>
     </div>
@@ -100,9 +110,9 @@
             <div class="link-group">
               <h4>Dịch vụ</h4>
               <ul>
-                <li><a href="#">Quản lý bãi giữ xe</a></li>
-                <li><a href="#">Đặt chỗ trước</a></li>
-                <li><a href="#">Báo cáo thống kê</a></li>
+                <li><a href="#">Quản lý xe</a></li>
+                <li><a href="#">Tình trạng bãi xe</a></li>
+                <li><a href="#">Báo cáo & thống kê</a></li>
               </ul>
             </div>
             <div class="link-group">

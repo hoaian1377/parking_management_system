@@ -1,4 +1,7 @@
+
+{% extends "base.html" %}
 {% load static %}
+{% block contents %}
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -12,19 +15,6 @@
 
 <body class="bg-gray-50">
     <div class="wrapper">
-        <!-- Navigation -->
-        <nav class="navbar-custom fixed top-0 left-0 right-0 z-50 bg-white shadow-md">
-            <div class="container mx-auto px-4 sm:px-6 flex justify-between items-center py-4">
-                <a class="navbar-brand text-xl font-semibold text-blue-600" href="{% url 'home' %}">Quản lý Bãi giữ xe</a>
-                <div class="hidden sm:flex sm:items-center sm:space-x-4" id="navbarMenu">
-                    <a class="nav-link text-gray-800 hover:text-blue-600" href="{% url 'vehicle_management' %}">Quản lý xe</a>
-                    <a class="nav-link text-gray-800 hover:text-blue-600" href="{% url 'parking_status' %}">Tình trạng bãi xe</a>
-                    <a class="nav-link text-gray-800 hover:text-blue-600" href="{% url 'vehicle_report' %}">Báo cáo & thống kê</a>
-                    <a class="nav-link text-gray-800 hover:text-blue-600" href="{% url 'employee_management' %}">Quản lý nhân viên</a>
-                    <a class="logout text-gray-800 hover:text-blue-600" href="{% url 'login' %}">Đăng xuất</a>
-                </div>
-            </div>
-        </nav>
 
         <!-- Main Content -->
         <main class="container mx-auto p-4 sm:p-6 max-w-6xl mt-20">
@@ -107,75 +97,29 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                {% for nv in nhanviens %}
                                 <tr>
-                                    <td class="border px-4 py-2">1</td>
-                                    <td class="border px-4 py-2">NV001</td>
-                                    <td class="border px-4 py-2">Nguyễn Thanh Hải </td>
-                                    <td class="border px-4 py-2">Quản trị viên</td>
-                                    <td class="border px-4 py-2">Tất cả</td>
+                                    <td class="border px-4 py-2">{{ forloop.counter }}</td>
+                                    <td class="border px-4 py-2">{{ nv.nhanvienid }}</td>
+                                    <td class="border px-4 py-2">{{ nv.hoten }}</td>
+                                    <td class="border px-4 py-2">{{ nv.chucvu }}</td>
+                                    <td class="border px-4 py-2">
+                                        {% if nv.chucvu == "Quản trị viên" %}
+                                            Tất cả
+                                        {% elif nv.chucvu == "Nhân viên" %}
+                                            Quản lý xe
+                                        {% elif nv.chucvu == "Bảo Vệ" %}
+                                            Tình trạng bãi xe
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
                                     <td class="border px-4 py-2">
                                         <button class="edit-btn action-btn text-white mr-2"><i class="fas fa-edit"></i> Sửa</button>
                                         <button class="delete-btn action-btn text-white"><i class="fas fa-trash"></i> Xóa</button>
                                     </td>
                                 </tr>
-                                <tr>
-                                  <td class="border px-4 py-2">1</td>
-                                  <td class="border px-4 py-2">NV002</td>
-                                  <td class="border px-4 py-2">Võ Quốc Anh </td>
-                                  <td class="border px-4 py-2">Nhân Viên</td>
-                                  <td class="border px-4 py-2">Quản lý xe</td>
-                                  <td class="border px-4 py-2">
-                                      <button class="edit-btn action-btn text-white mr-2"><i class="fas fa-edit"></i> Sửa</button>
-                                      <button class="delete-btn action-btn text-white"><i class="fas fa-trash"></i> Xóa</button>
-                                  </td>
-                              </tr>
-                              <tr>
-                                <td class="border px-4 py-2">1</td>
-                                <td class="border px-4 py-2">NV003</td>
-                                <td class="border px-4 py-2">Trần Tín Lộc </td>
-                                <td class="border px-4 py-2">Nhân Viên </td>
-                                <td class="border px-4 py-2">Báo cáo & thống kê</td>
-                                <td class="border px-4 py-2">
-                                    <button class="edit-btn action-btn text-white mr-2"><i class="fas fa-edit"></i> Sửa</button>
-                                    <button class="delete-btn action-btn text-white"><i class="fas fa-trash"></i> Xóa</button>
-                                </td>
-                            </tr>
-                            <tr>
-                              <td class="border px-4 py-2">1</td>
-                              <td class="border px-4 py-2">NV003 </td>
-                              <td class="border px-4 py-2">Lê Hoài Ân </td>
-                              <td class="border px-4 py-2">Quản trị viên</td>
-                              <td class="border px-4 py-2">Quản lý nhân viên </td>
-                              <td class="border px-4 py-2">
-                                  <button class="edit-btn action-btn text-white mr-2"><i class="fas fa-edit"></i> Sửa</button>
-                                  <button class="delete-btn action-btn text-white"><i class="fas fa-trash"></i> Xóa</button>
-                              </td>
-                          </tr>
-                          <tr>
-                            <td class="border px-4 py-2">1</td>
-                            <td class="border px-4 py-2">NV003</td>
-                            <td class="border px-4 py-2">Đặng Thanh Tùng </td>
-                            <td class="border px-4 py-2">Bảo Vệ </td>
-                            <td class="border px-4 py-2">Tình trạng bãi xe</td>
-                            <td class="border px-4 py-2">
-                                <button class="edit-btn action-btn text-white mr-2"><i class="fas fa-edit"></i> Sửa</button>
-                                <button class="delete-btn action-btn text-white"><i class="fas fa-trash"></i> Xóa</button>
-                            </td>
-                        </tr>
-                        <tr>
-                          <td class="border px-4 py-2">1</td>
-                          <td class="border px-4 py-2">NV001</td>
-                          <td class="border px-4 py-2">Phạm Hoàng Vũ </td>
-                          <td class="border px-4 py-2">Quản trị viên</td>
-                          <td class="border px-4 py-2">Tất cả</td>
-                          <td class="border px-4 py-2">
-                              <button class="edit-btn action-btn text-white mr-2"><i class="fas fa-edit"></i> Sửa</button>
-                              <button class="delete-btn action-btn text-white"><i class="fas fa-trash"></i> Xóa</button>
-                          </td>
-                      </tr>
-                      
-                              
-                                <!-- Repeat for other employees -->
+                                {% endfor %}
                             </tbody>
                         </table>
                     </div>
@@ -183,29 +127,7 @@
             </div>
         </main>
 
-        <!-- Footer -->
-        <footer class="footer bg-gray-900 text-white py-8">
-            <div class="footer-container container mx-auto px-4">
-                <div class="footer-main flex justify-between items-start">
-                    <div class="footer-info">
-                        <h3 class="text-2xl font-semibold mb-2">Hệ thống quản lý bãi giữ xe</h3>
-                        <p>Giải pháp quản lý bãi đỗ xe thông minh, tiện lợi và an toàn.</p>
-                    </div>
-                    <div class="footer-links">
-                        <h4 class="text-xl font-semibold mb-2">Dịch vụ</h4>
-                        <ul>
-                            <li><a href="#" class="text-gray-400 hover:text-blue-600">Quản lý bãi giữ xe</a></li>
-                            <li><a href="#" class="text-gray-400 hover:text-blue-600">Đặt chỗ trước</a></li>
-                            <li><a href="#" class="text-gray-400 hover:text-blue-600">Báo cáo thống kê</a></li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="footer-bottom text-center text-gray-500">
-                    <p>© 2025 Quản lý bãi giữ xe. Tất cả quyền được bảo lưu.</p>
-                </div>
-            </div>
-        </footer>
-
+        {% endblock contents %}
         <!-- Script for interactivity -->
         <script>
           // Form submission
