@@ -21,6 +21,20 @@ from django.contrib.auth.decorators import login_required, permission_required
 
 def vehicle_management(request):
     vehicles = Xe.objects.all()
+
+    # Nếu có yêu cầu POST để thêm xe vào, gán A1 nếu trống
+    if request.method == 'POST':
+        bienso = request.POST.get('bienso')
+        thoigianvao = request.POST.get('thoigianvao')
+        if not Xe.objects.filter(bienso=bienso, thoigianra__isnull=True).exists():
+            xe = Xe(
+                xeid=f"{bienso}-{timezone.now().timestamp()}",
+                bienso=bienso,
+                thoigianvao=thoigianvao,
+            )
+            xe.save()
+        return redirect('vehicle_management')
+
     return render(request, 'vehicle_management.html', {'vehicles': vehicles})
 
 @require_http_methods(["GET"])
