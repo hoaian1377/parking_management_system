@@ -15,107 +15,36 @@ from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
-from django.contrib.auth.decorators import login_required , permission_required
-from django.contrib.auth.forms import AuthenticationForm
-# yourapp/templatetags/base64_filter.py
+from django.contrib.auth.decorators import login_required, permission_required
 
+# ========================== VEHICLE MANAGEMENT ==========================
 
+def vehicle_management(request):
+    vehicles = Xe.objects.all()
+    return render(request, 'vehicle_management.html', {'vehicles': vehicles})
 
 @require_http_methods(["GET"])
 def get_vehicles(request):
     try:
-        # Lấy xe KHÔNG có bản ghi vào bãi mà chưa ra
-        xe_da_trong_bai = LichSuXe.objects.filter(thoigianra__isnull=True).values_list('xeid', flat=True)
-        vehicles = Xe.objects.exclude(xeid__in=xe_da_trong_bai)
-
+        vehicles = Xe.objects.all()
         data = []
         for vehicle in vehicles:
             vehicle_data = {
                 'xeid': vehicle.xeid,
                 'bienso': vehicle.bienso,
                 'loaixe': vehicle.loaixe,
-                'imgurl': vehicle.imgurl
+                'imgurl': vehicle.imgurl,
             }
             if vehicle.chuxe:
                 vehicle_data['chuxe'] = {
                     'id': vehicle.chuxe.id,
                     'ten': getattr(vehicle.chuxe, 'ten', 'Không xác định')
                 }
-
             data.append(vehicle_data)
-
         return JsonResponse(data, safe=False)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
-
-# View hiển thị danh sách xe
-def vehicle_management(request):
-    vehicles = Xe.objects.all()
-    return render(request, 'vehicle_management.html', {'vehicles': vehicles})
-
-# API lấy danh sách xe
-@require_http_methods(["GET"])
-def get_vehicles(request):
-    try:
-        vehicles = Xe.objects.all()
-        data = []
-
-        for vehicle in vehicles:
-            vehicle_data = {
-                'xeid': vehicle.xeid,
-                'bienso': vehicle.bienso,
-                'loaixe': vehicle.loaixe,
-                'imgurl': vehicle.imgurl
-            }
-
-            if vehicle.chuxe:
-                vehicle_data['chuxe'] = {
-                    'id': vehicle.chuxe.id,
-                    'ten': vehicle.chuxe.ten if hasattr(vehicle.chuxe, 'ten') else 'Không xác định'
-                }
-
-            data.append(vehicle_data)
-
-        return JsonResponse(data, safe=False)
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
-
-@require_http_methods(["GET"])
-def search_vehicles(request):
-    try:
-        query = request.GET.get('q', '').strip().lower()
-        if not query:
-            return JsonResponse([], safe=False)
-
-        vehicles = Xe.objects.filter(
-            models.Q(bienso__icontains=query) | 
-            models.Q(loaixe__icontains=query) | 
-            models.Q(xeid__icontains=query)
-        )
-
-        data = []
-        for vehicle in vehicles:
-            vehicle_data = {
-                'xeid': vehicle.xeid,
-                'bienso': vehicle.bienso,
-                'loaixe': vehicle.loaixe,
-                'imgurl': vehicle.imgurl
-            }
-
-            if vehicle.chuxe:
-                vehicle_data['chuxe'] = {
-                    'id': vehicle.chuxe.id,
-                    'ten': vehicle.chuxe.ten if hasattr(vehicle.chuxe, 'ten') else 'Không xác định'
-                }
-
-            data.append(vehicle_data)
-
-        return JsonResponse(data, safe=False)
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
-
-# API ghi nhận xe vào
 @csrf_exempt
 @require_http_methods(["POST"])
 @transaction.atomic
@@ -130,13 +59,8 @@ def vehicle_entry(request):
             return JsonResponse({'error': 'Thiếu thông tin bắt buộc'}, status=400)
 
         xe = Xe.objects.filter(bienso=bienso).first()
-
         if not xe:
-            xe = Xe(
-                xeid=str(uuid.uuid4()),
-                bienso=bienso,
-                loaixe='Chưa xác định'
-            )
+            xe = Xe(xeid=str(uuid.uuid4()), bienso=bienso, loaixe='Chưa xác định')
             xe.save()
 
         lich_su = LichSuXe(
@@ -146,19 +70,14 @@ def vehicle_entry(request):
         )
         lich_su.save()
 
-        return JsonResponse({
-            'status': 'success',
-            'message': 'Đã ghi nhận xe vào thành công',
-            'data': {
-                'xeid': xe.xeid,
-                'bienso': xe.bienso,
-                'vitri': vitri
-            }
-        })
+        return JsonResponse({'status': 'success', 'message': 'Đã ghi nhận xe vào thành công', 'data': {
+            'xeid': xe.xeid,
+            'bienso': xe.bienso,
+            'vitri': vitri
+        }})
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
-# API ghi nhận xe ra
 @csrf_exempt
 @require_http_methods(["POST"])
 def vehicle_exit(request):
@@ -175,12 +94,7 @@ def vehicle_exit(request):
         if not xe:
             return JsonResponse({'error': 'Không tìm thấy xe trong hệ thống'}, status=404)
 
-        lich_su = LichSuXe.objects.filter(
-            xeid=xe,
-            vitri=vitri,
-            thoigianra__isnull=True
-        ).order_by('-thoigianvao').first()
-
+        lich_su = LichSuXe.objects.filter(xeid=xe, vitri=vitri, thoigianra__isnull=True).order_by('-thoigianvao').first()
         if not lich_su:
             return JsonResponse({'error': 'Không tìm thấy thông tin xe vào'}, status=404)
 
@@ -201,30 +115,23 @@ def vehicle_exit(request):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
-
+# ========================== AUTH & VIEWS ==========================
 
 def login_view(request):
     if request.method == 'POST':
         username = request.POST.get('tendangnhap')
         password = request.POST.get('matkhau')
-
-        # Kiểm tra tài khoản và mật khẩu hợp lệ
         user = authenticate(request, username=username, password=password)
-
-        if user is not None:
-            # Nếu thông tin đúng, đăng nhập người dùng
+        if user:
             login(request, user)
-            return redirect('home')  # Chuyển hướng đến trang home sau khi đăng nhập thành công
-        else:
-            # Nếu thông tin không hợp lệ, hiển thị thông báo lỗi
-            return render(request, 'login.html', {
-                'error': 'Sai tài khoản hoặc mật khẩu'
-            })
-    
-    # Nếu không phải POST (tức là GET), hiển thị form đăng nhập
+            return redirect('home')
+        return render(request, 'login.html', {'error': 'Sai tài khoản hoặc mật khẩu'})
     return render(request, 'login.html')
 
-# Các view khác
+def logout_view(request):
+    logout(request)
+    return redirect('login')
+
 def home(request):
     return render(request, 'home.html')
 
@@ -237,26 +144,19 @@ def parking_status(request):
 def vehicle_report(request):
     return render(request, 'vehicle_report.html')
 
-def logout_view(request):
-    logout(request)
-    return redirect('login')
+# ========================== PASSWORD RESET ==========================
 
-# API phục hồi mật khẩu
 def password_reset_request(request):
     if request.method == "POST":
         email = request.POST.get("email")
         users = User.objects.filter(email=email)
         if users.exists():
-            user = users[0]
-            subject = "Password Reset Requested"
+            user = users.first()
             uid = urlsafe_base64_encode(force_bytes(user.pk))
             token = default_token_generator.make_token(user)
             reset_link = request.build_absolute_uri(f"/reset/{uid}/{token}/")
-            message = render_to_string("password_reset_email.html", {
-                "user": user,
-                "reset_link": reset_link,
-            })
-            send_mail(subject, message, None, [email])
+            message = render_to_string("password_reset_email.html", {"user": user, "reset_link": reset_link})
+            send_mail("Password Reset Requested", message, None, [email])
             messages.success(request, "Check your email for the reset link.")
         else:
             messages.error(request, "No user with that email exists.")
@@ -277,15 +177,12 @@ def password_reset_confirm(request, uidb64, token):
             messages.success(request, "Password has been reset.")
             return redirect("login")
         return render(request, "password_reset_confirm.html", {"validlink": True})
-    else:
-        return render(request, "password_reset_confirm.html", {"validlink": False})
+    return render(request, "password_reset_confirm.html", {"validlink": False})
+
+# ========================== EMPLOYEE MANAGEMENT ==========================
 
 @login_required
-@permission_required('app.view_nhanvien', raise_exception=True)  # Kiểm tra quyền xem nhân viên
+@permission_required('app.view_nhanvien', raise_exception=True)
 def employee_management(request):
-    # Lấy danh sách nhân viên
     nhanviens = Nhanvien.objects.all()
-
-    return render(request, 'employee_management.html', {
-        'nhanviens': nhanviens
-    })
+    return render(request, 'employee_management.html', {'nhanviens': nhanviens})

@@ -130,8 +130,10 @@ class Xe(models.Model):
     bienso = models.CharField(db_column='BienSo', max_length=20, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
     loaixe = models.CharField(db_column='LoaiXe', max_length=50, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
     chuxe = models.ForeignKey(Khachhang, models.DO_NOTHING, db_column='ChuXe', blank=True, null=True)  # Field name made lowercase.
-    anhxe = models.BinaryField(db_column='AnhXe', blank=True, null=True)  # Field name made lowercase.
-    imgurl = models.CharField(db_column='Imgurl', max_length=256, blank=True, null=True)  # Field name made lowercase.
+    imgurl = models.CharField(max_length=255, null=True, blank=True) # Field name made lowercase.
+    thoigianvao = models.DateTimeField(db_column='ThoiGianVao', blank=True, null=True)  # Field name made lowercase.
+    thoigianra = models.DateTimeField(db_column='ThoiGianRa', blank=True, null=True)  # Field name made lowercase.
+    tienguixe = models.DecimalField(db_column='TienGuiXe', max_digits=18, decimal_places=2, blank=True, null=True)  # Field name made lowercase.
 
     class Meta:
         managed = False

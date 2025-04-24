@@ -1,22 +1,19 @@
 import cv2
 import easyocr
 import uuid
-import re
-import django
 import os
-import numpy as np
+import django
+from datetime import datetime
+from PIL import Image
+import io
 
 # Cấu hình Django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'parking_system.settings')  # 🔁 Đổi thành tên project của bạn
 django.setup()
 
-from system.models import Xe  # 🔁 Đổi thành tên app và model của bạn
+from system.models import Xe  # 🔁 Đổi lại đúng app và model của bạn
 
 reader = easyocr.Reader(['vi', 'en'])
-
-def chuyen_anh_sang_binary(image):
-    _, buffer = cv2.imencode('.jpg', image)
-    return buffer.tobytes()
 
 def phan_loai_theo_dong(bien_so_dong_tren):
     text = bien_so_dong_tren.replace(" ", "").replace("-", "").upper()
@@ -26,11 +23,21 @@ def phan_loai_theo_dong(bien_so_dong_tren):
         return 'Xe 2 bánh'
     return 'Không xác định'
 
+# Thư mục lưu ảnh biển số
+img_save_path = 'media/parking_images/'
+
+# Tạo thư mục nếu chưa có
+if not os.path.exists(img_save_path):
+    os.makedirs(img_save_path)
+
 cap = cv2.VideoCapture(0)
 print("Nhấn 'c' để chụp ảnh và nhận diện biển số, hoặc 'q' để thoát.")
 
-bien_so_da_luu = None  # Biến ghi nhớ biển số đã lưu
-xeid_da_luu = None     # Biến ghi nhớ id xe đã lưu
+# Biến lưu biển số và loại xe để sau này lưu vào SQL khi thoát chương trình
+bien_so_quet = None
+loai_xe_quet = None
+thoigian_quet = None
+img_path_quet = None
 
 while True:
     ret, frame = cap.read()
@@ -63,35 +70,49 @@ while True:
         bien_so_ket_hop = dong_tren + dong_duoi
 
         if 7 <= len(bien_so_ket_hop) <= 10:
-            if bien_so_da_luu:
-                print(f"🔁 Bạn đã lưu biển số: {bien_so_da_luu}")
-                print("⚠️ Xóa biển số cũ và cập nhật lại...")
+            # Lưu biển số và loại xe vào biến tạm khi nhận diện thành công
+            bien_so_quet = bien_so_ket_hop
+            loai_xe_quet = phan_loai_theo_dong(dong_tren)
+            thoigian_quet = datetime.now()
 
-                # Xóa bản ghi cũ
-                Xe.objects.filter(xeid=xeid_da_luu).delete()
+            # Lưu ảnh biển số vào thư mục
+            img_filename = f"{bien_so_quet}_{uuid.uuid4().hex}.jpg"
+            img_full_path = os.path.join(img_save_path, img_filename)
 
-            loai_xe = phan_loai_theo_dong(dong_tren)
-            xeid = str(uuid.uuid4())
-            anh_binary = chuyen_anh_sang_binary(frame)
+            # Lưu ảnh vào file
+            cv2.imwrite(img_full_path, frame)
 
-            Xe.objects.create(
-                xeid=xeid,
-                bienso=bien_so_ket_hop,
-                loaixe=loai_xe,
-                chuxe=None,
-                anhxe=anh_binary,
-                imgurl=None
-            )
-
-            bien_so_da_luu = bien_so_ket_hop
-            xeid_da_luu = xeid
-            print(f"✅ Đã lưu biển số: {bien_so_ket_hop} - Loại xe: {loai_xe}")
-
+            img_path_quet = img_full_path
+            print(f"🔍 Biển số nhận diện: {bien_so_quet} | Loại xe: {loai_xe_quet} | Thời gian nhận diện: {thoigian_quet}")
         else:
             print(f"⛔ Biển số không hợp lệ: {bien_so_ket_hop}")
 
     elif key == ord('q'):
-        break
+        # Sau khi nhấn 'q', dữ liệu mới nhất sẽ được lưu vào SQL
+        if bien_so_quet and loai_xe_quet and thoigian_quet and img_path_quet:
+            xe = Xe.objects.filter(bienso=bien_so_quet, thoigianra__isnull=True).first()
+            
+            if xe:
+                # Xe đã vào, giờ là xe ra
+                xe.thoigianra = datetime.now()
+                xe.save()
+                print(f"🚗 Xe ra: {bien_so_quet} | Thời gian ra: {xe.thoigianra}")
+            else:
+                # Xe mới vào
+                xe = Xe(
+                    xeid=str(uuid.uuid4()),
+                    bienso=bien_so_quet,
+                    loaixe=loai_xe_quet,
+                    chuxe=None,
+                    imgurl=img_path_quet,  # Lưu đường dẫn ảnh vào trường imgurl
+                    thoigianvao=thoigian_quet
+                )
+                xe.save()  # Lưu vào cơ sở dữ liệu chỉ khi nhận diện thành công và thoát
+                print(f"✅ Xe vào: {bien_so_quet} | Thời gian vào: {thoigian_quet} | Đường dẫn ảnh: {img_path_quet}")
+        else:
+            print("⚠️ Không có dữ liệu biển số để lưu.")
+
+        break  # Thoát khỏi vòng lặp sau khi nhấn 'q'
 
 cap.release()
 cv2.destroyAllWindows()
