@@ -87,7 +87,7 @@ class Nhanvien(models.Model):
     sodienthoai = models.CharField(db_column='SoDienThoai', max_length=20, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
     ngaysinh = models.DateTimeField(db_column='NgaySinh', blank=True, null=True)  # Field name made lowercase.
     chucvu = models.CharField(db_column='ChucVu', max_length=50, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
-
+    phanquyen=models.CharField(db_column='Phanquyen', max_length=50, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)
     class Meta:
         managed = False
         db_table = 'NhanVien'

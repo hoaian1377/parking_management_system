@@ -1,225 +1,206 @@
-
-{% extends "base.html" %}
 {% load static %}
-{% block contents %}
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý Nhân viên & Quyền truy cập</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link href="{% static 'app/css/employee_management.css' %}" rel="stylesheet" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tình Trạng Bãi Giữ Xe</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link href="{% static 'app/css/employee_management.css' %}" rel="stylesheet" />
 </head>
+<body class="bg-gray-100">
 
-<body class="bg-gray-50">
-    <div class="wrapper">
-
-        <!-- Main Content -->
-        <main class="container mx-auto p-4 sm:p-6 max-w-6xl mt-20">
-            <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 text-center mb-8">Quản lý Nhân viên & Quyền truy cập</h1>
-
-            <div class="flex flex-col lg:flex-row gap-8">
-                <!-- Form to Assign/Edit Permissions -->
-                <div class="lg:w-1/3">
-                    <div class="form-box bg-white p-6 rounded-xl shadow-md">
-                        <h2 class="text-2xl font-semibold mb-4">Cấp quyền nhân viên</h2>
-                        <form id="permission-form" class="space-y-4">
-                            <div class="form-group">
-                                <label for="employee-id" class="block font-medium mb-1">Mã nhân viên</label>
-                                <input type="text" id="employee-id" placeholder="Nhập mã nhân viên" required
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-300">
-                            </div>
-
-                            <div class="form-group">
-                                <label for="employee-name" class="block font-medium mb-1">Tên nhân viên</label>
-                                <input type="text" id="employee-name" placeholder="Nhập tên nhân viên" required
-                                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-300">
-                            </div>
-
-                            <div class="form-group">
-                                <label for="role" class="block font-medium mb-1">Vai trò</label>
-                                <select id="role" required
-                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-300">
-                                    <option value="">-- Chọn vai trò --</option>
-                                    <option value="admin">Quản trị viên</option>
-                                    <option value="staff">Nhân viên</option>
-                                    <option value="viewer">Người xem</option>
-                                </select>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="block font-medium mb-2">Quyền truy cập</label>
-                                <div class="grid grid-cols-1 gap-3">
-                                  <label class="inline-flex items-center gap-3">
-                                    <input type="checkbox" class="w-5 h-5 text-blue-600" value="vehicle_management">
-                                    <span class="text-gray-700">Quản lý xe</span>
-                                  </label>
-                                  <label class="inline-flex items-center gap-3">
-                                    <input type="checkbox" class="w-5 h-5 text-blue-600" value="parking_status">
-                                    <span class="text-gray-700">Tình trạng bãi xe</span>
-                                  </label>
-                                  <label class="inline-flex items-center gap-3">
-                                    <input type="checkbox" class="w-5 h-5 text-blue-600" value="vehicle_report">
-                                    <span class="text-gray-700">Báo cáo & thống kê</span>
-                                  </label>
-                                  <label class="inline-flex items-center gap-3">
-                                    <input type="checkbox" class="w-5 h-5 text-blue-600" value="employee_management">
-                                    <span class="text-gray-700">Quản lý nhân viên</span>
-                                  </label>
-                                </div>
-                              </div>
-                              
-                            
-
-                            <button type="submit" 
-                                    class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition duration-200">
-                                Lưu quyền truy cập
-                            </button>
-                        </form>
-                    </div>
-                </div>
-
-                <!-- Employee List -->
-                <div class="lg:w-2/3">
-                    <div class="form-box bg-white p-6 rounded-xl shadow-md">
-                        <h2 class="text-2xl font-semibold mb-4">Danh sách nhân viên</h2>
-                        <table id="employee-table" class="w-full table-auto">
-                            <thead>
-                                <tr class="bg-gray-100">
-                                    <th class="px-4 py-2">STT</th>
-                                    <th class="px-4 py-2">Mã nhân viên</th>
-                                    <th class="px-4 py-2">Tên nhân viên</th>
-                                    <th class="px-4 py-2">Vai trò</th>
-                                    <th class="px-4 py-2">Quyền truy cập</th>
-                                    <th class="px-4 py-2">Hành động</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for nv in nhanviens %}
-                                <tr>
-                                    <td class="border px-4 py-2">{{ forloop.counter }}</td>
-                                    <td class="border px-4 py-2">{{ nv.nhanvienid }}</td>
-                                    <td class="border px-4 py-2">{{ nv.hoten }}</td>
-                                    <td class="border px-4 py-2">{{ nv.chucvu }}</td>
-                                    <td class="border px-4 py-2">
-                                        {% if nv.chucvu == "Quản trị viên" %}
-                                            Tất cả
-                                        {% elif nv.chucvu == "Nhân viên" %}
-                                            Quản lý xe
-                                        {% elif nv.chucvu == "Bảo Vệ" %}
-                                            Tình trạng bãi xe
-                                        {% else %}
-                                            -
-                                        {% endif %}
-                                    </td>
-                                    <td class="border px-4 py-2">
-                                        <button class="edit-btn action-btn text-white mr-2"><i class="fas fa-edit"></i> Sửa</button>
-                                        <button class="delete-btn action-btn text-white"><i class="fas fa-trash"></i> Xóa</button>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </main>
-
-        {% endblock contents %}
-        <!-- Script for interactivity -->
-        <script>
-          // Form submission
-document.getElementById('permission-form').addEventListener('submit', function(e) {
-    e.preventDefault();
-
-    const employeeId = document.getElementById('employee-id').value;
-    const employeeName = document.getElementById('employee-name').value;
-    const role = document.getElementById('role').value;
-    const roleText = document.getElementById('role').selectedOptions[0].text;
-    const permissions = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'))
-        .map(checkbox => checkbox.nextElementSibling.textContent.trim());
-
-    // Add new row to table
-    const tableBody = document.getElementById('employee-table').querySelector('tbody');
-    const rowCount = tableBody.rows.length + 1;
-    const newRow = document.createElement('tr');
-
-    newRow.innerHTML = `
-        <td class="border px-4 py-2">${rowCount}</td>
-        <td class="border px-4 py-2">${employeeId}</td>
-        <td class="border px-4 py-2">${employeeName}</td>
-        <td class="border px-4 py-2">${roleText}</td>
-        <td class="border px-4 py-2">${permissions.length === 4 ? 'Tất cả' : permissions.join(', ')}</td>
-        <td class="border px-4 py-2">
-            <button class="edit-btn action-btn text-white mr-2"><i class="fas fa-edit"></i> Sửa</button>
-            <button class="delete-btn action-btn text-white"><i class="fas fa-trash"></i> Xóa</button>
-        </td>
-    `;
-
-    tableBody.appendChild(newRow);
-    alert(`Đã thêm nhân viên ${employeeName} (${employeeId})`);
-
-    // Reset form
-    this.reset();
-
-    // Re-attach events for new buttons
-    attachActionEvents();
-});
-
-            // Toggle mobile menu
-            function toggleMenu() {
-                const menu = document.getElementById('navbarMenu');
-                menu.classList.toggle('hidden');
-            }
-
-            document.addEventListener('DOMContentLoaded', function () {
-                // Form submission
-                document.getElementById('permission-form').addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    const employeeId = document.getElementById('employee-id').value;
-                    const employeeName = document.getElementById('employee-name').value;
-                    const role = document.getElementById('role').value;
-                    const permissions = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'))
-                        .map(checkbox => checkbox.value);
-
-                    alert(`Đã lưu quyền cho nhân viên ${employeeName} (${employeeId})\nVai trò: ${role}\nQuyền: ${permissions.join(', ')}`);
-                    this.reset();
-                });
-
-                // Edit action
-                document.querySelectorAll('.edit-btn').forEach(button => {
-                    button.addEventListener('click', function() {
-                        const row = this.closest('tr');
-                        const employeeId = row.cells[1].textContent;
-                        const employeeName = row.cells[2].textContent;
-                        const role = row.cells[3].textContent.toLowerCase().replace(' ', '_');
-                        const permissions = row.cells[4].textContent.split(', ');
-
-                        document.getElementById('employee-id').value = employeeId;
-                        document.getElementById('employee-name').value = employeeName;
-                        document.getElementById('role').value = role;
-                        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-                            checkbox.checked = permissions.includes(checkbox.value) || permissions[0] === 'Tất cả';
-                        });
-                    });
-                });
-
-                // Delete action
-                document.querySelectorAll('.delete-btn').forEach(button => {
-                    button.addEventListener('click', function() {
-                        const row = this.closest('tr');
-                        const employeeName = row.cells[2].textContent;
-                        if (confirm(`Xóa nhân viên ${employeeName}?`)) {
-                            row.remove();
-                            alert(`Đã xóa nhân viên ${employeeName}`);
-                        }
-                    });
-                });
-            });
-            
-        </script>
+  <!-- Navigation -->
+  <nav class="navbar-custom fixed top-0 left-0 right-0 z-50 bg-blue-600 text-white shadow-md">
+    <div class="container mx-auto px-4 sm:px-6 flex justify-between items-center py-4">
+      <a class="navbar-brand" href="{% url 'home' %}">Quản lý Nhân viên</a>
+      <div class="hidden sm:flex sm:items-center sm:space-x-4" id="navbarMenu">
+        <a class="nav-link" href="{% url 'vehicle_management' %}">Quản lý xe</a>
+        <a class="nav-link" href="{% url 'parking_status' %}">Tình trạng bãi xe</a>
+        <a class="nav-link" href="{% url 'vehicle_report' %}">Báo cáo & thống kê</a>
+        <div class="auth-buttons">
+          <a class="logout" href="{% url 'login' %}">Đăng xuất</a>
+        </div>
+      </div>
     </div>
+  </nav>
+
+  <div class="container mx-auto mt-8">
+    <h2 class="text-3xl font-semibold mb-6">Quản lý nhân viên</h2>
+
+    <!-- Flash messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="message {% if message.tags == 'success' %}message-success{% elif message.tags == 'error' %}message-error{% endif %} p-4 mb-4 rounded">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Search form -->
+    <form method="get" action="{% url 'search_employee' %}" class="flex items-center gap-3 mb-6">
+        <input type="text" name="nhanvienid" placeholder="Nhập mã nhân viên"
+               class="w-full md:w-1/2 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <button type="submit"
+                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+          Tìm kiếm
+        </button>
+      </form>
+
+    <!-- Add Employee Button -->
+    <a href="#" id="show_add_employee_form" class="px-4 py-2 bg-green-600 text-white rounded-lg mb-6">Thêm Nhân Viên</a>
+
+    <!-- Employee List -->
+    <div class="table-container overflow-x-auto">
+      <table class="table-auto w-full border-collapse border border-gray-200 shadow-md rounded-lg">
+        <thead class="bg-blue-600 text-white">
+          <tr>
+            <th class="p-3 text-left">Mã nhân viên</th>
+            <th class="p-3 text-left">Tên nhân viên</th>
+            <th class="p-3 text-left">Chức vụ</th>
+            <th class="p-3 text-left">Địa chỉ</th>
+            <th class="p-3 text-left">Số điện thoại</th>
+            <th class="p-3 text-left">Ngày sinh</th>
+            <th class="p-3 text-left">Phân quyền</th>
+            <th class="p-3 text-left">Hành động</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-100">
+          {% for nhanvien in nhanviens %}
+            <tr class="hover:bg-gray-50">
+              <td class="p-3">{{ nhanvien.nhanvienid }}</td>
+              <td class="p-3">{{ nhanvien.hoten }}</td>
+              <td class="p-3">{{ nhanvien.chucvu }}</td>
+              <td class="p-3">{{ nhanvien.diachi }}</td>
+              <td class="p-3">{{ nhanvien.sodienthoai }}</td>
+              <td class="p-3">{{ nhanvien.ngaysinh }}</td>
+              <td class="p-3">
+                <span class="px-2 py-1 rounded-full text-sm font-medium
+                  {% if nhanvien.phanquyen == 'Quản lý' %}bg-green-100 text-green-700{% else %}bg-blue-100 text-blue-700{% endif %}">
+                  {{ nhanvien.phanquyen }}
+                </span>
+              </td>
+              <td class="p-3 flex items-center gap-2">
+                <a href="#" class="px-3 py-1 bg-yellow-500 text-white rounded hover:bg-yellow-600 text-sm" id="show_edit_employee_form_{{ nhanvien.nhanvienid }}">Sửa</a>
+                <form action="{% url 'delete_employee' nhanvien.nhanvienid %}" method="POST" onsubmit="return confirm('Bạn có chắc muốn xóa nhân viên này?')">
+                  {% csrf_token %}
+                  <button type="submit" class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-sm">Xóa</button>
+                </form>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="8" class="p-4 text-center text-gray-500">Không có nhân viên nào</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Add Employee Form -->
+    <div id="add_employee_form" class="form-container hidden p-6 bg-white shadow-md rounded-lg mt-6">
+      <h3 class="text-xl font-semibold mb-4">Thêm Nhân Viên Mới</h3>
+      <form method="POST" action="{% url 'add_employee' %}">
+        {% csrf_token %}
+        <div class="mb-4">
+          <label for="nhanvienid" class="block text-sm font-medium text-gray-700">Mã nhân viên</label>
+          <input type="text" id="nhanvienid" name="nhanvienid" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+        </div>
+
+        <div class="mb-4">
+          <label for="hoten" class="block text-sm font-medium text-gray-700">Tên nhân viên</label>
+          <input type="text" id="hoten" name="hoten" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+        </div>
+
+        <div class="mb-4">
+          <label for="chucvu" class="block text-sm font-medium text-gray-700">Chức vụ</label>
+          <select id="chucvu" name="chucvu" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+            <option value="Quản lý">Quản lý</option>
+            <option value="Nhân viên">Nhân viên</option>
+          </select>
+        </div>
+
+        <div class="mb-4">
+          <label for="diachi" class="block text-sm font-medium text-gray-700">Địa chỉ</label>
+          <input type="text" id="diachi" name="diachi" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+        </div>
+
+        <div class="mb-4">
+          <label for="sodienthoai" class="block text-sm font-medium text-gray-700">Số điện thoại</label>
+          <input type="text" id="sodienthoai" name="sodienthoai" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+        </div>
+
+        <div class="mb-4">
+          <label for="ngaysinh" class="block text-sm font-medium text-gray-700">Ngày sinh</label>
+          <input type="date" id="ngaysinh" name="ngaysinh" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+        </div>
+
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700">Phân quyền</label>
+          <div>
+            <label for="quanlynv" class="form-check-label">
+              <input type="checkbox" id="quanlynv" name="phanquyen" value="Quản lý Nhân Viên" class="form-check-input">
+              Quản lý Nhân Viên
+            </label>
+          </div>
+          <div>
+            <label for="quanlybx" class="form-check-label">
+              <input type="checkbox" id="quanlybx" name="phanquyen" value="Quản lý bãi xe" class="form-check-input">
+              Quản lý bãi xe
+            </label>
+          </div>
+          <div>
+            <label for="thongkebc" class="form-check-label">
+              <input type="checkbox" id="thongkebc" name="phanquyen" value="Nhân viên thống Kê báo cáo" class="form-check-input">
+              Nhân viên thống Kê báo cáo
+            </label>
+          </div>
+          <div>
+            <label for="xeraiva" class="form-check-label">
+              <input type="checkbox" id="xeraiva" name="phanquyen" value="Nhân viên xe ra vào" class="form-check-input">
+              Nhân viên xe ra vào
+            </label>
+          </div>
+        </div>
+
+        <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg">Thêm Nhân Viên</button>
+      </form>
+    </div>
+
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Show the add employee form
+      document.getElementById('show_add_employee_form').addEventListener('click', function (e) {
+        e.preventDefault();
+        document.getElementById('add_employee_form').classList.toggle('hidden');
+      });
+
+      // Show the edit employee form
+      {% for nhanvien in nhanviens %}
+        document.getElementById('show_edit_employee_form_{{ nhanvien.nhanvienid }}').addEventListener('click', function (e) {
+          e.preventDefault();
+          // Toggle the specific edit form for this employee
+          document.getElementById('edit_employee_form_{{ nhanvien.nhanvienid }}').classList.toggle('hidden');
+          // Hide the add form when editing
+          document.getElementById('add_employee_form').classList.add('hidden');
+        });
+      {% endfor %}
+
+      // Close forms when clicking outside
+      document.addEventListener('click', function(e) {
+        const forms = document.querySelectorAll('.form-container');
+        const isFormClicked = e.target.closest('.form-container');
+        const isButtonClicked = e.target.closest('a');
+        // Close forms if click happens outside of form and button
+        if (!isFormClicked && !isButtonClicked) {
+          forms.forEach(form => form.classList.add('hidden'));
+        }
+      });
+    });
+  </script>
+
 </body>
 </html>

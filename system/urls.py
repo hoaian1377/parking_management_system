@@ -10,4 +10,14 @@ urlpatterns = [
     path('vehicle_report/', views.vehicle_report, name='vehicle_report'),
     path('register/', views.register, name='register'),
     path('home/employee_management/', views.employee_management, name='employee_management'),
+    path('employee/delete/<str:nhanvienid>/', views.delete_employee, name='delete_employee'),
+    path('employee-management/', views.employee_management, name='employee_management'),
+    path('employee_management/', views.employee_management, name='employee_management'),
+    path('add_employee/', views.add_employee, name='add_employee'),
+    path('nhanvien/', views.employee_management, name='employee_management'),
+    path('nhanvien/sua/<str:nhanvienid>/', views.edit_employee, name='edit_employee'),
+    path('nhanvien/xoa/<str:nhanvienid>/', views.delete_employee, name='delete_employee'),
+    path('nhanvien/them/', views.add_employee, name='add_employee'),
+    path('search/', views.search_employee, name='search_employee'),
+
 ]

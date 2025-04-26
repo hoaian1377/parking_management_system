@@ -16,8 +16,269 @@ from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.models import User
+from django.contrib.auth.tokens import default_token_generator
+from django.core.mail import send_mail
+from django.db import transaction
+from django.template.loader import render_to_string
+from django.utils.dateparse import parse_date
+from django.utils.encoding import force_bytes, force_str
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_http_methods
+from .models import Xe, Vitridoxe,  Nhanvien
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import JsonResponse
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required, permission_required
+from django.db import transaction
+from django.shortcuts import render
+from .models import Nhanvien
+from django.db.models import Q
+from django.shortcuts import render
+from .models import Nhanvien
 
 # ========================== VEHICLE MANAGEMENT ==========================
+
+from django.shortcuts import render
+from .models import Nhanvien
+
+def search_employee(request):
+    query = request.GET.get('nhanvienid')
+    nhanvien = Nhanvien.objects.filter(nhanvienid=query)
+    return render(request, 'employee_management.html', {'nhanviens': nhanvien, 'query': query})
+
+
+def add_employee(request):
+    if request.method == 'POST':
+        nhanvienid = request.POST.get('nhanvienid')
+        hoten = request.POST.get('hoten')
+        chucvu = request.POST.get('chucvu')
+        phanquyen = request.POST.get('phanquyen')
+        diachi = request.POST.get('diachi')
+        sodienthoai = request.POST.get('sodienthoai')
+        ngaysinh=request.POST.get('ngaysinh')
+
+        # Kiểm tra mã nhân viên đã tồn tại chưa
+        if Nhanvien.objects.filter(nhanvienid=nhanvienid).exists():
+            messages.error(request, "Mã nhân viên đã tồn tại.")
+            return redirect('employee_management')
+
+        # Thêm nhân viên mới
+        try:
+            Nhanvien.objects.create(
+                nhanvienid=nhanvienid,
+                hoten=hoten,
+                chucvu=chucvu,
+                phanquyen=phanquyen,
+                diachi=diachi,
+                sodienthoai=sodienthoai,
+                ngaysinh=ngaysinh
+            )
+            messages.success(request, "Thêm nhân viên thành công.")
+        except Exception as e:
+            messages.error(request, f"Lỗi khi thêm nhân viên: {e}")
+
+    return redirect('employee_management')
+
+
+
+# View quản lý nhân viên, hiển thị danh sách nhân viên
+def employee_management(request):
+    employees = Nhanvien.objects.all()  # Lấy danh sách tất cả nhân viên
+    return render(request, 'employee_management.html', {'employees': employees})
+
+
+# Employee Management Views
+
+@login_required
+@permission_required('app.view_nhanvien', raise_exception=True)
+def employee_management(request):
+    nhanviens = Nhanvien.objects.all()
+    return render(request, 'employee_management.html', {'nhanviens': nhanviens})
+
+# Edit Employee
+@login_required
+@permission_required('app.change_nhanvien', raise_exception=True)
+def edit_employee(request, nhanvienid):
+    employee = get_object_or_404(Nhanvien, nhanvienid=nhanvienid)
+
+    if request.method == "POST":
+        try:
+            employee.hoten = request.POST.get('hoten')
+            employee.chucvu = request.POST.get('chucvu')
+            employee.phanquyen = request.POST.get('phanquyen')
+            employee.diachi = request.POST.get('diachi')
+            employee.sodienthoai = request.POST.get('sodienthoai')
+            employee.ngaysinh = request.POST.get('ngaysinh')
+
+            employee.save()
+
+            messages.success(request, "Thông tin nhân viên đã được cập nhật.")
+            return redirect('employee_management')
+        except Exception as e:
+            messages.error(request, f"Đã có lỗi xảy ra: {str(e)}")
+            return redirect('employee_management')
+
+    return render(request, 'edit_employee.html', {'employee': employee})
+
+# Delete Employee
+@login_required
+@permission_required('app.delete_nhanvien', raise_exception=True)
+def delete_employee(request, nhanvienid):
+    try:
+        employee = get_object_or_404(Nhanvien, nhanvienid=nhanvienid)
+        employee.delete()
+        messages.success(request, "Nhân viên đã được xóa thành công.")
+    except Exception as e:
+        messages.error(request, f"Đã có lỗi xảy ra: {str(e)}")
+    
+    return redirect('employee_management')
+
+# Search Employees
+
+
+
+@login_required
+@permission_required('app.view_nhanvien', raise_exception=True)
+def employee_management(request):
+    nhanviens = Nhanvien.objects.all()
+    return render(request, 'employee_management.html', {'nhanviens': nhanviens})
+
+def vehicle_management(request):
+    vehicles = Xe.objects.all()
+    return render(request, 'vehicle_management.html', {'vehicles': vehicles})
+
+
+# API - Danh sách xe
+@require_http_methods(["GET"])
+def get_vehicles(request):
+    try:
+        vehicles = Xe.objects.all()
+        data = []
+        for vehicle in vehicles:
+            vehicle_data = {
+                'xeid': vehicle.xeid,
+                'bienso': vehicle.bienso,
+                'loaixe': vehicle.loaixe,
+                'imgurl': vehicle.imgurl,
+                'chuxe': {
+                    'id': vehicle.chuxe.id,
+                    'ten': getattr(vehicle.chuxe, 'ten', 'Không xác định')
+                } if vehicle.chuxe else None
+            }
+            data.append(vehicle_data)
+        return JsonResponse(data, safe=False)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+@require_http_methods(["GET"])
+def search_vehicles(request):
+    try:
+        query = request.GET.get('q', '').strip().lower()
+        if not query:
+            return JsonResponse([], safe=False)
+        vehicles = Xe.objects.filter(
+            models.Q(bienso__icontains=query) |
+            models.Q(loaixe__icontains=query) |
+            models.Q(xeid__icontains=query)
+        )
+        data = [{
+            'xeid': v.xeid,
+            'bienso': v.bienso,
+            'loaixe': v.loaixe,
+            'imgurl': v.imgurl,
+            'chuxe': {
+                'id': v.chuxe.id,
+                'ten': getattr(v.chuxe, 'ten', 'Không xác định')
+            } if v.chuxe else None
+        } for v in vehicles]
+        return JsonResponse(data, safe=False)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+# API - Ghi nhận xe vào
+@csrf_exempt
+@require_http_methods(["POST"])
+@transaction.atomic
+def vehicle_entry(request):
+    try:
+        data = json.loads(request.body)
+        bienso = data.get('bienso')
+        thoigianvao = data.get('thoigianvao')
+        vitri = data.get('vitri')
+
+        if not bienso or not thoigianvao or not vitri:
+            return JsonResponse({'error': 'Thiếu thông tin bắt buộc'}, status=400)
+
+        xe, created = Xe.objects.get_or_create(
+            bienso=bienso,
+            defaults={'xeid': str(uuid.uuid4()), 'loaixe': 'Chưa xác định'}
+        )
+
+        LichSuXe.objects.create(
+            xeid=xe,
+            thoigianvao=datetime.fromisoformat(thoigianvao.replace('Z', '+00:00')),
+            vitri=vitri
+        )
+
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Đã ghi nhận xe vào thành công',
+            'data': {
+                'xeid': xe.xeid,
+                'bienso': xe.bienso,
+                'vitri': vitri
+            }
+        })
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+# API - Ghi nhận xe ra
+@csrf_exempt
+@require_http_methods(["POST"])
+def vehicle_exit(request):
+    try:
+        data = json.loads(request.body)
+        bienso = data.get('bienso')
+        thoigianra = data.get('thoigianra')
+        vitri = data.get('vitri')
+
+        if not bienso or not thoigianra:
+            return JsonResponse({'error': 'Thiếu thông tin bắt buộc'}, status=400)
+
+        xe = Xe.objects.filter(bienso=bienso).first()
+        if not xe:
+            return JsonResponse({'error': 'Không tìm thấy xe trong hệ thống'}, status=404)
+
+        lich_su = LichSuXe.objects.filter(
+            xeid=xe,
+            vitri=vitri,
+            thoigianra__isnull=True
+        ).order_by('-thoigianvao').first()
+
+        if not lich_su:
+            return JsonResponse({'error': 'Không tìm thấy thông tin xe vào'}, status=404)
+
+        lich_su.thoigianra = datetime.fromisoformat(thoigianra.replace('Z', '+00:00'))
+        lich_su.save()
+
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Đã ghi nhận xe ra thành công',
+            'data': {
+                'xeid': xe.xeid,
+                'bienso': xe.bienso,
+                'vitri': vitri,
+                'thoigianvao': lich_su.thoigianvao.isoformat(),
+                'thoigianra': lich_su.thoigianra.isoformat()
+            }
+        })
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
 
 def vehicle_management(request):
     vehicles = Xe.objects.all()
