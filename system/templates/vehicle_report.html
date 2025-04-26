@@ -1,4 +1,5 @@
 {% load static %}
+{% load custom_filters %}
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -32,29 +33,29 @@
         <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 text-center mb-8">Dữ liệu giữ xe theo ngày tháng năm</h1>
         
         <div class="control-panel bg-white shadow-lg rounded-lg p-6 mb-6">
-            <div class="flex flex-col sm:flex-row gap-4 items-center">
+            <form method="GET" action="{% url 'vehicle_report' %}" class="flex flex-col sm:flex-row gap-4 items-center">
                 <div class="flex-1">
                     <label for="fromDate" class="block text-sm font-medium text-gray-600">Từ ngày:</label>
-                    <input type="date" id="fromDate" class="border border-gray-300 rounded-lg p-2 w-full mt-1">
+                    <input type="date" id="fromDate" name="from_date" value="{{ from_date|date:'Y-m-d' }}" class="border border-gray-300 rounded-lg p-2 w-full mt-1">
                 </div>
                 <div class="flex-1">
                     <label for="toDate" class="block text-sm font-medium text-gray-600">Đến ngày:</label>
-                    <input type="date" id="toDate" class="border border-gray-300 rounded-lg p-2 w-full mt-1">
+                    <input type="date" id="toDate" name="to_date" value="{{ to_date|date:'Y-m-d' }}" class="border border-gray-300 rounded-lg p-2 w-full mt-1">
                 </div>
                 <div class="flex-1">
                     <label for="vehicleType" class="block text-sm font-medium text-gray-600">Loại xe:</label>
-                    <select id="vehicleType" class="border border-gray-300 rounded-lg p-2 w-full mt-1">
-                        <option value="all">Tất cả</option>
-                        <option value="car">Ô tô</option>
-                        <option value="motorcycle">Xe máy</option>
-                        <option value="bike">Xe đạp</option>
+                    <select id="vehicleType" name="vehicle_type" class="border border-gray-300 rounded-lg p-2 w-full mt-1">
+                        <option value="all" {% if vehicle_type == 'all' %}selected{% endif %}>Tất cả</option>
+                        <option value="car" {% if vehicle_type == 'car' %}selected{% endif %}>Ô tô</option>
+                        <option value="motorcycle" {% if vehicle_type == 'motorcycle' %}selected{% endif %}>Xe máy</option>
+                        <option value="bike" {% if vehicle_type == 'bike' %}selected{% endif %}>Xe đạp</option>
                     </select>
                 </div>
                 <div class="flex gap-4">
-                    <button id="filterButton" class="bg-blue-600 text-white rounded-lg p-2 hover:bg-blue-700 transition"><i class="fas fa-filter"></i> Lọc dữ liệu</button>
-                    <button id="exportButton" class="bg-teal-600 text-white rounded-lg p-2 hover:bg-teal-700 transition"><i class="fas fa-file-excel"></i> Xuất Excel</button>
+                    <button type="submit" class="bg-blue-600 text-white rounded-lg p-2 hover:bg-blue-700 transition"><i class="fas fa-filter"></i> Lọc dữ liệu</button>
+                    <button type="button" id="exportButton" class="bg-teal-600 text-white rounded-lg p-2 hover:bg-teal-700 transition"><i class="fas fa-file-excel"></i> Xuất Excel</button>
                 </div>
-            </div>
+            </form>
         </div>
         
         <div class="bg-white shadow-lg rounded-lg p-6 mb-6">
@@ -72,86 +73,36 @@
                     </tr>
                 </thead>
                 <tbody>
+                    {% for record in parking_records %}
                     <tr>
-                        <td class="border px-4 py-2">1</td>
-                        <td class="border px-4 py-2">01/04/2025</td>
-                        <td class="border px-4 py-2">29A-12345</td>
-                        <td class="border px-4 py-2">Ô tô</td>
-                        <td class="border px-4 py-2">08:30</td>
-                        <td class="border px-4 py-2">17:45</td>
-                        <td class="border px-4 py-2">9 giờ 15 phút</td>
-                        <td class="border px-4 py-2">50,000</td>
+                        <td class="border px-4 py-2">{{ forloop.counter }}</td>
+                        <td class="border px-4 py-2">{{ record.thoigianvao|date:"d/m/Y" }}</td>
+                        <td class="border px-4 py-2">{{ record.bienso.bienso }}</td>
+                        <td class="border px-4 py-2">{{ record.bienso.loaixe }}</td>
+                        <td class="border px-4 py-2">{{ record.thoigianvao|time:"H:i" }}</td>
+                        <td class="border px-4 py-2">{% if record.thoigianra %}{{ record.thoigianra|time:"H:i" }}{% else %}Chưa ra{% endif %}</td>
+                        <td class="border px-4 py-2">
+                            {% if record.thoigianra %}
+                                {{ record.thoigianvao|calculate_duration:record.thoigianra }}
+                            {% else %}
+                                Đang đỗ
+                            {% endif %}
+                        </td>
+                        <td class="border px-4 py-2">
+                            {% if record.thoigianra %}
+                                {% with duration=record.thoigianra|timeuntil:record.thoigianvao %}
+                                    {% with hours=duration.total_seconds|div:3600 %}
+                                        {% with price=record.bienso.loaixe.giave.giatheogio %}
+                                            {{ price|mul:hours|floatformat:0 }}
+                                        {% endwith %}
+                                    {% endwith %}
+                                {% endwith %}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
                     </tr>
-                    <tr>
-                        <td class="border px-4 py-2">2</td>
-                        <td class="border px-4 py-2">01/04/2025</td>
-                        <td class="border px-4 py-2">29H-56789</td>
-                        <td class="border px-4 py-2">Xe máy</td>
-                        <td class="border px-4 py-2">07:15</td>
-                        <td class="border px-4 py-2">18:30</td>
-                        <td class="border px-4 py-2">11 giờ 15 phút</td>
-                        <td class="border px-4 py-2">15,000</td>
-                    </tr>
-                    <tr>
-                        <td class="border px-4 py-2">3</td>
-                        <td class="border px-4 py-2">02/04/2025</td>
-                        <td class="border px-4 py-2">30A-98765</td>
-                        <td class="border px-4 py-2">Ô tô</td>
-                        <td class="border px-4 py-2">09:00</td>
-                        <td class="border px-4 py-2">12:30</td>
-                        <td class="border px-4 py-2">3 giờ 30 phút</td>
-                        <td class="border px-4 py-2">30,000</td>
-                    </tr>
-                    <tr>
-                        <td class="border px-4 py-2">4</td>
-                        <td class="border px-4 py-2">02/04/2025</td>
-                        <td class="border px-4 py-2">30K-54321</td>
-                        <td class="border px-4 py-2">Xe máy</td>
-                        <td class="border px-4 py-2">10:15</td>
-                        <td class="border px-4 py-2">16:45</td>
-                        <td class="border px-4 py-2">6 giờ 30 phút</td>
-                        <td class="border px-4 py-2">10,000</td>
-                    </tr>
-                    <tr>
-                        <td class="border px-4 py-2">5</td>
-                        <td class="border px-4 py-2">03/04/2025</td>
-                        <td class="border px-4 py-2">29A-67890</td>
-                        <td class="border px-4 py-2">Ô tô</td>
-                        <td class="border px-4 py-2">08:45</td>
-                        <td class="border px-4 py-2">19:00</td>
-                        <td class="border px-4 py-2">10 giờ 15 phút</td>
-                        <td class="border px-4 py-2">55,000</td>
-                    </tr>
-                    <tr>
-                        <td class="border px-4 py-2">6</td>
-                        <td class="border px-4 py-2">03/04/2025</td>
-                        <td class="border px-4 py-2">XĐ-12345</td>
-                        <td class="border px-4 py-2">Xe đạp</td>
-                        <td class="border px-4 py-2">07:30</td>
-                        <td class="border px-4 py-2">17:30</td>
-                        <td class="border px-4 py-2">10 giờ 0 phút</td>
-                        <td class="border px-4 py-2">5,000</td>
-                    </tr>
-                    <tr>
-                        <td class="border px-4 py-2">7</td>
-                        <td class="border px-4 py-2">04/04/2025</td>
-                        <td class="border px-4 py-2">29A-24680</td>
-                        <td class="border px-4 py-2">Ô tô</td>
-                        <td class="border px-4 py-2">09:30</td>
-                        <td class="border px-4 py-2">13:45</td>
-                        <td class="border px-4 py-2">4 giờ 15 phút</td>
-                        <td class="border px-4 py-2">35,000</td>
-                    </tr>
-                    <tr>
-                        <td class="border px-4 py-2">8</td>
-                        <td class="border px-4 py-2">04/04/2025</td>
-                        <td class="border px-4 py-2">29H-13579</td>
-                        <td class="border px-4 py-2">Xe máy</td>
-                        <td class="border px-4 py-2">08:00</td>
-                        <td class="border px-4 py-2">18:15</td>
-                        <td class="border px-4 py-2">10 giờ 15 phút</td>
-                        <td class="border px-4 py-2">15,000</td>
-                    </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
@@ -164,11 +115,11 @@
         
         <div class="summary bg-white shadow-lg rounded-lg p-6">
             <h3 class="text-lg font-semibold text-gray-700">Thống kê</h3>
-            <p>Tổng số lượt xe: <span id="totalEntries">8</span></p>
-            <p>Ô tô: <span id="carCount">4</span></p>
-            <p>Xe máy: <span id="motorcycleCount">3</span></p>
-            <p>Xe đạp: <span id="bikeCount">1</span></p>
-            <p>Tổng doanh thu: <span id="totalRevenue">215,000 VNĐ</span></p>
+            <p>Tổng số lượt xe: <span id="totalEntries">{{ total_entries }}</span></p>
+            <p>Ô tô: <span id="carCount">{{ car_count }}</span></p>
+            <p>Xe máy: <span id="motorcycleCount">{{ motorcycle_count }}</span></p>
+            <p>Xe đạp: <span id="bikeCount">{{ bike_count }}</span></p>
+            <p>Tổng doanh thu: <span id="totalRevenue">{{ total_revenue|floatformat:0 }} VNĐ</span></p>
         </div>
     </main>
 
@@ -245,34 +196,43 @@
             menu.classList.toggle('hidden');
         }
 
-        // Filter data
-        document.getElementById('filterButton').addEventListener('click', function() {
+        // Export to Excel
+        document.getElementById('exportButton').addEventListener('click', function() {
             const fromDate = document.getElementById('fromDate').value;
             const toDate = document.getElementById('toDate').value;
             const vehicleType = document.getElementById('vehicleType').value;
             
-            alert(`Đang lọc dữ liệu từ ${fromDate || 'không giới hạn'} đến ${toDate || 'không giới hạn'} với loại xe: ${vehicleType}`);
-        });
-        
-        // Export to Excel
-        document.getElementById('exportButton').addEventListener('click', function() {
-            alert('Đang xuất dữ liệu ra file Excel...');
+            // Build export URL with current filter parameters
+            let exportUrl = "{% url 'export_vehicle_report' %}?";
+            if (fromDate) exportUrl += `from_date=${fromDate}&`;
+            if (toDate) exportUrl += `to_date=${toDate}&`;
+            if (vehicleType !== 'all') exportUrl += `vehicle_type=${vehicleType}`;
+            
+            // Trigger download
+            window.location.href = exportUrl;
         });
 
-        // Initialize date inputs
-        const today = new Date();
-        const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-        
-        document.getElementById('fromDate').valueAsDate = firstDayOfMonth;
-        document.getElementById('toDate').valueAsDate = today;
-
-        // Set user name
-        document.addEventListener('DOMContentLoaded', function () {
-            let userName = "LoC chym to";
-            document.getElementById("user-name").textContent = userName;
+        // Initialize date inputs if they don't have values
+        document.addEventListener('DOMContentLoaded', function() {
+            const fromDateInput = document.getElementById('fromDate');
+            const toDateInput = document.getElementById('toDate');
+            
+            if (!fromDateInput.value) {
+                const today = new Date();
+                const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+                fromDateInput.valueAsDate = firstDayOfMonth;
+            }
+            
+            if (!toDateInput.value) {
+                const today = new Date();
+                toDateInput.valueAsDate = today;
+            }
 
             // Add event listener for mobile menu toggle
-            document.querySelector('.navbar-toggler').addEventListener('click', toggleMenu);
+            const navbarToggler = document.querySelector('.navbar-toggler');
+            if (navbarToggler) {
+                navbarToggler.addEventListener('click', toggleMenu);
+            }
         });
     </script>
 </body>

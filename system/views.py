@@ -1,11 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.db import transaction
 from django.contrib.auth.models import User
-from .models import Xe, Vitridoxe
+from .models import Xe, Vitridoxe, Luotravao, Giave
 import json
 import uuid
 from datetime import datetime
@@ -35,6 +35,7 @@ from django.db import transaction
 from django.shortcuts import render
 from django.db.models import Q
 from django.shortcuts import render
+import xlwt
 
 
 # ========================== VEHICLE MANAGEMENT ==========================
@@ -414,7 +415,81 @@ def parking_status(request):
     return render(request, 'parking_status.html')
 
 def vehicle_report(request):
-    return render(request, 'vehicle_report.html')
+    try:
+        # Get filter parameters from request
+        from_date = request.GET.get('from_date')
+        to_date = request.GET.get('to_date')
+        vehicle_type = request.GET.get('vehicle_type', 'all')
+        
+        # Base query
+        parking_records = Luotravao.objects.all().order_by('-thoigianvao')
+        
+        # Apply date filters if provided
+        if from_date:
+            try:
+                from_date = datetime.strptime(from_date, '%Y-%m-%d').date()
+                parking_records = parking_records.filter(thoigianvao__date__gte=from_date)
+            except ValueError:
+                pass
+                
+        if to_date:
+            try:
+                to_date = datetime.strptime(to_date, '%Y-%m-%d').date()
+                parking_records = parking_records.filter(thoigianvao__date__lte=to_date)
+            except ValueError:
+                pass
+        
+        # Apply vehicle type filter if not 'all'
+        if vehicle_type != 'all':
+            parking_records = parking_records.filter(bienso__loaixe=vehicle_type)
+        
+        # Calculate statistics
+        total_entries = parking_records.count()
+        car_count = parking_records.filter(bienso__loaixe='car').count()
+        motorcycle_count = parking_records.filter(bienso__loaixe='motorcycle').count()
+        bike_count = parking_records.filter(bienso__loaixe='bike').count()
+        
+        # Calculate total revenue
+        total_revenue = 0
+        for record in parking_records:
+            if record.thoigianra:  # Only calculate for completed parking sessions
+                try:
+                    duration = record.thoigianra - record.thoigianvao
+                    hours = duration.total_seconds() / 3600
+                    # Get price per hour for the vehicle type
+                    price_per_hour = Giave.objects.get(loaixe=record.bienso.loaixe).giatheogio
+                    total_revenue += price_per_hour * hours
+                except (Giave.DoesNotExist, AttributeError):
+                    continue
+        
+        context = {
+            'parking_records': parking_records,
+            'total_entries': total_entries,
+            'car_count': car_count,
+            'motorcycle_count': motorcycle_count,
+            'bike_count': bike_count,
+            'total_revenue': total_revenue,
+            'from_date': from_date,
+            'to_date': to_date,
+            'vehicle_type': vehicle_type,
+        }
+        
+        return render(request, 'vehicle_report.html', context)
+    except Exception as e:
+        # Log the error for debugging
+        print(f"Error in vehicle_report view: {str(e)}")
+        # Return empty context in case of error
+        return render(request, 'vehicle_report.html', {
+            'parking_records': [],
+            'total_entries': 0,
+            'car_count': 0,
+            'motorcycle_count': 0,
+            'bike_count': 0,
+            'total_revenue': 0,
+            'from_date': from_date,
+            'to_date': to_date,
+            'vehicle_type': vehicle_type,
+        })
 
 # ========================== PASSWORD RESET ==========================
 
@@ -540,3 +615,98 @@ def vehicle_delete(request, pk):
         vehicle.delete()
         return redirect('vehicle_management')
     return render(request, 'vehicle_confirm_delete.html', {'vehicle': vehicle})
+
+def export_vehicle_report(request):
+    try:
+        # Get filter parameters from request
+        from_date = request.GET.get('from_date')
+        to_date = request.GET.get('to_date')
+        vehicle_type = request.GET.get('vehicle_type', 'all')
+        
+        # Base query
+        parking_records = Luotravao.objects.all()
+        
+        # Apply filters
+        if from_date:
+            parking_records = parking_records.filter(thoigianvao__date__gte=from_date)
+        if to_date:
+            parking_records = parking_records.filter(thoigianvao__date__lte=to_date)
+        if vehicle_type != 'all':
+            parking_records = parking_records.filter(bienso__loaixe=vehicle_type)
+        
+        # Create Excel workbook and worksheet
+        response = HttpResponse(content_type='application/ms-excel')
+        response['Content-Disposition'] = f'attachment; filename="vehicle_report_{datetime.now().strftime("%Y%m%d_%H%M%S")}.xls"'
+        
+        wb = xlwt.Workbook(encoding='utf-8')
+        ws = wb.add_sheet('Báo cáo xe')
+        
+        # Add headers
+        headers = ['STT', 'Ngày', 'Biển số xe', 'Loại xe', 'Giờ vào', 'Giờ ra', 'Thời gian giữ', 'Phí (VNĐ)']
+        for col, header in enumerate(headers):
+            ws.write(0, col, header)
+        
+        # Add data
+        for row, record in enumerate(parking_records, start=1):
+            try:
+                ws.write(row, 0, row)  # STT
+                ws.write(row, 1, record.thoigianvao.strftime('%d/%m/%Y'))  # Ngày
+                ws.write(row, 2, record.bienso.bienso)  # Biển số xe
+                ws.write(row, 3, record.bienso.loaixe)  # Loại xe
+                ws.write(row, 4, record.thoigianvao.strftime('%H:%M'))  # Giờ vào
+                ws.write(row, 5, record.thoigianra.strftime('%H:%M') if record.thoigianra else 'Chưa ra')  # Giờ ra
+                
+                # Calculate duration
+                if record.thoigianra:
+                    duration = record.thoigianra - record.thoigianvao
+                    hours = duration.total_seconds() / 3600
+                    ws.write(row, 6, f"{int(hours)} giờ {int((hours % 1) * 60)} phút")
+                else:
+                    ws.write(row, 6, 'Đang đỗ')
+                
+                # Calculate fee
+                if record.thoigianra:
+                    try:
+                        price_per_hour = Giave.objects.get(loaixe=record.bienso.loaixe).giatheogio
+                        fee = price_per_hour * hours
+                        ws.write(row, 7, f"{fee:,.0f}")
+                    except (Giave.DoesNotExist, AttributeError):
+                        ws.write(row, 7, '-')
+                else:
+                    ws.write(row, 7, '-')
+            except Exception as e:
+                print(f"Error processing record {record.id}: {str(e)}")
+                continue
+        
+        # Add summary
+        summary_row = len(parking_records) + 2
+        ws.write(summary_row, 0, 'Thống kê')
+        ws.write(summary_row + 1, 0, 'Tổng số lượt xe:')
+        ws.write(summary_row + 1, 1, len(parking_records))
+        ws.write(summary_row + 2, 0, 'Ô tô:')
+        ws.write(summary_row + 2, 1, parking_records.filter(bienso__loaixe='car').count())
+        ws.write(summary_row + 3, 0, 'Xe máy:')
+        ws.write(summary_row + 3, 1, parking_records.filter(bienso__loaixe='motorcycle').count())
+        ws.write(summary_row + 4, 0, 'Xe đạp:')
+        ws.write(summary_row + 4, 1, parking_records.filter(bienso__loaixe='bike').count())
+        
+        # Calculate total revenue
+        total_revenue = 0
+        for record in parking_records:
+            if record.thoigianra:
+                try:
+                    duration = record.thoigianra - record.thoigianvao
+                    hours = duration.total_seconds() / 3600
+                    price_per_hour = Giave.objects.get(loaixe=record.bienso.loaixe).giatheogio
+                    total_revenue += price_per_hour * hours
+                except (Giave.DoesNotExist, AttributeError):
+                    continue
+        
+        ws.write(summary_row + 5, 0, 'Tổng doanh thu:')
+        ws.write(summary_row + 5, 1, f"{total_revenue:,.0f} VNĐ")
+        
+        wb.save(response)
+        return response
+    except Exception as e:
+        print(f"Error in export_vehicle_report: {str(e)}")
+        return HttpResponse("Có lỗi xảy ra khi xuất báo cáo. Vui lòng thử lại sau.")

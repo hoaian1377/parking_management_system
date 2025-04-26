@@ -22,5 +22,5 @@ urlpatterns = [
     path('vehicles/', views.vehicle_management, name='vehicle_management'),  # Trang danh sách xe
     path('vehicle/edit/<str:pk>/', views.vehicle_edit, name='vehicle_edit'),  # Trang sửa xe
     path('vehicle/delete/<str:pk>/', views.vehicle_delete, name='vehicle_delete'),  # Trang xóa xe
-
+    path('vehicle_report/export/', views.export_vehicle_report, name='export_vehicle_report'),  # Xuất báo cáo xe
 ]
