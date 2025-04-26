@@ -58,6 +58,9 @@ def add_employee(request):
         diachi = request.POST.get('diachi')
         sodienthoai = request.POST.get('sodienthoai')
         ngaysinh=request.POST.get('ngaysinh')
+        email=request.POST.get('email')
+        matkhau=request.POST.get('matkhau')
+
 
         # Kiểm tra mã nhân viên đã tồn tại chưa
         if Nhanvien.objects.filter(nhanvienid=nhanvienid).exists():
@@ -73,7 +76,9 @@ def add_employee(request):
                 phanquyen=phanquyen,
                 diachi=diachi,
                 sodienthoai=sodienthoai,
-                ngaysinh=ngaysinh
+                ngaysinh=ngaysinh,
+                email=email,
+                matkhau=matkhau
             )
             messages.success(request, "Thêm nhân viên thành công.")
         except Exception as e:
@@ -86,7 +91,7 @@ def add_employee(request):
 # View quản lý nhân viên, hiển thị danh sách nhân viên
 def employee_management(request):
     employees = Nhanvien.objects.all()  # Lấy danh sách tất cả nhân viên
-    return render(request, 'employee_management.html', {'employees': employees})
+    return render(request, 'employee_management.html', {'nhanvien': employees})
 
 
 # Employee Management Views
@@ -111,6 +116,9 @@ def edit_employee(request, nhanvienid):
             employee.diachi = request.POST.get('diachi')
             employee.sodienthoai = request.POST.get('sodienthoai')
             employee.ngaysinh = request.POST.get('ngaysinh')
+            employee.email = request.POST.get('email')
+            employee.matkhau = request.POST.get('matkhau')
+            
 
             employee.save()
 

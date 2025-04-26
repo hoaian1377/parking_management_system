@@ -49,6 +49,8 @@ class Nhanvien(models.Model):
     ngaysinh = models.DateTimeField(db_column='NgaySinh', blank=True, null=True)  # Field name made lowercase.
     chucvu = models.CharField(db_column='ChucVu', max_length=50, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
     phanquyen=models.CharField(db_column='Phanquyen', max_length=50, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)
+    email=models.CharField(db_column='Email', max_length=50, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)
+    matkhau=models.CharField(db_column='MatKhau', max_length=50, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)
     
     class Meta:
         managed = False
