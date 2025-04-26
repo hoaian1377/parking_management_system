@@ -82,10 +82,10 @@ WSGI_APPLICATION = 'parking_system.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'mssql',
-        'NAME': 'QLHTX', 
+        'NAME': 'QLHTX2', 
         'USER': '',
         'PASSWORD': '',
-        'HOST': 'DESKTOP-J6O1B30',
+        'HOST': 'DESKTOP-8LHJJ0H',
         'OPTIONS': {
             'driver': 'ODBC Driver 17 for SQL Server',
             'trusted_connection':'yes', 

@@ -35,6 +35,7 @@ from django.db import transaction
 from django.shortcuts import render
 from django.db.models import Q
 from django.shortcuts import render
+from .models import Nhanvien
 import xlwt
 
 

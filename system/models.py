@@ -41,6 +41,21 @@ class Khachhang(models.Model):
         db_table = 'KhachHang'
 
 
+class Nhanvien(models.Model):
+    nhanvienid = models.CharField(db_column='NhanVienID', primary_key=True, max_length=50, db_collation='SQL_Latin1_General_CP1_CI_AS')  # Field name made lowercase.
+    hoten = models.CharField(db_column='HoTen', max_length=100, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
+    diachi = models.CharField(db_column='DiaChi', max_length=200, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
+    sodienthoai = models.CharField(db_column='SoDienThoai', max_length=20, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
+    ngaysinh = models.DateTimeField(db_column='NgaySinh', blank=True, null=True)  # Field name made lowercase.
+    chucvu = models.CharField(db_column='ChucVu', max_length=50, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
+    phanquyen=models.CharField(db_column='Phanquyen', max_length=50, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)
+    
+    class Meta:
+        managed = False
+        db_table = 'NhanVien'
+
+
+
 class Luotravao(models.Model):
     maluot = models.AutoField(db_column='MaLuot', primary_key=True)  # Field name made lowercase.
     bienso = models.ForeignKey('Xe', models.DO_NOTHING, db_column='BienSo')  # Field name made lowercase.
