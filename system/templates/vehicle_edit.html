@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block contents %}
+  <h1 class="text-3xl font-bold text-center mb-6">Sửa thông tin xe</h1>
+  <form method="POST">
+    {% csrf_token %}
+    <label>Biển số:</label>
+    <input type="text" name="bienso" value="{{ vehicle.bienso }}" required><br>
+
+    <label>Loại xe:</label>
+    <input type="text" name="loaixe" value="{{ vehicle.loaixe }}" required><br>
+
+    <label>Mã khách hàng (nếu có):</label>
+    <input type="text" name="makh" value="{{ vehicle.makh.id }}" ><br>
+
+    <button type="submit">Lưu</button>
+</form>
+
+{% endblock %}

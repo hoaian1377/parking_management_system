@@ -5,7 +5,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.db import transaction
 from django.contrib.auth.models import User
-from .models import Xe, Vitridoxe, Nhanvien
+from .models import Xe, Vitridoxe
 import json
 import uuid
 from datetime import datetime
@@ -27,22 +27,19 @@ from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-from .models import Xe, Vitridoxe,  Nhanvien
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, permission_required
 from django.db import transaction
 from django.shortcuts import render
-from .models import Nhanvien
 from django.db.models import Q
 from django.shortcuts import render
-from .models import Nhanvien
+
 
 # ========================== VEHICLE MANAGEMENT ==========================
 
 from django.shortcuts import render
-from .models import Nhanvien
 
 def search_employee(request):
     query = request.GET.get('nhanvienid')
@@ -461,3 +458,85 @@ def password_reset_confirm(request, uidb64, token):
 def employee_management(request):
     nhanviens = Nhanvien.objects.all()
     return render(request, 'employee_management.html', {'nhanviens': nhanviens})
+
+
+
+# ===================================QLX=======================================
+from django.shortcuts import render, redirect
+from django.http import JsonResponse
+from .models import Xe, Luotravao, Vitridoxe
+from django.utils import timezone
+
+# View để hiển thị danh sách xe và quản lý xe ra vào
+def vehicle_management(request):
+    vehicles = Xe.objects.all()  # Lấy tất cả xe trong database
+    slots = Vitridoxe.objects.all()  # Lấy tất cả vị trí đỗ xe
+    return render(request, 'vehicle_management.html', {'vehicles': vehicles, 'slots': slots})
+
+# View xử lý xe vào
+def vehicle_in(request):
+    if request.method == 'POST':
+        bienso = request.POST.get('license_plate_in')
+        thoigianvao = timezone.now()
+        slot_id = request.POST.get('slot_in')
+        slot = Vitridoxe.objects.get(id=slot_id)
+        
+        xe = Xe.objects.get(bienso=bienso)
+        Luotravao.objects.create(bienso=xe, thoigianvao=thoigianvao, mavitri=slot, trangthai='Đang đỗ')
+        
+        # Cập nhật vị trí đỗ xe
+        slot.trangthai = 'Đã có xe'
+        slot.save()
+
+        return redirect('vehicle_management')
+
+# View xử lý xe ra
+def vehicle_out(request):
+    if request.method == 'POST':
+        bienso = request.POST.get('license_plate_out')
+        thoigianra = timezone.now()
+        
+        luot = Luotravao.objects.filter(bienso__bienso=bienso, thoigianra__isnull=True).first()
+        if luot:
+            luot.thoigianra = thoigianra
+            luot.trangthai = 'Đã ra'
+            luot.save()
+
+            # Cập nhật lại vị trí đỗ xe
+            slot = luot.mavitri
+            slot.trangthai = 'Trống'
+            slot.save()
+
+        return redirect('vehicle_management')
+
+from django.shortcuts import render, get_object_or_404, redirect
+from .models import Xe
+
+# View để xem danh sách xe
+def vehicle_management(request):
+    vehicles = Xe.objects.all()  # Lấy tất cả các xe
+    return render(request, 'vehicle_management.html', {'vehicles': vehicles})
+
+def vehicle_edit(request, pk):
+    vehicle = get_object_or_404(Xe, pk=pk)
+    if request.method == 'POST':
+        # Cập nhật từng trường dữ liệu từ request.POST
+        vehicle.bienso = request.POST.get('bienso')
+        vehicle.loaixe = request.POST.get('loaixe')
+        # Nếu có thêm trường makh thì thêm:
+        makh = request.POST.get('makh')
+        if makh:
+            vehicle.makh_id = makh  # chú ý, nếu bạn dùng khóa ngoại thì cần gán _id
+
+        vehicle.save()
+        return redirect('vehicle_management')
+    return render(request, 'vehicle_edit.html', {'vehicle': vehicle})
+
+
+# View để xóa xe
+def vehicle_delete(request, pk):
+    vehicle = get_object_or_404(Xe, pk=pk)
+    if request.method == 'POST':
+        vehicle.delete()
+        return redirect('vehicle_management')
+    return render(request, 'vehicle_confirm_delete.html', {'vehicle': vehicle})

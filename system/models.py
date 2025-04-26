@@ -8,45 +8,22 @@
 from django.db import models
 
 
-class Cambien(models.Model):
-    cambienid = models.CharField(db_column='CamBienID', primary_key=True, max_length=50, db_collation='SQL_Latin1_General_CP1_CI_AS')  # Field name made lowercase.
-    loai = models.CharField(db_column='Loai', max_length=100, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
-    vitri = models.CharField(db_column='ViTri', max_length=100, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
-    trangthai = models.CharField(db_column='TrangThai', max_length=50, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
+class Giave(models.Model):
+    magia = models.AutoField(db_column='MaGia', primary_key=True)  # Field name made lowercase.
+    loaixe = models.CharField(db_column='LoaiXe', unique=True, max_length=50, db_collation='SQL_Latin1_General_CP1_CI_AS')  # Field name made lowercase.
+    giatheogio = models.DecimalField(db_column='GiaTheoGio', max_digits=10, decimal_places=2, blank=True, null=True)  # Field name made lowercase.
 
     class Meta:
         managed = False
-        db_table = 'CamBien'
-
-
-class Camera(models.Model):
-    cameraid = models.CharField(db_column='CameraID', primary_key=True, max_length=50, db_collation='SQL_Latin1_General_CP1_CI_AS')  # Field name made lowercase.
-    chucnang = models.CharField(db_column='ChucNang', max_length=100, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
-    vitrilapdat = models.CharField(db_column='ViTriLapDat', max_length=100, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
-    trangthai = models.CharField(db_column='TrangThai', max_length=50, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
-
-    class Meta:
-        managed = False
-        db_table = 'Camera'
-
-
-class Chitiethoadon(models.Model):
-    chitiethoadonid = models.CharField(db_column='ChiTietHoaDonID', primary_key=True, max_length=50, db_collation='SQL_Latin1_General_CP1_CI_AS')  # Field name made lowercase.
-    hoadonid = models.ForeignKey('Hoadon', models.DO_NOTHING, db_column='HoaDonID', blank=True, null=True)  # Field name made lowercase.
-    lanravao = models.ForeignKey('Lanvaora', models.DO_NOTHING, db_column='LanRaVao', blank=True, null=True)  # Field name made lowercase.
-    ngaylap = models.DateTimeField(db_column='NgayLap', blank=True, null=True)  # Field name made lowercase.
-    phuongthucthanhtoan = models.CharField(db_column='PhuongThucThanhToan', max_length=100, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
-    sotien = models.FloatField(db_column='SoTien', blank=True, null=True)  # Field name made lowercase.
-
-    class Meta:
-        managed = False
-        db_table = 'ChiTietHoaDon'
+        db_table = 'GiaVe'
 
 
 class Hoadon(models.Model):
-    hoadonid = models.CharField(db_column='HoaDonID', primary_key=True, max_length=50, db_collation='SQL_Latin1_General_CP1_CI_AS')  # Field name made lowercase.
-    phuongthucthanhtoan = models.CharField(db_column='PhuongThucThanhToan', max_length=100, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
-    tudongtinhtien = models.BooleanField(db_column='TuDongTinhTien', blank=True, null=True)  # Field name made lowercase.
+    mahd = models.AutoField(db_column='MaHD', primary_key=True)  # Field name made lowercase.
+    maluot = models.ForeignKey('Luotravao', models.DO_NOTHING, db_column='MaLuot')  # Field name made lowercase.
+    ngaylap = models.DateTimeField(db_column='NgayLap', blank=True, null=True)  # Field name made lowercase.
+    sogiogui = models.IntegerField(db_column='SoGioGui')  # Field name made lowercase.
+    tongtien = models.DecimalField(db_column='TongTien', max_digits=10, decimal_places=2, blank=True, null=True)  # Field name made lowercase.
 
     class Meta:
         managed = False
@@ -54,71 +31,35 @@ class Hoadon(models.Model):
 
 
 class Khachhang(models.Model):
-    khachhangid = models.CharField(db_column='KhachHangID', primary_key=True, max_length=50, db_collation='SQL_Latin1_General_CP1_CI_AS')  # Field name made lowercase.
-    tenkhachhang = models.CharField(db_column='TenKhachHang', max_length=100, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
-    diachi = models.CharField(db_column='DiaChi', max_length=200, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
+    makh = models.AutoField(db_column='MaKH', primary_key=True)  # Field name made lowercase.
+    hoten = models.CharField(db_column='HoTen', max_length=100, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
     sodienthoai = models.CharField(db_column='SoDienThoai', max_length=20, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
-    email = models.CharField(db_column='Email', max_length=100, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
+    ghichu = models.CharField(db_column='GhiChu', max_length=255, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
 
     class Meta:
         managed = False
         db_table = 'KhachHang'
 
 
-class Lanvaora(models.Model):
-    id = models.CharField(db_column='ID', primary_key=True, max_length=50, db_collation='SQL_Latin1_General_CP1_CI_AS')  # Field name made lowercase.
-    maqr = models.CharField(db_column='MaQR', max_length=100, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
-    nhanvienid = models.ForeignKey('Nhanvien', models.DO_NOTHING, db_column='NhanVienID', blank=True, null=True)  # Field name made lowercase.
-    xe = models.ForeignKey('Xe', models.DO_NOTHING, db_column='Xe', blank=True, null=True)  # Field name made lowercase.
-    vitridoxe = models.ForeignKey('Vitridoxe', models.DO_NOTHING, db_column='ViTriDoXe', blank=True, null=True)  # Field name made lowercase.
-    theguixe = models.ForeignKey('Theguixe', models.DO_NOTHING, db_column='TheGuiXe', blank=True, null=True)  # Field name made lowercase.
-    thoigianvao = models.DateTimeField(db_column='ThoiGianVao', blank=True, null=True)  # Field name made lowercase.
+class Luotravao(models.Model):
+    maluot = models.AutoField(db_column='MaLuot', primary_key=True)  # Field name made lowercase.
+    bienso = models.ForeignKey('Xe', models.DO_NOTHING, db_column='BienSo')  # Field name made lowercase.
+    thoigianvao = models.DateTimeField(db_column='ThoiGianVao')  # Field name made lowercase.
     thoigianra = models.DateTimeField(db_column='ThoiGianRa', blank=True, null=True)  # Field name made lowercase.
+    anhvao = models.CharField(db_column='AnhVao', max_length=255, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
+    anhra = models.CharField(db_column='AnhRa', max_length=255, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
+    mavitri = models.ForeignKey('Vitridoxe', models.DO_NOTHING, db_column='MaViTri', blank=True, null=True)  # Field name made lowercase.
+    trangthai = models.CharField(db_column='TrangThai', max_length=20, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
 
     class Meta:
         managed = False
-        db_table = 'LanVaoRa'
-
-
-class Nhanvien(models.Model):
-    nhanvienid = models.CharField(db_column='NhanVienID', primary_key=True, max_length=50, db_collation='SQL_Latin1_General_CP1_CI_AS')  # Field name made lowercase.
-    hoten = models.CharField(db_column='HoTen', max_length=100, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
-    diachi = models.CharField(db_column='DiaChi', max_length=200, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
-    sodienthoai = models.CharField(db_column='SoDienThoai', max_length=20, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
-    ngaysinh = models.DateTimeField(db_column='NgaySinh', blank=True, null=True)  # Field name made lowercase.
-    chucvu = models.CharField(db_column='ChucVu', max_length=50, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
-    phanquyen=models.CharField(db_column='Phanquyen', max_length=50, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)
-    class Meta:
-        managed = False
-        db_table = 'NhanVien'
-
-
-class Taikhoan(models.Model):
-    tendangnhap = models.CharField(db_column='TenDangNhap', primary_key=True, max_length=50, db_collation='SQL_Latin1_General_CP1_CI_AS')  # Field name made lowercase.
-    matkhau = models.CharField(db_column='MatKhau', max_length=100, db_collation='SQL_Latin1_General_CP1_CI_AS')  # Field name made lowercase.
-    nhanvienid = models.ForeignKey(Nhanvien, models.DO_NOTHING, db_column='NhanVienID', blank=True, null=True)  # Field name made lowercase.
-
-    class Meta:
-        managed = False
-        db_table = 'TaiKhoan'
-
-
-class Theguixe(models.Model):
-    theguixeid = models.CharField(db_column='TheGuiXeID', primary_key=True, max_length=50, db_collation='SQL_Latin1_General_CP1_CI_AS')  # Field name made lowercase.
-    loaithe = models.CharField(db_column='LoaiThe', max_length=50, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
-    ngaycap = models.DateTimeField(db_column='NgayCap', blank=True, null=True)  # Field name made lowercase.
-    ngayhethan = models.DateTimeField(db_column='NgayHetHan', blank=True, null=True)  # Field name made lowercase.
-
-    class Meta:
-        managed = False
-        db_table = 'TheGuiXe'
+        db_table = 'LuotRaVao'
 
 
 class Vitridoxe(models.Model):
-    id = models.CharField(db_column='ID', primary_key=True, max_length=50, db_collation='SQL_Latin1_General_CP1_CI_AS')  # Field name made lowercase.
-    tenvitri = models.CharField(db_column='TenViTri', max_length=100, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
-    khuvuc = models.CharField(db_column='KhuVuc', max_length=100, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
-    trangthai = models.CharField(db_column='TrangThai', max_length=50, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
+    mavitri = models.AutoField(db_column='MaViTri', primary_key=True)  # Field name made lowercase.
+    tenvitri = models.CharField(db_column='TenViTri', max_length=50, db_collation='SQL_Latin1_General_CP1_CI_AS')  # Field name made lowercase.
+    trangthai = models.CharField(db_column='TrangThai', max_length=20, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
 
     class Meta:
         managed = False
@@ -126,14 +67,9 @@ class Vitridoxe(models.Model):
 
 
 class Xe(models.Model):
-    xeid = models.CharField(db_column='XeID', primary_key=True, max_length=50, db_collation='SQL_Latin1_General_CP1_CI_AS')  # Field name made lowercase.
-    bienso = models.CharField(db_column='BienSo', max_length=20, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
+    bienso = models.CharField(db_column='BienSo', primary_key=True, max_length=20, db_collation='SQL_Latin1_General_CP1_CI_AS')  # Field name made lowercase.
     loaixe = models.CharField(db_column='LoaiXe', max_length=50, db_collation='SQL_Latin1_General_CP1_CI_AS', blank=True, null=True)  # Field name made lowercase.
-    chuxe = models.ForeignKey(Khachhang, models.DO_NOTHING, db_column='ChuXe', blank=True, null=True)  # Field name made lowercase.
-    imgurl = models.CharField(max_length=255, null=True, blank=True) # Field name made lowercase.
-    thoigianvao = models.DateTimeField(db_column='ThoiGianVao', blank=True, null=True)  # Field name made lowercase.
-    thoigianra = models.DateTimeField(db_column='ThoiGianRa', blank=True, null=True)  # Field name made lowercase.
-    tienguixe = models.DecimalField(db_column='TienGuiXe', max_digits=18, decimal_places=2, blank=True, null=True)  # Field name made lowercase.
+    makh = models.ForeignKey(Khachhang, models.DO_NOTHING, db_column='MaKH', blank=True, null=True)  # Field name made lowercase.
 
     class Meta:
         managed = False
@@ -252,16 +188,3 @@ class DjangoSession(models.Model):
     class Meta:
         managed = False
         db_table = 'django_session'
-
-
-class Sysdiagrams(models.Model):
-    name = models.CharField(max_length=128, db_collation='SQL_Latin1_General_CP1_CI_AS')
-    principal_id = models.IntegerField()
-    diagram_id = models.AutoField(primary_key=True)
-    version = models.IntegerField(blank=True, null=True)
-    definition = models.BinaryField(blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = 'sysdiagrams'
-        unique_together = (('principal_id', 'name'),)

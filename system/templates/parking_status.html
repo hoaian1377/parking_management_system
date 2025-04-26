@@ -1,358 +1,229 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="vi">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tình Trạng Bãi Giữ Xe</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <link href="{% static 'app/css/parking_status.css' %}" rel="stylesheet" />
-</head>
-<body>
-  <!-- Navigation -->
-  <nav class="navbar-custom fixed top-0 left-0 right-0 z-50">
-    <div class="container mx-auto px-4 sm:px-6 flex justify-between items-center py-4">
-      <a class="navbar-brand" href="{% url 'home' %}">Quản lý Bãi giữ xe</a>
-      <div class="hidden sm:flex sm:items-center sm:space-x-4" id="navbarMenu">
-        <a class="nav-link" href="{% url 'vehicle_management' %}">Quản lý xe</a>
-        <a class="nav-link" href="{% url 'parking_status' %}">Tình trạng bãi xe</a>
-        <a class="nav-link" href="{% url 'vehicle_report' %}">Báo cáo & thống kê</a>
-        <a class="nav-link" href="{% url 'employee_management' %}">Quản lý nhân viên</a>
-        <div class="auth-buttons">
-          
-          <a class="logout" href="{% url 'login' %}">Đăng xuất</a>
-        </div>
-      </div>
-    </div>
-  </nav>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Quản lý xe ra vào</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="{% static 'app/css/vehicle_management.css' %}" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet" />
+  </head>
 
-  <!-- Main Content -->
-  <main class="container mx-auto p-4 sm:p-6 max-w-6xl mt-20">
-    <header class="text-center mb-8">
-      <h1 class="text-3xl sm:text-4xl font-bold text-gray-800">Tình Trạng Bãi Giữ Xe</h1>
-    </header>
-
-
-    <!-- Admin Dashboard -->
-    <div id="adminPanel" class="bg-white shadow-lg rounded-lg p-6 mb-6 hidden">
-      <h2 class="text-xl font-semibold text-gray-700 mb-4">Bảng điều khiển quản trị</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <!-- Overview -->
-        <div class="bg-gray-50 p-4 rounded-lg shadow">
-          <h3 class="text-lg font-medium text-gray-600">Tổng quan</h3>
-          <p class="mt-2">Tổng số chỗ đỗ: <span id="totalSlots" class="font-bold">0</span></p>
-          <p>Chỗ trống: <span id="totalAvailable" class="font-bold">0</span></p>
-          <p>Đã có xe: <span id="totalOccupied" class="font-bold">0</span></p>
-          <p>Đặt trước: <span id="totalReserved" class="font-bold">0</span></p>
-        </div>
-        <!-- Slot Management -->
-        <div class="bg-gray-50 p-4 rounded-lg shadow">
-          <h3 class="text-lg font-medium text-gray-600">Quản lý chỗ đỗ</h3>
-          <div class="mt-2 space-y-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-600">Thêm chỗ đỗ</label>
-              <input id="newSlotId" type="text" placeholder="ID chỗ đỗ (ví dụ: B6)" class="border border-gray-300 rounded-lg p-2 w-full mt-1">
-              <select id="vehicleType" class="border border-gray-300 rounded-lg p-2 w-full mt-1">
-                <option value="bike">Xe Đạp</option>
-                <option value="motorbike">Xe Máy</option>
-                <option value="car">Ô Tô</option>
-              </select>
-              <button onclick="addSlot()" class="mt-2 bg-green-600 text-white rounded-lg p-2 w-full hover:bg-green-700 transition"><i class="fas fa-plus"></i> Thêm</button>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-600">Xóa chỗ đỗ</label>
-              <input id="removeSlotId" type="text" placeholder="ID chỗ đỗ" class="border border-gray-300 rounded-lg p-2 w-full mt-1">
-              <button onclick="removeSlot()" class="mt-2 bg-red-600 text-white rounded-lg p-2 w-full hover:bg-red-700 transition"><i class="fas fa-trash"></i> Xóa</button>
-            </div>
-          </div>
-        </div>
-        <!-- Booking Management -->
-        <div class="bg-gray-50 p-4 rounded-lg shadow">
-          <h3 class="text-lg font-medium text-gray-600">Quản lý đặt chỗ</h3>
-          <div class="mt-2 space-y-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-600">Đặt trước</label>
-              <input id="reserveSlotId" type="text" placeholder="ID chỗ đỗ" class="border border-gray-300 rounded-lg p-2 w-full mt-1">
-              <input id="reserveLicense" type="text" placeholder="Biển số xe" class="border border-gray-300 rounded-lg p-2 w-full mt-1">
-              <input id="reserveOwner" type="text" placeholder="Tên chủ xe" class="border border-gray-300 rounded-lg p-2 w-full mt-1">
-              <input id="reserveTime" type="datetime-local" class="border border-gray-300 rounded-lg p-2 w-full mt-1">
-              <button onclick="reserveSlot()" class="mt-2 bg-blue-600 text-white rounded-lg p-2 w-full hover:bg-blue-700 transition"><i class="fas fa-bookmark"></i> Đặt</button>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-600">Hủy đặt chỗ</label>
-              <input id="cancelSlotId" type="text" placeholder="ID chỗ đỗ" class="border border-gray-300 rounded-lg p-2 w-full mt-1">
-              <button onclick="cancelReservation()" class="mt-2 bg-yellow-600 text-white rounded-lg p-2 w-full hover:bg-yellow-700 transition"><i class="fas fa-times"></i> Hủy</button>
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-600">Xem lịch sử</label>
-              <input id="historySlotId" type="text" placeholder="ID chỗ đỗ" class="border border-gray-300 rounded-lg p-2 w-full mt-1">
-              <button onclick="showHistory()" class="mt-2 bg-purple-600 text-white rounded-lg p-2 w-full hover:bg-purple-700 transition"><i class="fas fa-history"></i> Xem</button>
-            </div>
-          </div>
-        </div>
-        <!-- Data Export -->
-        <div class="bg-gray-50 p-4 rounded-lg shadow">
-          <h3 class="text-lg font-medium text-gray-600">Xuất dữ liệu</h3>
-          <div class="mt-2 space-y-4">
-            <button onclick="exportStats()" class="bg-teal-600 text-white rounded-lg p-2 w-full hover:bg-teal-700 transition"><i class="fas fa-file-csv"></i> Xuất thống kê</button>
-            <button onclick="exportBookings()" class="bg-indigo-600 text-white rounded-lg p-2 w-full hover:bg-indigo-700 transition"><i class="fas fa-file-csv"></i> Xuất đặt chỗ</button>
+  <body>
+    <!-- Navigation -->
+    <nav class="navbar-custom fixed top-0 left-0 right-0 z-50 bg-white shadow">
+      <div class="container mx-auto px-4 sm:px-6 flex justify-between items-center py-4">
+        <a class="navbar-brand font-bold text-xl text-blue-600" href="{% url 'home' %}">Quản lý Bãi giữ xe</a>
+        <div class="hidden sm:flex sm:items-center sm:space-x-4" id="navbarMenu">
+          <a class="nav-link" href="{% url 'vehicle_management' %}">Quản lý xe</a>
+          <a class="nav-link" href="{% url 'parking_status' %}">Tình trạng bãi xe</a>
+          <a class="nav-link" href="{% url 'vehicle_report' %}">Báo cáo & thống kê</a>
+          <a class="nav-link" href="{% url 'employee_management' %}">Quản lý nhân viên</a>
+          <div class="auth-buttons">
+            <a class="logout text-red-600 hover:underline" href="{% url 'login' %}">Đăng xuất</a>
           </div>
         </div>
       </div>
-    </div>
+    </nav>
 
-    <!-- Search Container -->
-    <div class="bg-white shadow-lg rounded-lg p-6 mb-6">
-      <div class="flex flex-col sm:flex-row gap-4 items-center">
-        <input id="searchInput" type="text" placeholder="Tìm vị trí xe (ví dụ: A1, B2)..." class="border border-gray-300 rounded-lg p-2 flex-1 focus:outline-none focus:ring-2 focus:ring-blue-500">
-        <label class="flex items-center gap-2 text-gray-600">
-          <input id="filterAvailable" type="checkbox" class="h-4 w-4">
-          Chỉ hiển thị chỗ trống
-        </label>
-        <button onclick="filterSlots()" class="bg-blue-600 text-white rounded-lg p-2 hover:bg-blue-700 transition"><i class="fas fa-search"></i> Tìm Kiếm</button>
-      </div>
-    </div>
+    <main class="container mx-auto p-4 sm:p-6 max-w-6xl mt-20">
+      <header class="text-center mb-8">
+        <h1 class="text-3xl sm:text-4xl font-bold text-gray-800">Hệ thống quản lý xe ra vào</h1>
+      </header>
 
-    <!-- Tabs -->
-    <div class="vehicle-tabs flex justify-center gap-4 mb-6">
-      <button onclick="showParking('bike')" class="bg-blue-600 text-white rounded-lg p-2 hover:bg-blue-700 transition">Xe Đạp</button>
-      <button onclick="showParking('motorbike')" class="bg-blue-600 text-white rounded-lg p-2 hover:bg-blue-700 transition">Xe Máy</button>
-      <button onclick="showParking('car')" class="bg-blue-600 text-white rounded-lg p-2 hover:bg-blue-700 transition">Ô Tô</button>
-    </div>
+      <div class="grid grid-cols-1 xl:grid-cols-2 gap-8 max-w-7xl mx-auto">
+        <!-- Left Column -->
+        <div class="space-y-8">
+          <!-- Xe Vào -->
+          <div class="bg-white p-6 rounded-2xl shadow-lg">
+            <h2 class="text-2xl font-semibold mb-4">Xe Vào</h2>
+            <form id="vehicle-in-form" class="space-y-4">
+              <div>
+                <label class="block font-medium">Biển số xe</label>
+                <input type="text" id="license-plate-in" placeholder="Nhập biển số" required class="w-full p-2 border rounded" />
+              </div>
+              <div>
+                <label class="block font-medium">Thời gian vào</label>
+                <input type="datetime-local" id="time-in" required class="w-full p-2 border rounded" />
+              </div>
+              <div>
+                <label class="block font-medium">Chọn chỗ đậu</label>
+                <input type="text" id="slot-in" readonly placeholder="Nhấp vào ghế ở sơ đồ" required class="w-full p-2 border rounded bg-gray-100 cursor-not-allowed" />
+              </div>
+              <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Ghi nhận xe vào</button>
+            </form>
+          </div>
 
-    <!-- Bãi Xe Đạp -->
-    <div id="bike" class="parking-section bg-white shadow-lg rounded-lg p-6 mb-6">
-      <div class="legend flex justify-center gap-6 mb-4">
-        <div class="flex items-center"><span class="w-5 h-5 bg-green-400 rounded mr-2"></span> Trống</div>
-        <div class="flex items-center"><span class="w-5 h-5 bg-red-500 rounded mr-2"></span> Đã có xe</div>
-        <div class="flex items-center"><span class="w-5 h-5 bg-yellow-400 rounded mr-2"></span> Đặt trước</div>
-      </div>
-      <div class="parking-lot flex flex-col gap-4">
-        <div class="parking-row flex justify-center gap-4 flex-wrap">
-          <div class="slot available bg-green-400 text-white rounded-lg w-16 h-16 flex items-center justify-center font-bold cursor-pointer hover:scale-105 transition" data-id="B1">B1</div>
-          <div class="slot occupied bg-red-500 text-white rounded-lg w-16 h-16 flex items-center justify-center font-bold cursor-pointer hover:scale-105 transition" data-id="B2">B2</div>
-          <div class="slot reserved bg-yellow-400 text-gray-800 rounded-lg w-16 h-16 flex items-center justify-center font-bold cursor-pointer hover:scale-105 transition" data-id="B3">B3</div>
-          <div class="slot available bg-green-400 text-white rounded-lg w-16 h-16 flex items-center justify-center font-bold cursor-pointer hover:scale-105 transition" data-id="B4">B4</div>
-          <div class="slot occupied bg-red-500 text-white rounded-lg w-16 h-16 flex items-center justify-center font-bold cursor-pointer hover:scale-105 transition" data-id="B5">B5</div>
-        </div>
-      </div>
-      <div class="stats mt-6 bg-gray-50 p-4 rounded-lg">
-        <h2 class="text-lg font-semibold text-gray-700">Thống kê vị trí</h2>
-        <div class="stats-grid grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
-          <div class="stat-box bg-green-100 border border-green-400 p-4 rounded-lg text-center">
-            <h3 class="text-sm font-medium">Chỗ trống</h3>
-            <p class="text-2xl font-bold">0</p>
-          </div>
-          <div class="stat-box bg-red-100 border border-red-500 p-4 rounded-lg text-center">
-            <h3 class="text-sm font-medium">Đã có xe</h3>
-            <p class="text-2xl font-bold">0</p>
-          </div>
-          <div class="stat-box bg-yellow-100 border border-yellow-400 p-4 rounded-lg text-center">
-            <h3 class="text-sm font-medium">Đặt trước</h3>
-            <p class="text-2xl font-bold">0</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Bãi Xe Máy -->
-    <div id="motorbike" class="parking-section bg-white shadow-lg rounded-lg p-6 mb-6 hidden">
-      <div class="legend flex justify-center gap-6 mb-4">
-        <div class="flex items-center"><span class="w-5 h-5 bg-green-400 rounded mr-2"></span> Trống</div>
-        <div class="flex items-center"><span class="w-5 h-5 bg-red-500 rounded mr-2"></span> Đã có xe</div>
-        <div class="flex items-center"><span class="w-5 h-5 bg-yellow-400 rounded mr-2"></span> Đặt trước</div>
-      </div>
-      <div class="parking-lot flex flex-col gap-4">
-        <div class="parking-row flex justify-center gap-4 flex-wrap">
-          <div class="slot available bg-green-400 text-white rounded-lg w-16 h-16 flex items-center justify-center font-bold cursor-pointer hover:scale-105 transition" data-id="M1">M1</div>
-          <div class="slot occupied bg-red-500 text-white rounded-lg w-16 h-16 flex items-center justify-center font-bold cursor-pointer hover:scale-105 transition" data-id="M2">M2</div>
-          <div class="slot reserved bg-yellow-400 text-gray-800 rounded-lg w-16 h-16 flex items-center justify-center font-bold cursor-pointer hover:scale-105 transition" data-id="M3">M3</div>
-          <div class="slot available bg-green-400 text-white rounded-lg w-16 h-16 flex items-center justify-center font-bold cursor-pointer hover:scale-105 transition" data-id="M4">M4</div>
-          <div class="slot occupied bg-red-500 text-white rounded-lg w-16 h-16 flex items-center justify-center font-bold cursor-pointer hover:scale-105 transition" data-id="M5">M5</div>
-        </div>
-      </div>
-      <div class="stats mt-6 bg-gray-50 p-4 rounded-lg">
-        <h2 class="text-lg font-semibold text-gray-700">Thống kê vị trí</h2>
-        <div class="stats-grid grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
-          <div class="stat-box bg-green-100 border border-green-400 p-4 rounded-lg text-center">
-            <h3 class="text-sm font-medium">Chỗ trống</h3>
-            <p class="text-2xl font-bold">0</p>
-          </div>
-          <div class="stat-box bg-red-100 border border-red-500 p-4 rounded-lg text-center">
-            <h3 class="text-sm font-medium">Đã có xe</h3>
-            <p class="text-2xl font-bold">0</p>
-          </div>
-          <div class="stat-box bg-yellow-100 border border-yellow-400 p-4 rounded-lg text-center">
-            <h3 class="text-sm font-medium">Đặt trước</h3>
-            <p class="text-2xl font-bold">0</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Bãi Ô Tô -->
-    <div id="car" class="parking-section bg-white shadow-lg rounded-lg p-6 mb-6 hidden">
-      <div class="legend flex justify-center gap-6 mb-4">
-        <div class="flex items-center"><span class="w-5 h-5 bg-green-400 rounded mr-2"></span> Trống</div>
-        <div class="flex items-center"><span class="w-5 h-5 bg-red-500 rounded mr-2"></span> Đã có xe</div>
-        <div class="flex items-center"><span class="w-5 h-5 bg-yellow-400 rounded mr-2"></span> Đặt trước</div>
-      </div>
-      <div class="parking-lot flex flex-col gap-4">
-        <div class="parking-row flex justify-center gap-4 flex-wrap">
-          <div class="slot available bg-green-400 text-white rounded-lg w-16 h-16 flex items-center justify-center font-bold cursor-pointer hover:scale-105 transition" data-id="C1">C1</div>
-          <div class="slot occupied bg-red-500 text-white rounded-lg w-16 h-16 flex items-center justify-center font-bold cursor-pointer hover:scale-105 transition" data-id="C2">C2</div>
-          <div class="slot reserved bg-yellow-400 text-gray-800 rounded-lg w-16 h-16 flex items-center justify-center font-bold cursor-pointer hover:scale-105 transition" data-id="C3">C3</div>
-          <div class="slot available bg-green-400 text-white rounded-lg w-16 h-16 flex items-center justify-center font-bold cursor-pointer hover:scale-105 transition" data-id="C4">C4</div>
-          <div class="slot occupied bg-red-500 text-white rounded-lg w-16 h-16 flex items-center justify-center font-bold cursor-pointer hover:scale-105 transition" data-id="C5">C5</div>
-        </div>
-      </div>
-      <div class="stats mt-6 bg-gray-50 p-4 rounded-lg">
-        <h2 class="text-lg font-semibold text-gray-700">Thống kê vị trí</h2>
-        <div class="stats-grid grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
-          <div class="stat-box bg-green-100 border border-green-400 p-4 rounded-lg text-center">
-            <h3 class="text-sm font-medium">Chỗ trống</h3>
-            <p class="text-2xl font-bold">0</p>
-          </div>
-          <div class="stat-box bg-red-100 border border-red-500 p-4 rounded-lg text-center">
-            <h3 class="text-sm font-medium">Đã có xe</h3>
-            <p class="text-2xl font-bold">0</p>
-          </div>
-          <div class="stat-box bg-yellow-100 border border-yellow-400 p-4 rounded-lg text-center">
-            <h3 class="text-sm font-medium">Đặt trước</h3>
-            <p class="text-2xl font-bold">0</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- History Display -->
-    <div id="historyDisplay" class="bg-white shadow-lg rounded-lg p-6 mb-6 hidden">
-      <h2 class="text-lg font-semibold text-gray-700">Lịch sử trạng thái</h2>
-      <ul id="historyList" class="list-disc pl-5 mt-4"></ul>
-    </div>
-
-    <!-- Notifications -->
-    <div id="notifications" class="fixed top-4 right-4 z-50"></div>
-  </main>
-
-  <!-- Footer -->
-  <footer class="footer">
-    <div class="footer-container">
-      <div class="footer-main">
-        <div class="footer-info">
-          <h3>Hệ thống quản lý bãi giữ xe</h3>
-          <p>Giải pháp quản lý bãi đỗ xe thông minh, tiện lợi và an toàn.</p>
-          <div class="contact-info">
-            <div class="contact-item">
-              <i class="fas fa-map-marker-alt"></i>
-              <span>123 Nguyễn Văn A, Q.1, TP.HCM</span>
-            </div>
-            <div class="contact-item">
-              <i class="fas fa-phone-alt"></i>
-              <span>0987 654 321</span>
-            </div>
-            <div class="contact-item">
-              <i class="fas fa-envelope"></i>
-              <span>support@baigiu.com</span>
+          <!-- Danh sách xe -->
+          <div class="bg-white p-6 rounded-2xl shadow-lg">
+            <h2 class="text-2xl font-semibold mb-4">Danh sách xe đã quét</h2>
+            <div class="overflow-auto">
+              <table class="table-auto w-full text-sm">
+                <thead class="bg-gray-200">
+                  <tr>
+                    <th class="px-4 py-2 text-left">Biển số</th>
+                    <th class="px-4 py-2 text-left">Loại xe</th>
+                    <th class="px-4 py-2 text-left">Ảnh xe</th>
+                    <th class="px-4 py-2 text-left">Chủ xe</th>
+                    <th class="px-4 py-2 text-left">Hành động</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for vehicle in vehicles %}
+                  <tr class="border-b">
+                    <td class="px-4 py-2">{{ vehicle.bienso }}</td>
+                    <td class="px-4 py-2">{{ vehicle.loaixe }}</td>
+                    <td class="px-4 py-2">
+                      {% if vehicle.anhxe %}
+                      <img src="data:image/jpeg,{{ vehicle.anhxe }}" alt="Vehicle Image" class="w-16 h-16 object-cover rounded-full" />
+                      {% elif vehicle.imgurl %}
+                      <img src="{{ vehicle.imgurl }}" alt="Vehicle Image" class="w-16 h-16 object-cover rounded-full" />
+                      {% else %}
+                      <span>Không có ảnh</span>
+                      {% endif %}
+                    </td>
+                    <td class="px-4 py-2">
+                      {% if vehicle.chuxe %} {{ vehicle.chuxe.ten }} {% else %} Chưa có chủ xe {% endif %}
+                    </td>
+                    <td class="px-4 py-2">
+                      <button onclick="fillVehicleInForm('{{ vehicle.bienso }}')" class="bg-blue-500 text-white px-3 py-1 rounded-md">Thêm</button>
+                    </td>
+                  </tr>
+                  {% empty %}
+                  <tr>
+                    <td colspan="5" class="text-center py-2">Không có xe nào trong hệ thống</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
-        <div class="footer-links">
-          <div class="link-group">
-            <h4>Dịch vụ</h4>
-            <ul>
-              <li><a href="#">Quản lý bãi giữ xe</a></li>
-              <li><a href="#">Đặt chỗ trước</a></li>
-              <li><a href="#">Báo cáo thống kê</a></li>
-            </ul>
+
+        <!-- Right Column -->
+        <div class="space-y-8">
+          <!-- Xe Ra -->
+          <div class="bg-white p-6 rounded-2xl shadow-lg">
+            <h2 class="text-2xl font-semibold mb-4">Xe Ra</h2>
+            <form id="vehicle-out-form" class="space-y-4">
+              <div>
+                <label class="block font-medium">Biển số xe</label>
+                <input type="text" id="license-plate-out" placeholder="Nhập biển số xe ra" required class="w-full p-2 border rounded" />
+              </div>
+              <div>
+                <label class="block font-medium">Thời gian ra</label>
+                <input type="datetime-local" id="time-out" required class="w-full p-2 border rounded" />
+              </div>
+              <button type="submit" class="w-full bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Xác nhận xe ra</button>
+            </form>
           </div>
-          <div class="link-group">
-            <h4>Hỗ trợ</h4>
-            <ul>
-              <li><a href="#">Hướng dẫn sử dụng</a></li>
-              <li><a href="#">Câu hỏi thường gặp</a></li>
-              <li><a href="#">Điều khoản dịch vụ</a></li>
-            </ul>
+
+          <!-- Sơ đồ bãi đỗ (Ghế Xem Phim Style) -->
+          <div class="bg-white p-6 rounded-2xl shadow-lg">
+            <h2 class="text-2xl font-semibold mb-4">Sơ đồ bãi đỗ</h2>
+            <div id="parking-map" class="grid grid-cols-10 gap-2"></div>
           </div>
-        </div>
-        <div class="social-newsletter">
-          <div class="social-media">
-            <h4>Kết nối với chúng tôi</h4>
-            <div class="social-icons">
-              <a href="#" class="icon-facebook"><i class="fab fa-facebook-f"></i></a>
-              <a href="#" class="icon-twitter"><i class="fab fa-twitter"></i></a>
-              <a href="#" class="icon-youtube"><i class="fab fa-youtube"></i></a>
-              <a href="#" class="icon-linkedin"><i class="fab fa-linkedin-in"></i></a>
-            </div>
-          </div>
-          <div class="newsletter">
-            <h4>Đăng ký nhận tin</h4>
-            <p>Nhận thông báo về tính năng mới.</p>
-            <div class="newsletter-form">
-              <input type="email" placeholder="Email của bạn">
-              <button type="submit"><i class="fas fa-paper-plane"></i></button>
-            </div>
+
+          <!-- Lịch sử -->
+          <div class="bg-white p-6 rounded-2xl shadow-lg">
+            <h2 class="text-2xl font-semibold mb-4">Lịch sử gần đây</h2>
+            <ul id="history-list" class="space-y-2 text-sm text-gray-700 list-disc list-inside"></ul>
           </div>
         </div>
       </div>
-      <div class="footer-bottom">
-        <p>© 2025 Quản lý bãi giữ xe. Tất cả quyền được bảo lưu.</p>
-      </div>
-    </div>
-  </footer>
+    </main>
 
-  <script>
-    let isAdmin = false;
-    const slotHistory = {};
-    const bookings = {};
-    const vehicleInfo = {};
+    <!-- JavaScript -->
+    <script>
+      const parkingMap = document.getElementById("parking-map");
+      const historyList = document.getElementById("history-list");
+      const slotInput = document.getElementById("slot-in");
 
-    // Toggle mobile menu
-    function toggleMenu() {
-      const menu = document.getElementById('navbarMenu');
-      menu.classList.toggle('hidden');
-    }
-
-    // Admin Login
-    function login() {
-      const username = document.getElementById('adminUsername').value;
-      const password = document.getElementById('adminPassword').value;
-      if (username === 'admin' && password === 'password') {
-        isAdmin = true;
-        document.getElementById('adminPanel').classList.remove('hidden');
-        document.getElementById('adminLogin').classList.add('hidden');
-        document.getElementById('logoutBtn').classList.remove('hidden');
-        showNotification('Đăng nhập thành công!', 'success');
-        updateDashboard();
-      } else {
-        showNotification('Sai tên đăng nhập hoặc mật khẩu.', 'error');
+      const slots = [];
+      const rows = "ABCDEFGHIJ";
+      for (let r = 0; r < rows.length; r++) {
+        const rowLetter = rows[r];
+        for (let i = 1; i <= 10; i++) {
+          slots.push({
+            id: `${rowLetter}${i}`,
+            license: "",
+            timeIn: null,
+          });
+        }
       }
-    }
 
-    // Admin Logout
-    function logout() {
-      isAdmin = false;
-      document.getElementById('adminPanel').classList.add('hidden');
-      document.getElementById('adminLogin').classList.remove('hidden');
-      document.getElementById('logoutBtn').classList.add('hidden');
-      document.getElementById('adminUsername').value = '';
-      document.getElementById('adminPassword').value = '';
-      showNotification('Đăng xuất thành công!', 'success');
-    }
+      function renderMap() {
+        parkingMap.innerHTML = "";
+        slots.forEach((slot) => {
+          const div = document.createElement("div");
+          div.className =
+            "text-xs border rounded p-1 text-center cursor-pointer select-none " +
+            (slot.license ? "bg-red-300" : "bg-green-200");
+          div.textContent = slot.id;
+          div.onclick = () => {
+            if (slot.license) {
+              document.getElementById("license-plate-out").value = slot.license;
+              document.getElementById("time-out").value = new Date().toISOString().slice(0, 16);
+            } else {
+              slotInput.value = slot.id;
+            }
+          };
+          parkingMap.appendChild(div);
+        });
+      }
 
-    // Show Parking Section
-    function showParking(type) {
-      ['bike', 'motorbike', 'car'].forEach(id => {
-        const section = document.getElementById(id);
-        if (section) section.classList.add('hidden');
+      function fillVehicleInForm(licensePlate) {
+        document.getElementById("license-plate-in").value = licensePlate;
+        document.getElementById("time-in").value = new Date().toISOString().slice(0, 16);
+        slotInput.focus();
+      }
+
+      document.getElementById("vehicle-in-form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const license = document.getElementById("license-plate-in").value.trim();
+        const time = document.getElementById("time-in").value;
+        const slotId = slotInput.value;
+        const slot = slots.find((s) => s.id === slotId);
+
+        if (slot && !slot.license) {
+          slot.license = license;
+          slot.timeIn = time;
+          historyList.innerHTML += `<li>Xe <strong>${license}</strong> vào Slot ${slotId} lúc ${time}</li>`;
+          renderMap();
+          e.target.reset();
+          autoFillTime();
+        } else {
+          alert("Chỗ đậu không hợp lệ hoặc đã có xe!");
+        }
       });
-      const selectedSection = document.getElementById(type);
-      if (selectedSection) selectedSection.classList.remove('hidden');
-      updateDashboard();
-    }
 
- 
-  </script>
-</body>
+      document.getElementById("vehicle-out-form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const license = document.getElementById("license-plate-out").value.trim();
+        const time = document.getElementById("time-out").value;
+        const slot = slots.find((s) => s.license === license);
+
+        if (slot) {
+          historyList.innerHTML += `<li>Xe <strong>${license}</strong> rời Slot ${slot.id} lúc ${time}</li>`;
+          slot.license = "";
+          slot.timeIn = null;
+          renderMap();
+          e.target.reset();
+          autoFillTime();
+        } else {
+          alert("Không tìm thấy xe trong bãi!");
+        }
+      });
+
+      function autoFillTime() {
+        const now = new Date().toISOString().slice(0, 16);
+        document.getElementById("time-in").value = now;
+        document.getElementById("time-out").value = now;
+      }
+
+      renderMap();
+      autoFillTime();
+    </script>
+  </body>
 </html>

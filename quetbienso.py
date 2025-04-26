@@ -8,10 +8,10 @@ from PIL import Image
 import io
 
 # Cấu hình Django
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'parking_system.settings')  # 🔁 Đổi thành tên project của bạn
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'parking_system.settings')  # Đổi thành tên project của bạn
 django.setup()
 
-from system.models import Xe  # 🔁 Đổi lại đúng app và model của bạn
+from system.models import Xe, Luotravao, Vitridoxe  # Đổi lại đúng app và model của bạn
 
 reader = easyocr.Reader(['vi', 'en'])
 
@@ -87,32 +87,42 @@ while True:
         else:
             print(f"⛔ Biển số không hợp lệ: {bien_so_ket_hop}")
 
-    elif key == ord('q'):
-        # Sau khi nhấn 'q', dữ liệu mới nhất sẽ được lưu vào SQL
+    elif key == ord('q') or (key == ord('c') and bien_so_quet and loai_xe_quet and thoigian_quet and img_path_quet):
+    # Sau khi nhấn 'q' hoặc sau khi nhận diện biển số thành công, lưu dữ liệu vào SQL
         if bien_so_quet and loai_xe_quet and thoigian_quet and img_path_quet:
-            xe = Xe.objects.filter(bienso=bien_so_quet, thoigianra__isnull=True).first()
+            xe = Xe.objects.filter(bienso=bien_so_quet).first()
             
             if xe:
                 # Xe đã vào, giờ là xe ra
-                xe.thoigianra = datetime.now()
-                xe.save()
-                print(f"🚗 Xe ra: {bien_so_quet} | Thời gian ra: {xe.thoigianra}")
+                luot = Luotravao.objects.filter(bienso=xe, thoigianra__isnull=True).first()
+                
+                if luot:
+                    luot.thoigianra = datetime.now()
+                    luot.save()
+                    print(f"🚗 Xe ra: {bien_so_quet} | Thời gian ra: {luot.thoigianra}")
+                else:
+                    print(f"⚠️ Không tìm thấy lượt vào cho xe biển số: {bien_so_quet}")
             else:
                 # Xe mới vào
                 xe = Xe(
-                    xeid=str(uuid.uuid4()),
                     bienso=bien_so_quet,
                     loaixe=loai_xe_quet,
-                    chuxe=None,
-                    imgurl=img_path_quet,  # Lưu đường dẫn ảnh vào trường imgurl
-                    thoigianvao=thoigian_quet
+                    makh=None,
                 )
-                xe.save()  # Lưu vào cơ sở dữ liệu chỉ khi nhận diện thành công và thoát
+                xe.save()
+
+                luot = Luotravao(
+                    bienso=xe,
+                    thoigianvao=thoigian_quet,
+                    anhvao=img_path_quet,
+                )
+                luot.save()
                 print(f"✅ Xe vào: {bien_so_quet} | Thời gian vào: {thoigian_quet} | Đường dẫn ảnh: {img_path_quet}")
         else:
             print("⚠️ Không có dữ liệu biển số để lưu.")
 
-        break  # Thoát khỏi vòng lặp sau khi nhấn 'q'
+        break  # THÊM LỆNH break() để thoát vòng lặp
+
 
 cap.release()
 cv2.destroyAllWindows()

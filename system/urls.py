@@ -19,5 +19,8 @@ urlpatterns = [
     path('nhanvien/xoa/<str:nhanvienid>/', views.delete_employee, name='delete_employee'),
     path('nhanvien/them/', views.add_employee, name='add_employee'),
     path('search/', views.search_employee, name='search_employee'),
+    path('vehicles/', views.vehicle_management, name='vehicle_management'),  # Trang danh sách xe
+    path('vehicle/edit/<str:pk>/', views.vehicle_edit, name='vehicle_edit'),  # Trang sửa xe
+    path('vehicle/delete/<str:pk>/', views.vehicle_delete, name='vehicle_delete'),  # Trang xóa xe
 
 ]
