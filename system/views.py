@@ -37,6 +37,77 @@ from django.db.models import Q
 from django.shortcuts import render
 from .models import Nhanvien
 import xlwt
+from django.contrib.auth.models import User
+from django.contrib.auth.models import User
+from django.contrib import messages
+from django.shortcuts import redirect
+
+# ========================== VEHICLE MANAGEMENT =========================
+
+
+from django.contrib.auth.models import User
+
+def add_employee(request):
+    if request.method == 'POST':
+        nhanvienid = request.POST.get('nhanvienid')
+        hoten = request.POST.get('hoten')
+        chucvu = request.POST.get('chucvu')  # Chức vụ có thể quyết định quyền
+        phanquyen = request.POST.get('phanquyen')
+        diachi = request.POST.get('diachi')
+        sodienthoai = request.POST.get('sodienthoai')
+        ngaysinh = request.POST.get('ngaysinh')
+        email = request.POST.get('email')
+        matkhau = request.POST.get('matkhau')
+
+        # Kiểm tra mã nhân viên đã tồn tại trong bảng Nhanvien
+        if Nhanvien.objects.filter(nhanvienid=nhanvienid).exists():
+            messages.error(request, "Mã nhân viên đã tồn tại.")
+            return redirect('employee_management')
+
+        # Kiểm tra tài khoản User đã tồn tại chưa
+        if User.objects.filter(username=nhanvienid).exists():
+            messages.error(request, "Tài khoản đăng nhập đã tồn tại.")
+            return redirect('employee_management')
+
+        try:
+            # Thêm vào bảng Nhanvien
+            Nhanvien.objects.create(
+                nhanvienid=nhanvienid,
+                hoten=hoten,
+                chucvu=chucvu,
+                phanquyen=phanquyen,
+                diachi=diachi,
+                sodienthoai=sodienthoai,
+                ngaysinh=ngaysinh,
+                email=email,
+                matkhau=matkhau
+            )
+
+            # Tạo tài khoản User để đăng nhập
+            user = User.objects.create_user(
+                username=nhanvienid,     # username là mã nhân viên
+                password=matkhau,         # mật khẩu nhân viên nhập
+                email=email,
+                first_name=hoten
+            )
+
+            # Cấp quyền cho tài khoản User
+            if chucvu == 'Quản lý':
+                user.is_staff = True
+                user.is_superuser = True  # Quản lý có quyền superuser
+            else:
+                user.is_staff = True  # Nhân viên có quyền staff
+
+            # Lưu lại quyền cho user
+            user.save()
+
+            messages.success(request, "Thêm nhân viên và tài khoản đăng nhập thành công.")
+        except Exception as e:
+            messages.error(request, f"Lỗi khi thêm nhân viên: {e}")
+
+    return redirect('employee_management')
+
+
 
 
 # ========================== VEHICLE MANAGEMENT ==========================
