@@ -618,24 +618,48 @@ def employee_management(request):
 
 # ===================================QLX=======================================
 # View để xem danh sách xe
+import math
+from django.utils import timezone
+from django.shortcuts import render
+from .models import Xe, Luotravao
+
 def vehicle_management(request):
     vehicles = Xe.objects.all()
-    
     data = []
 
     for vehicle in vehicles:
+        # Lấy tất cả các lượt đã có thời gian ra
+        luots = Luotravao.objects.filter(bienso=vehicle).exclude(thoigianra=None)
+
+        # Tính tổng tiền
+        tong_tien = 0
+        for luot in luots:
+            thoigianvao = luot.thoigianvao
+            thoigianra = luot.thoigianra
+            duration = (thoigianra - thoigianvao).total_seconds() / 3600  # số giờ
+            duration = math.ceil(duration)  # làm tròn lên
+
+            if vehicle.loaixe == 'Oto':
+                tong_tien += duration * 30000  # 30k/giờ
+            elif vehicle.loaixe == 'Xe máy':
+                tong_tien += duration * 10000  # 10k/giờ
+
+        # Lấy vị trí hiện tại nếu có
         latest_luot = Luotravao.objects.filter(bienso=vehicle, trangthai='Đang gửi').order_by('-thoigianvao').first()
         if latest_luot and latest_luot.mavitri:
             ten_vitri = latest_luot.mavitri.tenvitri
         else:
             ten_vitri = 'Chưa có vị trí'
-        
+
         data.append({
             'vehicle': vehicle,
-            'ten_vitri': ten_vitri
+            'ten_vitri': ten_vitri,
+            'tong_tien': tong_tien,
         })
-    
+
     return render(request, 'vehicle_management.html', {'vehicles': data})
+
+
 
 
 def vehicle_edit(request, pk):

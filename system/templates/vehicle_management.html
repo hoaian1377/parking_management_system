@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
-
+{% load humanize %}
 {% block contents %}
 <!DOCTYPE html>
 <html lang="en">
@@ -30,94 +30,132 @@
         />
       </div>
 
-      <!-- Danh sách xe -->
-      <div class="bg-white p-6 rounded-2xl shadow-lg">
-        <h2 class="text-2xl font-semibold mb-4">Danh sách xe đã quét</h2>
+      <!-- Xe còn đang ở bãi -->
+      <div class="bg-white p-6 rounded-2xl shadow-lg mb-10">
+        <h2 class="text-2xl font-semibold mb-4 text-green-600">Xe đang gửi trong bãi</h2>
         <div class="overflow-auto">
-          <table class="table-auto w-full text-sm" id="vehicleTable">
+          <table class="table-auto w-full text-sm" id="vehicleTableIn">
             <thead class="bg-gray-200">
               <tr>
                 <th class="px-4 py-2 text-left">Biển số</th>
                 <th class="px-4 py-2 text-left">Loại xe</th>
                 <th class="px-4 py-2 text-left">Chủ xe</th>
                 <th class="px-4 py-2 text-left">Vị trí</th>
-                <th class="px-4 py-2 text-left">Lượt vào/ra</th>
-                <th class="px-4 py-2 text-left">Thời gian</th>
-                <th class="px-4 py-2 text-left">Tổng tiền</th>
+                <th class="px-4 py-2 text-left">Thời gian vào</th>
                 <th class="px-4 py-2 text-left">Hành động</th>
               </tr>
             </thead>
             <tbody>
               {% for item in vehicles %}
-                <tr class="border-b">
-                  <td class="px-4 py-2">{{ item.vehicle.bienso }}</td>
-                  <td class="px-4 py-2">{{ item.vehicle.loaixe }}</td>
-                  <td class="px-4 py-2">
-                    {% if item.vehicle.makh %}
-                      {{ item.vehicle.makh.ten }}
-                    {% else %}
-                      Chưa có chủ xe
-                    {% endif %}
-                  </td>
-                  <td class="px-4 py-2">
-                    {{ item.ten_vitri }}
-                  </td>
-                  <td class="px-4 py-2">
-                    {% for luot in item.vehicle.luotravao_set.all %}
-                      <div class="mb-1">
-                        {{ luot.thoigianvao }} - {{ luot.thoigianra }}
-                      </div>
-                    {% endfor %}
-                  </td>
-                  <td class="px-4 py-2">
-                    {% for luot in item.vehicle.luotravao_set.all %}
-                      <div class="mb-1">
-                        Vào: {{ luot.thoigianvao }}<br />
-                        Ra: {{ luot.thoigianra }}
-                      </div>
-                    {% endfor %}
-                  </td>
-                  <td class="px-4 py-2">
-                    {% for luot in item.vehicle.luotravao_set.all %}
-                      <div class="mb-1">
-                        {{ luot.trangthai }} - Tổng tiền: {{ luot.tongtien }} VND
-                      </div>
-                    {% endfor %}
-                  </td>
-                  <td class="px-4 py-2">
-                    <a href="{% url 'vehicle_edit' item.vehicle.bienso %}" class="text-blue-500">Sửa</a> |
-                    <a href="{% url 'vehicle_delete' item.vehicle.bienso %}" class="text-red-500">Xóa</a>
-                  </td>
-                </tr>
+                {% for luot in item.vehicle.luotravao_set.all %}
+                  {% if not luot.thoigianra %}
+                    <tr class="border-b">
+                      <td class="px-4 py-2">{{ item.vehicle.bienso }}</td>
+                      <td class="px-4 py-2">{{ item.vehicle.loaixe }}</td>
+                      <td class="px-4 py-2">
+                        {% if item.vehicle.makh %}
+                          {{ item.vehicle.makh.ten }}
+                        {% else %}
+                          Chưa có chủ xe
+                        {% endif %}
+                      </td>
+                      <td class="px-4 py-2">{{ item.ten_vitri }}</td>
+                      <td class="px-4 py-2">{{ luot.thoigianvao|date:"d/m/Y H:i" }}</td>
+                      <td class="px-4 py-2">
+                        <a href="{% url 'vehicle_edit' item.vehicle.bienso %}" class="text-blue-500">Sửa</a> |
+                        <a href="{% url 'vehicle_delete' item.vehicle.bienso %}" class="text-red-500">Xóa</a>
+                      </td>
+                    </tr>
+                  {% endif %}
+                {% endfor %}
               {% empty %}
                 <tr>
-                  <td colspan="8" class="text-center py-2">Không có xe nào trong hệ thống</td>
+                  <td colspan="6" class="text-center py-2">Không có xe nào đang gửi trong bãi</td>
                 </tr>
               {% endfor %}
             </tbody>
           </table>
         </div>
       </div>
+
+      <!-- Xe đã ra khỏi bãi -->
+      <div class="bg-white p-6 rounded-2xl shadow-lg">
+        <h2 class="text-2xl font-semibold mb-4 text-blue-600">Xe đã rời khỏi bãi</h2>
+        <div class="overflow-auto">
+          <table class="table-auto w-full text-sm" id="vehicleTableOut">
+            <thead class="bg-gray-200">
+              <tr>
+                <th class="px-4 py-2 text-left">Biển số</th>
+                <th class="px-4 py-2 text-left">Loại xe</th>
+                <th class="px-4 py-2 text-left">Chủ xe</th>
+                <th class="px-4 py-2 text-left">Vị trí</th>
+                <th class="px-4 py-2 text-left">Thời gian vào</th>
+                <th class="px-4 py-2 text-left">Thời gian ra</th>
+                <th class="px-4 py-2 text-left">Tổng tiền</th>
+                <th class="px-4 py-2 text-left">Hành động</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in vehicles %}
+                {% for luot in item.vehicle.luotravao_set.all %}
+                  {% if luot.thoigianra %}
+                    <tr class="border-b">
+                      <td class="px-4 py-2">{{ item.vehicle.bienso }}</td>
+                      <td class="px-4 py-2">{{ item.vehicle.loaixe }}</td>
+                      <td class="px-4 py-2">
+                        {% if item.vehicle.makh %}
+                          {{ item.vehicle.makh.ten }}
+                        {% else %}
+                          Chưa có chủ xe
+                        {% endif %}
+                      </td>
+                      <td class="px-4 py-2">{{ item.ten_vitri }}</td>
+                      <td class="px-4 py-2">{{ luot.thoigianvao|date:"d/m/Y H:i" }}</td>
+                      <td class="px-4 py-2">{{ luot.thoigianra|date:"d/m/Y H:i" }}</td>
+                      <td class="px-4 py-2">
+                        {{ luot.tong_tien|default:item.tong_tien|intcomma }} VND
+                      </td>
+                      <td class="px-4 py-2">
+                        <a href="{% url 'vehicle_edit' item.vehicle.bienso %}" class="text-blue-500">Sửa</a> |
+                        <a href="{% url 'vehicle_delete' item.vehicle.bienso %}" class="text-red-500">Xóa</a>
+                      </td>
+                    </tr>
+                  {% endif %}
+                {% endfor %}
+              {% empty %}
+                <tr>
+                  <td colspan="8" class="text-center py-2">Không có xe nào đã ra khỏi bãi</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
     </main>
 
     <!-- Script tìm kiếm -->
     <script>
       function searchVehicle() {
         const input = document.getElementById("searchInput").value.toLowerCase();
-        const table = document.getElementById("vehicleTable");
-        const trs = table.getElementsByTagName("tr");
+        const tables = ["vehicleTableIn", "vehicleTableOut"];
 
-        for (let i = 1; i < trs.length; i++) { // bỏ header
-          const tds = trs[i].getElementsByTagName("td");
-          let found = false;
-          for (let j = 0; j < tds.length - 1; j++) { // trừ cột Hành động
-            if (tds[j] && tds[j].textContent.toLowerCase().includes(input)) {
-              found = true;
-              break;
+        tables.forEach(function(tableId) {
+          const table = document.getElementById(tableId);
+          const trs = table.getElementsByTagName("tr");
+
+          for (let i = 1; i < trs.length; i++) { // bỏ header
+            const tds = trs[i].getElementsByTagName("td");
+            let found = false;
+            for (let j = 0; j < tds.length - 1; j++) { // trừ cột Hành động
+              if (tds[j] && tds[j].textContent.toLowerCase().includes(input)) {
+                found = true;
+                break;
+              }
             }
+            trs[i].style.display = found ? "" : "none";
           }
-          trs[i].style.display = found ? "" : "none";
-        }
+        });
       }
     </script>
 
