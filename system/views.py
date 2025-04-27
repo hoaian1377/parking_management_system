@@ -716,12 +716,6 @@ def parking_status(request):
 
     return render(request, 'parking_status.html', context)
 
-
-
-
-
-
-
 def xe_vao_bai(bienso, loaixe):
     # Tìm 1 vị trí còn trống
     vitri = Vitridoxe.objects.filter(is_occupied=False).first()
@@ -774,6 +768,7 @@ def export_vehicle_report(request):
         
         # Base query
         parking_records = Luotravao.objects.all()
+        all_records = Luotravao.objects.all()
         
         # Apply filters
         if from_date:
@@ -794,7 +789,7 @@ def export_vehicle_report(request):
         headers = ['STT', 'Ngày', 'Biển số xe', 'Loại xe', 'Giờ vào', 'Giờ ra', 'Thời gian giữ', 'Phí (VNĐ)']
         for col, header in enumerate(headers):
             ws.write(0, col, header)
-        
+
         # Add data
         for row, record in enumerate(parking_records, start=1):
             try:
@@ -827,18 +822,21 @@ def export_vehicle_report(request):
                 print(f"Error processing record {record.id}: {str(e)}")
                 continue
         
+            wb.save(response)
+            return response
+
         # Add summary
         summary_row = len(parking_records) + 2
         ws.write(summary_row, 0, 'Thống kê')
         ws.write(summary_row + 1, 0, 'Tổng số lượt xe:')
-        ws.write(summary_row + 1, 1, len(parking_records))
+        ws.write(summary_row + 1, 1, parking_records.count())
         ws.write(summary_row + 2, 0, 'Ô tô:')
-        ws.write(summary_row + 2, 1, parking_records.filter(bienso__loaixe='car').count())
+        ws.write(summary_row + 2, 1, parking_records.filter(bienso__loaixe='Ô tô').count())
         ws.write(summary_row + 3, 0, 'Xe máy:')
-        ws.write(summary_row + 3, 1, parking_records.filter(bienso__loaixe='motorcycle').count())
+        ws.write(summary_row + 3, 1, parking_records.filter(bienso__loaixe='Xe máy').count())
         ws.write(summary_row + 4, 0, 'Xe đạp:')
-        ws.write(summary_row + 4, 1, parking_records.filter(bienso__loaixe='bike').count())
-        
+        ws.write(summary_row + 4, 1, parking_records.filter(bienso__loaixe='Xe đạp').count())
+                
         # Calculate total revenue
         total_revenue = 0
         for record in parking_records:

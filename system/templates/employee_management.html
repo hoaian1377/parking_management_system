@@ -1,3 +1,6 @@
+{% extends "base.html" %}
+{% block contents %}
+{% load static %}
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -9,20 +12,6 @@
 </head>
 
 <body class="bg-gray-100">
-
-<!-- Navbar -->
-<nav class="fixed top-0 left-0 right-0 bg-blue-600 text-white shadow z-50">
-  <div class="container mx-auto flex justify-between items-center px-4 py-3">
-    <a href="{% url 'home' %}" class="font-bold text-lg">Quản lý Nhân viên</a>
-    <div class="hidden md:flex space-x-6 items-center">
-      <a href="{% url 'vehicle_management' %}" class="hover:text-gray-200">Quản lý xe</a>
-      <a href="{% url 'parking_status' %}" class="hover:text-gray-200">Tình trạng bãi xe</a>
-      <a href="{% url 'vehicle_report' %}" class="hover:text-gray-200">Báo cáo & thống kê</a>
-      <a href="{% url 'login' %}" class="bg-white text-blue-600 px-3 py-1 rounded hover:bg-gray-100">Đăng xuất</a>
-    </div>
-  </div>
-</nav>
-
 <!-- Main Content -->
 <div class="container mx-auto pt-24 px-4">
 
@@ -183,3 +172,4 @@ document.addEventListener('DOMContentLoaded', function() {
 
 </body>
 </html>
+{% endblock contents %}
