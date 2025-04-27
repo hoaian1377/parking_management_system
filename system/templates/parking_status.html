@@ -1,197 +1,103 @@
+{% extends "base.html" %}
 {% load static %}
+{% block contents %}
 <!DOCTYPE html>
 <html lang="vi">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <title>Quản lý Bãi giữ xe</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link href="{% static 'app/css/vehicle_management.css' %}" rel="stylesheet" />
-    <style>
-      .transition-height {
-        transition: max-height 0.5s ease-in-out;
-        overflow: hidden;
-      }
-    </style>
-  </head>
-
-  <body class="bg-gray-100">
-    <!-- Navbar -->
-    <nav class="bg-white shadow p-4 flex justify-between items-center fixed w-full top-0 z-50">
-      <a href="{% url 'home' %}" class="font-bold text-2xl text-blue-600">Quản lý Bãi xe</a>
-      <div class="flex space-x-4">
-        <a href="{% url 'vehicle_management' %}" class="text-gray-600 hover:text-blue-600">Quản lý xe</a>
-        <a href="{% url 'parking_status' %}" class="text-gray-600 hover:text-blue-600">Tình trạng bãi</a>
-        <a href="{% url 'vehicle_report' %}" class="text-gray-600 hover:text-blue-600">Báo cáo</a>
-        <a href="{% url 'employee_management' %}" class="text-gray-600 hover:text-blue-600">Nhân viên</a>
-        <a href="{% url 'login' %}" class="text-red-500 hover:underline">Đăng xuất</a>
-      </div>
-    </nav>
-
+</head>
+<body class="bg-gray-100">
     <main class="pt-24 px-6 max-w-7xl mx-auto">
-      <!-- Header -->
-      <h1 class="text-3xl font-bold text-center mb-8 text-gray-800">Hệ thống Quản lý Bãi giữ xe</h1>
+        <!-- Header -->
+        <h1 class="text-3xl font-bold text-center mb-8 text-gray-800">Hệ thống Quản lý Bãi giữ xe</h1>
 
-      <!-- Sơ đồ từng tầng -->
-      <section class="bg-white p-6 rounded-xl shadow">
-        <!-- Tầng 1 -->
-        <div class="mb-6">
-          <div class="flex justify-between items-center cursor-pointer" onclick="toggleFloor('floor-1')">
-            <h2 class="text-xl font-semibold text-blue-700">Tầng 1 (A-G)</h2>
-            <span id="icon-floor-1" class="text-2xl text-gray-500 transition-transform">&#x25BC;</span>
-          </div>
-          <div id="floor-1" class="transition-height max-h-0 mt-4">
-            <div id="floor1-grid" class="grid grid-cols-10 gap-4"></div>
-          </div>
-        </div>
+        <!-- Sơ đồ bãi đậu -->
+        <section class="bg-white p-6 rounded-xl shadow">
 
-        <!-- Tầng 2 -->
-        <div class="mb-6">
-          <div class="flex justify-between items-center cursor-pointer" onclick="toggleFloor('floor-2')">
-            <h2 class="text-xl font-semibold text-blue-700">Tầng 2 (H-N)</h2>
-            <span id="icon-floor-2" class="text-2xl text-gray-500 transition-transform">&#x25BC;</span>
-          </div>
-          <div id="floor-2" class="transition-height max-h-0 mt-4">
-            <div id="floor2-grid" class="grid grid-cols-10 gap-4"></div>
-          </div>
-        </div>
+            <!-- Tầng 1 -->
+            <div class="mb-6">
+                <div class="flex justify-between items-center cursor-pointer" onclick="toggleFloor('floor-1')">
+                    <h2 class="text-xl font-semibold text-blue-700">Tầng 1 (A-G)</h2>
+                    <span id="icon-floor-1" class="text-2xl text-gray-500 transition-transform">&#x25BC;</span>
+                </div>
+                <div id="floor-1" class="transition-height max-h-0 overflow-hidden mt-4">
+                    <div class="grid grid-cols-10 gap-4">
+                        {% for spot in floor1_spots %}
+                            <div class="border p-2 text-center rounded cursor-pointer text-xs font-medium transition-all duration-300 
+                                {% if spot.tenvitri in occupied_slots %} bg-red-400 hover:bg-red-500 {% else %} bg-green-300 hover:bg-green-400 {% endif %}">
+                                {{ spot.tenvitri }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
 
-        <!-- Tầng 3 -->
-        <div class="mb-6">
-          <div class="flex justify-between items-center cursor-pointer" onclick="toggleFloor('floor-3')">
-            <h2 class="text-xl font-semibold text-blue-700">Tầng 3 (O-U)</h2>
-            <span id="icon-floor-3" class="text-2xl text-gray-500 transition-transform">&#x25BC;</span>
-          </div>
-          <div id="floor-3" class="transition-height max-h-0 mt-4">
-            <div id="floor3-grid" class="grid grid-cols-10 gap-4"></div>
-          </div>
-        </div>
+            <!-- Tầng 2 -->
+            <div class="mb-6">
+                <div class="flex justify-between items-center cursor-pointer" onclick="toggleFloor('floor-2')">
+                    <h2 class="text-xl font-semibold text-blue-700">Tầng 2 (H-N)</h2>
+                    <span id="icon-floor-2" class="text-2xl text-gray-500 transition-transform">&#x25BC;</span>
+                </div>
+                <div id="floor-2" class="transition-height max-h-0 overflow-hidden mt-4">
+                    <div class="grid grid-cols-10 gap-4">
+                        {% for spot in floor2_spots %}
+                            <div class="border p-2 text-center rounded cursor-pointer text-xs font-medium transition-all duration-300 
+                                {% if spot.tenvitri in occupied_slots %} bg-red-400 hover:bg-red-500 {% else %} bg-green-300 hover:bg-green-400 {% endif %}">
+                                {{ spot.tenvitri }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
 
-        <!-- Tầng 4 -->
-        <div class="mb-6">
-          <div class="flex justify-between items-center cursor-pointer" onclick="toggleFloor('floor-4')">
-            <h2 class="text-xl font-semibold text-blue-700">Tầng 4 (V-Z)</h2>
-            <span id="icon-floor-4" class="text-2xl text-gray-500 transition-transform">&#x25BC;</span>
-          </div>
-          <div id="floor-4" class="transition-height max-h-0 mt-4">
-            <div id="floor4-grid" class="grid grid-cols-10 gap-4"></div>
-          </div>
-        </div>
-      </section>
+            <!-- Tầng 3 -->
+            <div class="mb-6">
+                <div class="flex justify-between items-center cursor-pointer" onclick="toggleFloor('floor-3')">
+                    <h2 class="text-xl font-semibold text-blue-700">Tầng 3 (O-U)</h2>
+                    <span id="icon-floor-3" class="text-2xl text-gray-500 transition-transform">&#x25BC;</span>
+                </div>
+                <div id="floor-3" class="transition-height max-h-0 overflow-hidden mt-4">
+                    <div class="grid grid-cols-10 gap-4">
+                        {% for spot in floor3_spots %}
+                            <div class="border p-2 text-center rounded cursor-pointer text-xs font-medium transition-all duration-300 
+                                {% if spot.tenvitri in occupied_slots %} bg-red-400 hover:bg-red-500 {% else %} bg-green-300 hover:bg-green-400 {% endif %}">
+                                {{ spot.tenvitri }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
 
-      <!-- Danh sách xe đang đỗ -->
-      <section class="bg-white mt-12 p-6 rounded-xl shadow">
-        <h2 class="text-2xl font-semibold mb-4">Danh sách Xe đang đỗ</h2>
-        <div class="overflow-x-auto">
-          <table class="table-auto w-full text-sm">
-            <thead class="bg-gray-200">
-              <tr>
-                <th class="px-4 py-2">Biển số</th>
-                <th class="px-4 py-2">Loại xe</th>
-                <th class="px-4 py-2">Vị trí đỗ</th>
-                <th class="px-4 py-2">Thời gian vào</th>
-              </tr>
-            </thead>  
-              {% for vehicle in vehicles %}
-                <tr class="border-b">
-                  <td class="px-4 py-2">{{ vehicle.bienso }}</td>
-                  <td class="px-4 py-2">{{ vehicle.loaixe }}</td>
-                  <td class="px-4 py-2">{{ vehicle.vitridoxe.tenvitri }}</td>
-                  <td class="px-4 py-2">
-                    {% for luot in vehicle.luotravao_set.all %}
-                      <div class="mb-1">
-                        {{ luot.thoigianvao }} 
-                      </div>
-                    {% endfor %}
-                  </td>
-              {% empty %}
-                <tr>
-                  <td colspan="8" class="text-center py-2">Không có xe nào trong hệ thống</td>
-                </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      </section>
+            <!-- Tầng 4 -->
+            <div class="mb-6">
+                <div class="flex justify-between items-center cursor-pointer" onclick="toggleFloor('floor-4')">
+                    <h2 class="text-xl font-semibold text-blue-700">Tầng 4 (V-Z)</h2>
+                    <span id="icon-floor-4" class="text-2xl text-gray-500 transition-transform">&#x25BC;</span>
+                </div>
+                <div id="floor-4" class="transition-height max-h-0 overflow-hidden mt-4">
+                    <div class="grid grid-cols-10 gap-4">
+                        {% for spot in floor4_spots %}
+                            <div class="border p-2 text-center rounded cursor-pointer text-xs font-medium transition-all duration-300 
+                                {% if spot.tenvitri in occupied_slots %} bg-red-400 hover:bg-red-500 {% else %} bg-green-300 hover:bg-green-400 {% endif %}">
+                                {{ spot.tenvitri }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+        </section>
     </main>
 
+    <!-- Script toggle mở tầng -->
     <script>
-      const rows = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-      const slots = [];
-    
-      // Tạo danh sách tất cả slot id (A1 -> Z10)
-      for (let r = 0; r < rows.length; r++) {
-        const row = rows[r];
-        for (let c = 1; c <= 10; c++) {
-          slots.push(`${row}${c}`);
-        }
-      }
-    
-      // Lấy dữ liệu xe từ Django
-      const vehiclesData = [
-        {% for vehicle in vehicles %}
-          {
-            license: "{{ vehicle.bienso|escapejs }}",
-            position: "{{ vehicle.vitridoxe.tenvitri|escapejs }}"
-          },
-        {% endfor %}
-      ];
-    
-      console.log("Dữ liệu xe:", vehiclesData);  // <--- kiểm tra in ra
-    
-      // Tạo map từ vị trí -> biển số
-      const occupiedSlots = {};
-      vehiclesData.forEach(v => {
-        occupiedSlots[v.position.trim()] = v.license;  // thêm trim() để xóa khoảng trắng nếu có
-      });
-    
-      console.log("Slot đã có xe:", occupiedSlots);  // <--- kiểm tra in ra
-    
-      // Tạo 1 slot
-      function createSlot(slotId) {
-        const license = occupiedSlots[slotId] || null;
-        const div = document.createElement('div');
-        div.className = "border p-2 text-center rounded cursor-pointer text-xs font-medium transition-all duration-300 " +
-                        (license ? "bg-red-400 hover:bg-red-500" : "bg-green-300 hover:bg-green-400");
-        div.textContent = slotId;
-        div.onclick = () => {
-          if (license) {
-            alert(`Xe ${license} đang đỗ tại vị trí ${slotId}`);
-          } else {
-            alert(`Vị trí ${slotId} đang trống`);
-          }
-        };
-        return div;
-      }
-    
-      // Vẽ sơ đồ
-      function renderMap() {
-        document.getElementById('floor1-grid').innerHTML = "";
-        document.getElementById('floor2-grid').innerHTML = "";
-        document.getElementById('floor3-grid').innerHTML = "";
-        document.getElementById('floor4-grid').innerHTML = "";
-    
-        slots.forEach(slotId => {
-          const firstLetter = slotId.charAt(0);
-          const slotElement = createSlot(slotId);
-    
-          if ("ABCDEFG".includes(firstLetter)) {
-            document.getElementById('floor1-grid').appendChild(slotElement);
-          } else if ("HIJKLMN".includes(firstLetter)) {
-            document.getElementById('floor2-grid').appendChild(slotElement);
-          } else if ("OPQRSTU".includes(firstLetter)) {
-            document.getElementById('floor3-grid').appendChild(slotElement);
-          } else if ("VWXYZ".includes(firstLetter)) {
-            document.getElementById('floor4-grid').appendChild(slotElement);
-          }
-        });
-      }
-    
-      // Toggle tầng
       function toggleFloor(floorId) {
         const container = document.getElementById(floorId);
         const icon = document.getElementById('icon-' + floorId);
-    
+
         if (container.classList.contains('max-h-0')) {
           container.classList.remove('max-h-0');
           container.classList.add('max-h-[3000px]');
@@ -202,11 +108,7 @@
           icon.classList.remove('rotate-180');
         }
       }
-    
-      renderMap();
     </script>
-    
-    
-      
-  </body>
+</body>
 </html>
+{% endblock contents %}

@@ -663,14 +663,37 @@ def vehicle_delete(request, pk):
     return render(request, 'vehicle_confirm_delete.html', {'vehicle': vehicle})
 
 def parking_status(request):
-    vehicles = Luotravao.objects.select_related('bienso', 'mavitri').filter(trangthai='Đang đỗ')
-    floors = [
-        {'floor': 'floor-1', 'letters': 'A-G'},
-        {'floor': 'floor-2', 'letters': 'H-N'},
-        {'floor': 'floor-3', 'letters': 'O-U'},
-        {'floor': 'floor-4', 'letters': 'V-Z'},
-    ]
-    return render(request, 'parking_status.html', {'vehicles': vehicles, 'floors': floors})
+    # Lấy danh sách xe đang đỗ (chưa có lượt ra)
+    vehicles = Luotravao.objects.filter(thoigianra__isnull=True)
+
+    # Lấy tất cả vị trí đỗ xe
+    parking_spots = Vitridoxe.objects.all()
+
+    # Tạo từ điển các vị trí đã bị chiếm
+    occupied_slots = {}
+    for vehicle in vehicles:
+        if vehicle.mavitri:
+            spot_name = vehicle.mavitri.tenvitri
+            occupied_slots[spot_name] = vehicle.bienso
+
+    # Chia vị trí đỗ xe thành 4 tầng theo chữ cái đầu
+    floor1_spots = [spot for spot in parking_spots if 'A' <= spot.tenvitri[0] <= 'G']
+    floor2_spots = [spot for spot in parking_spots if 'H' <= spot.tenvitri[0] <= 'N']
+    floor3_spots = [spot for spot in parking_spots if 'O' <= spot.tenvitri[0] <= 'U']
+    floor4_spots = [spot for spot in parking_spots if 'V' <= spot.tenvitri[0] <= 'Z']
+
+    context = {
+        'floor1_spots': floor1_spots,
+        'floor2_spots': floor2_spots,
+        'floor3_spots': floor3_spots,
+        'floor4_spots': floor4_spots,
+        'occupied_slots': occupied_slots,  # Gửi danh sách các slot đã chiếm
+    }
+
+    return render(request, 'parking_status.html', context)
+
+
+
 
 
 
