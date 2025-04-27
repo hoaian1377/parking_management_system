@@ -617,60 +617,26 @@ def employee_management(request):
 
 
 # ===================================QLX=======================================
-from django.shortcuts import render, redirect
-from django.http import JsonResponse
-from .models import Xe, Luotravao, Vitridoxe
-from django.utils import timezone
-
-# View để hiển thị danh sách xe và quản lý xe ra vào
-def vehicle_management(request):
-    vehicles = Xe.objects.all()  # Lấy tất cả xe trong database
-    slots = Vitridoxe.objects.all()  # Lấy tất cả vị trí đỗ xe
-    return render(request, 'vehicle_management.html', {'vehicles': vehicles, 'slots': slots})
-
-# View xử lý xe vào
-def vehicle_in(request):
-    if request.method == 'POST':
-        bienso = request.POST.get('license_plate_in')
-        thoigianvao = timezone.now()
-        slot_id = request.POST.get('slot_in')
-        slot = Vitridoxe.objects.get(id=slot_id)
-        
-        xe = Xe.objects.get(bienso=bienso)
-        Luotravao.objects.create(bienso=xe, thoigianvao=thoigianvao, mavitri=slot, trangthai='Đang đỗ')
-        
-        # Cập nhật vị trí đỗ xe
-        slot.trangthai = 'Đã có xe'
-        slot.save()
-
-        return redirect('vehicle_management')
-
-# View xử lý xe ra
-def vehicle_out(request):
-    if request.method == 'POST':
-        bienso = request.POST.get('license_plate_out')
-        thoigianra = timezone.now()
-        
-        luot = Luotravao.objects.filter(bienso__bienso=bienso, thoigianra__isnull=True).first()
-        if luot:
-            luot.thoigianra = thoigianra
-            luot.trangthai = 'Đã ra'
-            luot.save()
-
-            # Cập nhật lại vị trí đỗ xe
-            slot = luot.mavitri
-            slot.trangthai = 'Trống'
-            slot.save()
-
-        return redirect('vehicle_management')
-
-from django.shortcuts import render, get_object_or_404, redirect
-from .models import Xe
-
 # View để xem danh sách xe
 def vehicle_management(request):
-    vehicles = Xe.objects.all()  # Lấy tất cả các xe
-    return render(request, 'vehicle_management.html', {'vehicles': vehicles})
+    vehicles = Xe.objects.all()
+    
+    data = []
+
+    for vehicle in vehicles:
+        latest_luot = Luotravao.objects.filter(bienso=vehicle, trangthai='Đang gửi').order_by('-thoigianvao').first()
+        if latest_luot and latest_luot.mavitri:
+            ten_vitri = latest_luot.mavitri.tenvitri
+        else:
+            ten_vitri = 'Chưa có vị trí'
+        
+        data.append({
+            'vehicle': vehicle,
+            'ten_vitri': ten_vitri
+        })
+    
+    return render(request, 'vehicle_management.html', {'vehicles': data})
+
 
 def vehicle_edit(request, pk):
     vehicle = get_object_or_404(Xe, pk=pk)
@@ -695,6 +661,62 @@ def vehicle_delete(request, pk):
         vehicle.delete()
         return redirect('vehicle_management')
     return render(request, 'vehicle_confirm_delete.html', {'vehicle': vehicle})
+
+def parking_status(request):
+    vehicles = Luotravao.objects.select_related('bienso', 'mavitri').filter(trangthai='Đang đỗ')
+    floors = [
+        {'floor': 'floor-1', 'letters': 'A-G'},
+        {'floor': 'floor-2', 'letters': 'H-N'},
+        {'floor': 'floor-3', 'letters': 'O-U'},
+        {'floor': 'floor-4', 'letters': 'V-Z'},
+    ]
+    return render(request, 'parking_status.html', {'vehicles': vehicles, 'floors': floors})
+
+
+
+
+def xe_vao_bai(bienso, loaixe):
+    # Tìm 1 vị trí còn trống
+    vitri = Vitridoxe.objects.filter(is_occupied=False).first()
+    if not vitri:
+        return "Bãi đã đầy"  # Không tìm thấy vị trí trống nào
+
+    # Nếu còn trống -> tạo đối tượng Xe
+    xe = Xe.objects.create(
+        bienso=bienso,
+        loaixe=loaixe,
+        vitridoxe=vitri
+    )
+
+    # Cập nhật vị trí đó thành đã có xe
+    vitri.is_occupied = True
+    vitri.save()
+
+    return f"Xe {bienso} vào chỗ {vitri.tenvitri}"
+def xe_ra_bai(request, xe_id):
+    try:
+        xe = Xe.objects.get(id=xe_id)
+        luot = Luotravao.objects.filter(xe=xe, thoigianra__isnull=True).last()
+        
+        if luot:
+            luot.thoigianra = timezone.now()
+            luot.save()
+
+        # Trả lại vị trí
+        if xe.vitridoxe:
+            vitri = xe.vitridoxe
+            vitri.is_occupied = False
+            vitri.save()
+
+        xe.vitridoxe = None
+        xe.save()
+
+        messages.success(request, f"Xe {xe.bienso} đã ra khỏi bãi.")
+    except Xe.DoesNotExist:
+        messages.error(request, "Xe không tồn tại.")
+
+    return redirect('vehicle_management')
+
 
 def export_vehicle_report(request):
     try:

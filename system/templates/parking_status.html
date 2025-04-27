@@ -1,229 +1,212 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
   <head>
     <meta charset="UTF-8" />
-    <title>Quản lý xe ra vào</title>
+    <title>Quản lý Bãi giữ xe</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link href="{% static 'app/css/vehicle_management.css' %}" rel="stylesheet" />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet" />
+    <style>
+      .transition-height {
+        transition: max-height 0.5s ease-in-out;
+        overflow: hidden;
+      }
+    </style>
   </head>
 
-  <body>
-    <!-- Navigation -->
-    <nav class="navbar-custom fixed top-0 left-0 right-0 z-50 bg-white shadow">
-      <div class="container mx-auto px-4 sm:px-6 flex justify-between items-center py-4">
-        <a class="navbar-brand font-bold text-xl text-blue-600" href="{% url 'home' %}">Quản lý Bãi giữ xe</a>
-        <div class="hidden sm:flex sm:items-center sm:space-x-4" id="navbarMenu">
-          <a class="nav-link" href="{% url 'vehicle_management' %}">Quản lý xe</a>
-          <a class="nav-link" href="{% url 'parking_status' %}">Tình trạng bãi xe</a>
-          <a class="nav-link" href="{% url 'vehicle_report' %}">Báo cáo & thống kê</a>
-          <a class="nav-link" href="{% url 'employee_management' %}">Quản lý nhân viên</a>
-          <div class="auth-buttons">
-            <a class="logout text-red-600 hover:underline" href="{% url 'login' %}">Đăng xuất</a>
-          </div>
-        </div>
+  <body class="bg-gray-100">
+    <!-- Navbar -->
+    <nav class="bg-white shadow p-4 flex justify-between items-center fixed w-full top-0 z-50">
+      <a href="{% url 'home' %}" class="font-bold text-2xl text-blue-600">Quản lý Bãi xe</a>
+      <div class="flex space-x-4">
+        <a href="{% url 'vehicle_management' %}" class="text-gray-600 hover:text-blue-600">Quản lý xe</a>
+        <a href="{% url 'parking_status' %}" class="text-gray-600 hover:text-blue-600">Tình trạng bãi</a>
+        <a href="{% url 'vehicle_report' %}" class="text-gray-600 hover:text-blue-600">Báo cáo</a>
+        <a href="{% url 'employee_management' %}" class="text-gray-600 hover:text-blue-600">Nhân viên</a>
+        <a href="{% url 'login' %}" class="text-red-500 hover:underline">Đăng xuất</a>
       </div>
     </nav>
 
-    <main class="container mx-auto p-4 sm:p-6 max-w-6xl mt-20">
-      <header class="text-center mb-8">
-        <h1 class="text-3xl sm:text-4xl font-bold text-gray-800">Hệ thống quản lý xe ra vào</h1>
-      </header>
+    <main class="pt-24 px-6 max-w-7xl mx-auto">
+      <!-- Header -->
+      <h1 class="text-3xl font-bold text-center mb-8 text-gray-800">Hệ thống Quản lý Bãi giữ xe</h1>
 
-      <div class="grid grid-cols-1 xl:grid-cols-2 gap-8 max-w-7xl mx-auto">
-        <!-- Left Column -->
-        <div class="space-y-8">
-          <!-- Xe Vào -->
-          <div class="bg-white p-6 rounded-2xl shadow-lg">
-            <h2 class="text-2xl font-semibold mb-4">Xe Vào</h2>
-            <form id="vehicle-in-form" class="space-y-4">
-              <div>
-                <label class="block font-medium">Biển số xe</label>
-                <input type="text" id="license-plate-in" placeholder="Nhập biển số" required class="w-full p-2 border rounded" />
-              </div>
-              <div>
-                <label class="block font-medium">Thời gian vào</label>
-                <input type="datetime-local" id="time-in" required class="w-full p-2 border rounded" />
-              </div>
-              <div>
-                <label class="block font-medium">Chọn chỗ đậu</label>
-                <input type="text" id="slot-in" readonly placeholder="Nhấp vào ghế ở sơ đồ" required class="w-full p-2 border rounded bg-gray-100 cursor-not-allowed" />
-              </div>
-              <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Ghi nhận xe vào</button>
-            </form>
+      <!-- Sơ đồ từng tầng -->
+      <section class="bg-white p-6 rounded-xl shadow">
+        <!-- Tầng 1 -->
+        <div class="mb-6">
+          <div class="flex justify-between items-center cursor-pointer" onclick="toggleFloor('floor-1')">
+            <h2 class="text-xl font-semibold text-blue-700">Tầng 1 (A-G)</h2>
+            <span id="icon-floor-1" class="text-2xl text-gray-500 transition-transform">&#x25BC;</span>
           </div>
-
-          <!-- Danh sách xe -->
-          <div class="bg-white p-6 rounded-2xl shadow-lg">
-            <h2 class="text-2xl font-semibold mb-4">Danh sách xe đã quét</h2>
-            <div class="overflow-auto">
-              <table class="table-auto w-full text-sm">
-                <thead class="bg-gray-200">
-                  <tr>
-                    <th class="px-4 py-2 text-left">Biển số</th>
-                    <th class="px-4 py-2 text-left">Loại xe</th>
-                    <th class="px-4 py-2 text-left">Ảnh xe</th>
-                    <th class="px-4 py-2 text-left">Chủ xe</th>
-                    <th class="px-4 py-2 text-left">Hành động</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {% for vehicle in vehicles %}
-                  <tr class="border-b">
-                    <td class="px-4 py-2">{{ vehicle.bienso }}</td>
-                    <td class="px-4 py-2">{{ vehicle.loaixe }}</td>
-                    <td class="px-4 py-2">
-                      {% if vehicle.anhxe %}
-                      <img src="data:image/jpeg,{{ vehicle.anhxe }}" alt="Vehicle Image" class="w-16 h-16 object-cover rounded-full" />
-                      {% elif vehicle.imgurl %}
-                      <img src="{{ vehicle.imgurl }}" alt="Vehicle Image" class="w-16 h-16 object-cover rounded-full" />
-                      {% else %}
-                      <span>Không có ảnh</span>
-                      {% endif %}
-                    </td>
-                    <td class="px-4 py-2">
-                      {% if vehicle.chuxe %} {{ vehicle.chuxe.ten }} {% else %} Chưa có chủ xe {% endif %}
-                    </td>
-                    <td class="px-4 py-2">
-                      <button onclick="fillVehicleInForm('{{ vehicle.bienso }}')" class="bg-blue-500 text-white px-3 py-1 rounded-md">Thêm</button>
-                    </td>
-                  </tr>
-                  {% empty %}
-                  <tr>
-                    <td colspan="5" class="text-center py-2">Không có xe nào trong hệ thống</td>
-                  </tr>
-                  {% endfor %}
-                </tbody>
-              </table>
-            </div>
+          <div id="floor-1" class="transition-height max-h-0 mt-4">
+            <div id="floor1-grid" class="grid grid-cols-10 gap-4"></div>
           </div>
         </div>
 
-        <!-- Right Column -->
-        <div class="space-y-8">
-          <!-- Xe Ra -->
-          <div class="bg-white p-6 rounded-2xl shadow-lg">
-            <h2 class="text-2xl font-semibold mb-4">Xe Ra</h2>
-            <form id="vehicle-out-form" class="space-y-4">
-              <div>
-                <label class="block font-medium">Biển số xe</label>
-                <input type="text" id="license-plate-out" placeholder="Nhập biển số xe ra" required class="w-full p-2 border rounded" />
-              </div>
-              <div>
-                <label class="block font-medium">Thời gian ra</label>
-                <input type="datetime-local" id="time-out" required class="w-full p-2 border rounded" />
-              </div>
-              <button type="submit" class="w-full bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">Xác nhận xe ra</button>
-            </form>
+        <!-- Tầng 2 -->
+        <div class="mb-6">
+          <div class="flex justify-between items-center cursor-pointer" onclick="toggleFloor('floor-2')">
+            <h2 class="text-xl font-semibold text-blue-700">Tầng 2 (H-N)</h2>
+            <span id="icon-floor-2" class="text-2xl text-gray-500 transition-transform">&#x25BC;</span>
           </div>
-
-          <!-- Sơ đồ bãi đỗ (Ghế Xem Phim Style) -->
-          <div class="bg-white p-6 rounded-2xl shadow-lg">
-            <h2 class="text-2xl font-semibold mb-4">Sơ đồ bãi đỗ</h2>
-            <div id="parking-map" class="grid grid-cols-10 gap-2"></div>
-          </div>
-
-          <!-- Lịch sử -->
-          <div class="bg-white p-6 rounded-2xl shadow-lg">
-            <h2 class="text-2xl font-semibold mb-4">Lịch sử gần đây</h2>
-            <ul id="history-list" class="space-y-2 text-sm text-gray-700 list-disc list-inside"></ul>
+          <div id="floor-2" class="transition-height max-h-0 mt-4">
+            <div id="floor2-grid" class="grid grid-cols-10 gap-4"></div>
           </div>
         </div>
-      </div>
+
+        <!-- Tầng 3 -->
+        <div class="mb-6">
+          <div class="flex justify-between items-center cursor-pointer" onclick="toggleFloor('floor-3')">
+            <h2 class="text-xl font-semibold text-blue-700">Tầng 3 (O-U)</h2>
+            <span id="icon-floor-3" class="text-2xl text-gray-500 transition-transform">&#x25BC;</span>
+          </div>
+          <div id="floor-3" class="transition-height max-h-0 mt-4">
+            <div id="floor3-grid" class="grid grid-cols-10 gap-4"></div>
+          </div>
+        </div>
+
+        <!-- Tầng 4 -->
+        <div class="mb-6">
+          <div class="flex justify-between items-center cursor-pointer" onclick="toggleFloor('floor-4')">
+            <h2 class="text-xl font-semibold text-blue-700">Tầng 4 (V-Z)</h2>
+            <span id="icon-floor-4" class="text-2xl text-gray-500 transition-transform">&#x25BC;</span>
+          </div>
+          <div id="floor-4" class="transition-height max-h-0 mt-4">
+            <div id="floor4-grid" class="grid grid-cols-10 gap-4"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Danh sách xe đang đỗ -->
+      <section class="bg-white mt-12 p-6 rounded-xl shadow">
+        <h2 class="text-2xl font-semibold mb-4">Danh sách Xe đang đỗ</h2>
+        <div class="overflow-x-auto">
+          <table class="table-auto w-full text-sm">
+            <thead class="bg-gray-200">
+              <tr>
+                <th class="px-4 py-2">Biển số</th>
+                <th class="px-4 py-2">Loại xe</th>
+                <th class="px-4 py-2">Vị trí đỗ</th>
+                <th class="px-4 py-2">Thời gian vào</th>
+              </tr>
+            </thead>  
+              {% for vehicle in vehicles %}
+                <tr class="border-b">
+                  <td class="px-4 py-2">{{ vehicle.bienso }}</td>
+                  <td class="px-4 py-2">{{ vehicle.loaixe }}</td>
+                  <td class="px-4 py-2">{{ vehicle.vitridoxe.tenvitri }}</td>
+                  <td class="px-4 py-2">
+                    {% for luot in vehicle.luotravao_set.all %}
+                      <div class="mb-1">
+                        {{ luot.thoigianvao }} 
+                      </div>
+                    {% endfor %}
+                  </td>
+              {% empty %}
+                <tr>
+                  <td colspan="8" class="text-center py-2">Không có xe nào trong hệ thống</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
     </main>
 
-    <!-- JavaScript -->
     <script>
-      const parkingMap = document.getElementById("parking-map");
-      const historyList = document.getElementById("history-list");
-      const slotInput = document.getElementById("slot-in");
-
+      const rows = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
       const slots = [];
-      const rows = "ABCDEFGHIJ";
+    
+      // Tạo danh sách tất cả slot id (A1 -> Z10)
       for (let r = 0; r < rows.length; r++) {
-        const rowLetter = rows[r];
-        for (let i = 1; i <= 10; i++) {
-          slots.push({
-            id: `${rowLetter}${i}`,
-            license: "",
-            timeIn: null,
-          });
+        const row = rows[r];
+        for (let c = 1; c <= 10; c++) {
+          slots.push(`${row}${c}`);
         }
       }
-
+    
+      // Lấy dữ liệu xe từ Django
+      const vehiclesData = [
+        {% for vehicle in vehicles %}
+          {
+            license: "{{ vehicle.bienso|escapejs }}",
+            position: "{{ vehicle.vitridoxe.tenvitri|escapejs }}"
+          },
+        {% endfor %}
+      ];
+    
+      console.log("Dữ liệu xe:", vehiclesData);  // <--- kiểm tra in ra
+    
+      // Tạo map từ vị trí -> biển số
+      const occupiedSlots = {};
+      vehiclesData.forEach(v => {
+        occupiedSlots[v.position.trim()] = v.license;  // thêm trim() để xóa khoảng trắng nếu có
+      });
+    
+      console.log("Slot đã có xe:", occupiedSlots);  // <--- kiểm tra in ra
+    
+      // Tạo 1 slot
+      function createSlot(slotId) {
+        const license = occupiedSlots[slotId] || null;
+        const div = document.createElement('div');
+        div.className = "border p-2 text-center rounded cursor-pointer text-xs font-medium transition-all duration-300 " +
+                        (license ? "bg-red-400 hover:bg-red-500" : "bg-green-300 hover:bg-green-400");
+        div.textContent = slotId;
+        div.onclick = () => {
+          if (license) {
+            alert(`Xe ${license} đang đỗ tại vị trí ${slotId}`);
+          } else {
+            alert(`Vị trí ${slotId} đang trống`);
+          }
+        };
+        return div;
+      }
+    
+      // Vẽ sơ đồ
       function renderMap() {
-        parkingMap.innerHTML = "";
-        slots.forEach((slot) => {
-          const div = document.createElement("div");
-          div.className =
-            "text-xs border rounded p-1 text-center cursor-pointer select-none " +
-            (slot.license ? "bg-red-300" : "bg-green-200");
-          div.textContent = slot.id;
-          div.onclick = () => {
-            if (slot.license) {
-              document.getElementById("license-plate-out").value = slot.license;
-              document.getElementById("time-out").value = new Date().toISOString().slice(0, 16);
-            } else {
-              slotInput.value = slot.id;
-            }
-          };
-          parkingMap.appendChild(div);
+        document.getElementById('floor1-grid').innerHTML = "";
+        document.getElementById('floor2-grid').innerHTML = "";
+        document.getElementById('floor3-grid').innerHTML = "";
+        document.getElementById('floor4-grid').innerHTML = "";
+    
+        slots.forEach(slotId => {
+          const firstLetter = slotId.charAt(0);
+          const slotElement = createSlot(slotId);
+    
+          if ("ABCDEFG".includes(firstLetter)) {
+            document.getElementById('floor1-grid').appendChild(slotElement);
+          } else if ("HIJKLMN".includes(firstLetter)) {
+            document.getElementById('floor2-grid').appendChild(slotElement);
+          } else if ("OPQRSTU".includes(firstLetter)) {
+            document.getElementById('floor3-grid').appendChild(slotElement);
+          } else if ("VWXYZ".includes(firstLetter)) {
+            document.getElementById('floor4-grid').appendChild(slotElement);
+          }
         });
       }
-
-      function fillVehicleInForm(licensePlate) {
-        document.getElementById("license-plate-in").value = licensePlate;
-        document.getElementById("time-in").value = new Date().toISOString().slice(0, 16);
-        slotInput.focus();
-      }
-
-      document.getElementById("vehicle-in-form").addEventListener("submit", (e) => {
-        e.preventDefault();
-        const license = document.getElementById("license-plate-in").value.trim();
-        const time = document.getElementById("time-in").value;
-        const slotId = slotInput.value;
-        const slot = slots.find((s) => s.id === slotId);
-
-        if (slot && !slot.license) {
-          slot.license = license;
-          slot.timeIn = time;
-          historyList.innerHTML += `<li>Xe <strong>${license}</strong> vào Slot ${slotId} lúc ${time}</li>`;
-          renderMap();
-          e.target.reset();
-          autoFillTime();
+    
+      // Toggle tầng
+      function toggleFloor(floorId) {
+        const container = document.getElementById(floorId);
+        const icon = document.getElementById('icon-' + floorId);
+    
+        if (container.classList.contains('max-h-0')) {
+          container.classList.remove('max-h-0');
+          container.classList.add('max-h-[3000px]');
+          icon.classList.add('rotate-180');
         } else {
-          alert("Chỗ đậu không hợp lệ hoặc đã có xe!");
+          container.classList.add('max-h-0');
+          container.classList.remove('max-h-[3000px]');
+          icon.classList.remove('rotate-180');
         }
-      });
-
-      document.getElementById("vehicle-out-form").addEventListener("submit", (e) => {
-        e.preventDefault();
-        const license = document.getElementById("license-plate-out").value.trim();
-        const time = document.getElementById("time-out").value;
-        const slot = slots.find((s) => s.license === license);
-
-        if (slot) {
-          historyList.innerHTML += `<li>Xe <strong>${license}</strong> rời Slot ${slot.id} lúc ${time}</li>`;
-          slot.license = "";
-          slot.timeIn = null;
-          renderMap();
-          e.target.reset();
-          autoFillTime();
-        } else {
-          alert("Không tìm thấy xe trong bãi!");
-        }
-      });
-
-      function autoFillTime() {
-        const now = new Date().toISOString().slice(0, 16);
-        document.getElementById("time-in").value = now;
-        document.getElementById("time-out").value = now;
       }
-
+    
       renderMap();
-      autoFillTime();
     </script>
+    
+    
+      
   </body>
 </html>
