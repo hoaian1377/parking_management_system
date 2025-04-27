@@ -1,287 +1,177 @@
+{% extends "base.html" %}
 {% load static %}
 {% load custom_filters %}
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dữ liệu giữ xe theo ngày tháng năm</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link href="{% static 'app/css/vehicle_report.css' %}" rel="stylesheet" />
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% load humanize %}
 
-</head>
-<body>
-    <!-- Navigation -->
-    <nav class="navbar-custom fixed top-0 left-0 right-0 z-50">
-        <div class="container mx-auto px-4 sm:px-6 flex justify-between items-center py-4">
-            <a class="navbar-brand" href="{% url 'home' %}">Quản lý Bãi giữ xe</a>
-            <div class="hidden sm:flex sm:items-center sm:space-x-4" id="navbarMenu">
-                <a class="nav-link" href="{% url 'vehicle_management' %}">Quản lý xe</a>
-                <a class="nav-link" href="{% url 'parking_status' %}">Tình trạng bãi xe</a>
-                <a class="nav-link" href="{% url 'vehicle_report' %}">Báo cáo & thống kê</a>
-                <a class="nav-link" href="{% url 'employee_management' %}">Quản lý nhân viên</a>
-                    
-                    <a class="logout" href="{% url 'login' %}">Đăng xuất</a>
-                </div>
-            </div>
-        </div>
-    </nav>
+{% block contents %}
+<div class="max-w-7xl mx-auto py-8 px-2">
+  <h1 class="text-4xl font-extrabold text-center text-blue-800 mb-8 drop-shadow">Báo cáo & Thống kê giữ xe</h1>
+  
+  <!-- Bộ lọc -->
+  <div class="bg-white rounded-xl shadow-lg p-6 mb-8 flex flex-col md:flex-row gap-4 items-center justify-between">
+    <form method="GET" action="{% url 'vehicle_report' %}" class="flex flex-col md:flex-row gap-4 w-full">
+      <div>
+        <label for="fromDate" class="block text-sm font-semibold text-gray-700">Từ ngày</label>
+        <input type="date" id="fromDate" name="from_date" value="{{ from_date|date:'Y-m-d' }}" class="border border-gray-300 rounded-lg p-2 w-full mt-1 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+      </div>
+      <div>
+        <label for="toDate" class="block text-sm font-semibold text-gray-700">Đến ngày</label>
+        <input type="date" id="toDate" name="to_date" value="{{ to_date|date:'Y-m-d' }}" class="border border-gray-300 rounded-lg p-2 w-full mt-1 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+      </div>
+      <div>
+        <label for="vehicleType" class="block text-sm font-semibold text-gray-700">Loại xe</label>
+        <select id="vehicleType" name="vehicle_type" class="border border-gray-300 rounded-lg p-2 w-full mt-1 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+          <option value="all" {% if vehicle_type == 'all' %}selected{% endif %}>Tất cả</option>
+          <option value="car" {% if vehicle_type == 'car' %}selected{% endif %}>Ô tô</option>
+          <option value="motorcycle" {% if vehicle_type == 'motorcycle' %}selected{% endif %}>Xe máy</option>
+          <option value="bike" {% if vehicle_type == 'bike' %}selected{% endif %}>Xe đạp</option>
+        </select>
+      </div>
+      <div class="flex gap-2 items-end">
+        <button type="submit" class="bg-blue-600 text-white rounded-lg px-4 py-2 font-semibold hover:bg-blue-700 transition shadow"><i class="fas fa-filter"></i> Lọc</button>
+        <button type="button" id="exportButton" class="bg-green-500 text-white rounded-lg px-4 py-2 font-semibold hover:bg-green-600 transition shadow"><i class="fas fa-file-excel"></i> Xuất Excel</button>
+      </div>
+    </form>
+  </div>
 
-    <!-- Main Content -->
-    <main class="container mx-auto p-4 sm:p-6 max-w-6xl mt-20">
-        <h1 class="text-3xl sm:text-4xl font-bold text-gray-800 text-center mb-8">Dữ liệu giữ xe theo ngày tháng năm</h1>
-        
-        <div class="control-panel bg-white shadow-lg rounded-lg p-6 mb-6">
-            <form method="GET" action="{% url 'vehicle_report' %}" class="flex flex-col sm:flex-row gap-4 items-center">
-                <div class="flex-1">
-                    <label for="fromDate" class="block text-sm font-medium text-gray-600">Từ ngày:</label>
-                    <input type="date" id="fromDate" name="from_date" value="{{ from_date|date:'Y-m-d' }}" class="border border-gray-300 rounded-lg p-2 w-full mt-1">
-                </div>
-                <div class="flex-1">
-                    <label for="toDate" class="block text-sm font-medium text-gray-600">Đến ngày:</label>
-                    <input type="date" id="toDate" name="to_date" value="{{ to_date|date:'Y-m-d' }}" class="border border-gray-300 rounded-lg p-2 w-full mt-1">
-                </div>
-                <div class="flex-1">
-                    <label for="vehicleType" class="block text-sm font-medium text-gray-600">Loại xe:</label>
-                    <select id="vehicleType" name="vehicle_type" class="border border-gray-300 rounded-lg p-2 w-full mt-1">
-                        <option value="all" {% if vehicle_type == 'all' %}selected{% endif %}>Tất cả</option>
-                        <option value="car" {% if vehicle_type == 'car' %}selected{% endif %}>Ô tô</option>
-                        <option value="motorcycle" {% if vehicle_type == 'motorcycle' %}selected{% endif %}>Xe máy</option>
-                        <option value="bike" {% if vehicle_type == 'bike' %}selected{% endif %}>Xe đạp</option>
-                    </select>
-                </div>
-                <div class="flex gap-4">
-                    <button type="submit" class="bg-blue-600 text-white rounded-lg p-2 hover:bg-blue-700 transition"><i class="fas fa-filter"></i> Lọc dữ liệu</button>
-                    <button type="button" id="exportButton" class="bg-teal-600 text-white rounded-lg p-2 hover:bg-teal-700 transition"><i class="fas fa-file-excel"></i> Xuất Excel</button>
-                </div>
-            </form>
-        </div>
-        
-        <div class="bg-white shadow-lg rounded-lg p-6 mb-6">
-            <table id="parkingTable" class="w-full table-auto">
-                <thead>
-                    <tr class="bg-gray-100">
-                        <th class="px-4 py-2">STT</th>
-                        <th class="px-4 py-2">Ngày</th>
-                        <th class="px-4 py-2">Biển số xe</th>
-                        <th class="px-4 py-2">Loại xe</th>
-                        <th class="px-4 py-2">Giờ vào</th>
-                        <th class="px-4 py-2">Giờ ra</th>
-                        <th class="px-4 py-2">Thời gian giữ</th>
-                        <th class="px-4 py-2">Phí (VNĐ)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for record in parking_records %}
-                    <tr>
-                        <td class="border px-4 py-2">{{ forloop.counter }}</td>
-                        <td class="border px-4 py-2">{{ record.thoigianvao|date:"d/m/Y" }}</td>
-                        <td class="border px-4 py-2">{{ record.bienso.bienso }}</td>
-                        <td class="border px-4 py-2">{{ record.bienso.loaixe }}</td>
-                        <td class="border px-4 py-2">{{ record.thoigianvao|time:"H:i" }}</td>
-                        <td class="border px-4 py-2">{% if record.thoigianra %}{{ record.thoigianra|time:"H:i" }}{% else %}Chưa ra{% endif %}</td>
-                        <td class="border px-4 py-2">
-                            {% if record.thoigianra %}
-                                {{ record.thoigianvao|calculate_duration:record.thoigianra }}
-                            {% else %}
-                                Đang đỗ
-                            {% endif %}
-                        </td>
-                        <td class="border px-4 py-2">
-                            {% if record.thoigianra %}
-                                {% with duration=record.thoigianra|timeuntil:record.thoigianvao %}
-                                    {% with hours=duration.total_seconds|div:3600 %}
-                                        {% with price=record.bienso.loaixe.giave.giatheogio %}
-                                            {{ price|mul:hours|floatformat:0 }}
-                                        {% endwith %}
-                                    {% endwith %}
-                                {% endwith %}
-                            {% else %}
-                                -
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        
-        <div class="pagination flex justify-center gap-4 mb-6">
-            <button id="prevPage" class="bg-gray-300 text-gray-700 rounded-lg p-2 hover:bg-gray-400 transition" disabled>Trang trước</button>
-            <span id="currentPage" class="self-center">Trang 1/1</span>
-            <button id="nextPage" class="bg-gray-300 text-gray-700 rounded-lg p-2 hover:bg-gray-400 transition" disabled>Trang sau</button>
-        </div>
-        
-        <div class="mt-8">
-            <h3 class="text-lg font-semibold text-gray-700 mb-4">Biểu đồ thống kê</h3>
-            <canvas id="vehicleChart" width="400" height="400"></canvas>
-        </div>
+  <!-- Thống kê nhanh -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div class="bg-gradient-to-br from-blue-500 to-blue-300 text-white rounded-xl shadow-lg p-6 flex flex-col items-center">
+      <div class="text-3xl mb-2"><i class="fas fa-car"></i></div>
+      <div class="text-lg">Ô tô</div>
+      <div class="text-2xl font-bold" id="carCount">{{ car_count }}</div>
+    </div>
+    <div class="bg-gradient-to-br from-yellow-400 to-yellow-200 text-white rounded-xl shadow-lg p-6 flex flex-col items-center">
+      <div class="text-3xl mb-2"><i class="fas fa-motorcycle"></i></div>
+      <div class="text-lg">Xe máy</div>
+      <div class="text-2xl font-bold" id="motorcycleCount">{{ motorcycle_count }}</div>
+    </div>
+    <div class="bg-gradient-to-br from-green-400 to-green-200 text-white rounded-xl shadow-lg p-6 flex flex-col items-center">
+      <div class="text-3xl mb-2"><i class="fas fa-bicycle"></i></div>
+      <div class="text-lg">Xe đạp</div>
+      <div class="text-2xl font-bold" id="bikeCount">{{ bike_count }}</div>
+    </div>
+    <div class="bg-gradient-to-br from-pink-500 to-pink-300 text-white rounded-xl shadow-lg p-6 flex flex-col items-center">
+      <div class="text-3xl mb-2"><i class="fas fa-coins"></i></div>
+      <div class="text-lg">Doanh thu</div>
+      <div class="text-2xl font-bold" id="totalRevenue">{{ total_revenue|floatformat:0|intcomma }} VNĐ</div>
+    </div>
+  </div>
 
-        <div class="summary bg-white shadow-lg rounded-lg p-6">
-            <h3 class="text-lg font-semibold text-gray-700">Thống kê</h3>
-            <p>Tổng số lượt xe: <span id="totalEntries">{{ total_entries }}</span></p>
-            <p>Ô tô: <span id="carCount">{{ car_count }}</span></p>
-            <p>Xe máy: <span id="motorcycleCount">{{ motorcycle_count }}</span></p>
-            <p>Xe đạp: <span id="bikeCount">{{ bike_count }}</span></p>
-            <p>Tổng doanh thu: <span id="totalRevenue">{{ total_revenue|floatformat:0 }} VNĐ</span></p>
-        </div>
-    </main>
+  <!-- Bảng dữ liệu -->
+  <div class="bg-white rounded-xl shadow-lg p-6 mb-8 overflow-x-auto">
+    <table id="parkingTable" class="w-full table-auto">
+      <thead class="bg-blue-700 text-black font-extrabold border-b-4 border-blue-900">
+        <tr>
+          <th class="px-4 py-2">STT</th>
+          <th class="px-4 py-2">Ngày</th>
+          <th class="px-4 py-2">Biển số xe</th>
+          <th class="px-4 py-2">Loại xe</th>
+          <th class="px-4 py-2">Giờ vào</th>
+          <th class="px-4 py-2">Giờ ra</th>
+          <th class="px-4 py-2">Thời gian giữ</th>
+          <th class="px-4 py-2">Phí (VNĐ)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for record in parking_records %}
+        <tr class="hover:bg-gray-50">
+          <td class="border px-4 py-2">{{ forloop.counter }}</td>
+          <td class="border px-4 py-2">{{ record.thoigianvao|date:"d/m/Y" }}</td>
+          <td class="border px-4 py-2">{{ record.bienso.bienso }}</td>
+          <td class="border px-4 py-2">{{ record.bienso.loaixe }}</td>
+          <td class="border px-4 py-2">{{ record.thoigianvao|time:"H:i" }}</td>
+          <td class="border px-4 py-2">{% if record.thoigianra %}{{ record.thoigianra|time:"H:i" }}{% else %}Chưa ra{% endif %}</td>
+          <td class="border px-4 py-2">
+            {% if record.thoigianra %}
+              {{ record.thoigianvao|calculate_duration:record.thoigianra }}
+            {% else %}
+              Đang đỗ
+            {% endif %}
+          </td>
+          <td class="border px-4 py-2">
+            {% if record.thoigianra %}
+              {% with duration=record.thoigianra|timeuntil:record.thoigianvao %}
+                {% with hours=duration.total_seconds|div:3600 %}
+                  {% with price=record.bienso.loaixe.giave.giatheogio %}
+                    {{ price|mul:hours|floatformat:0|intcomma }}
+                  {% endwith %}
+                {% endwith %}
+              {% endwith %}
+            {% else %}
+              -
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="8" class="text-center text-gray-400 py-8">Không có dữ liệu phù hợp.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="footer-container">
-            <div class="footer-main">
-                <div class="footer-info">
-                    <h3>Hệ thống quản lý bãi giữ xe</h3>
-                    <p>Giải pháp quản lý bãi đỗ xe thông minh, tiện lợi và an toàn.</p>
-                    <div class="contact-info">
-                        <div class="contact-item">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <span>123 Nguyễn Văn A, Q.1, TP.HCM</span>
-                        </div>
-                        <div class="contact-item">
-                            <i class="fas fa-phone-alt"></i>
-                            <span>0987 654 321</span>
-                        </div>
-                        <div class="contact-item">
-                            <i class="fas fa-envelope"></i>
-                            <span>support@baigiu.com</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="footer-links">
-                    <div class="link-group">
-                        <h4>Dịch vụ</h4>
-                        <ul>
-                            <li><a href="#">Quản lý bãi giữ xe</a></li>
-                            <li><a href="#">Đặt chỗ trước</a></li>
-                            <li><a href="#">Báo cáo thống kê</a></li>
-                        </ul>
-                    </div>
-                    <div class="link-group">
-                        <h4>Hỗ trợ</h4>
-                        <ul>
-                            <li><a href="#">Hướng dẫn sử dụng</a></li>
-                            <li><a href="#">Câu hỏi thường gặp</a></li>
-                            <li><a href="#">Điều khoản dịch vụ</a></li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="social-newsletter">
-                    <div class="social-media">
-                        <h4>Kết nối với chúng tôi</h4>
-                        <div class="social-icons">
-                            <a href="#" class="icon-facebook"><i class="fab fa-facebook-f"></i></a>
-                            <a href="#" class="icon-twitter"><i class="fab fa-twitter"></i></a>
-                            <a href="#" class="icon-youtube"><i class="fab fa-youtube"></i></a>
-                            <a href="#" class="icon-linkedin"><i class="fab fa-linkedin-in"></i></a>
-                        </div>
-                    </div>
-                    <div class="newsletter">
-                        <h4>Đăng ký nhận tin</h4>
-                        <p>Nhận thông báo về tính năng mới.</p>
-                        <div class="newsletter-form">
-                            <input type="email" placeholder="Email của bạn">
-                            <button type="submit"><i class="fas fa-paper-plane"></i></button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>© 2025 Quản lý bãi giữ xe. Tất cả quyền được bảo lưu.</p>
-            </div>
-        </div>
-    </footer>
+  <!-- Biểu đồ -->
+  <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+    <h3 class="text-lg font-semibold text-gray-700 mb-4">Biểu đồ thống kê số lượt xe</h3>
+    <canvas id="vehicleChart" width="400" height="400"></canvas>
+  </div>
+</div>
 
-    <script>
-        // Toggle mobile menu
-        function toggleMenu() {
-            const menu = document.getElementById('navbarMenu');
-            menu.classList.toggle('hidden');
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  // Export to Excel
+  document.getElementById('exportButton').addEventListener('click', function() {
+    const fromDate = document.getElementById('fromDate').value;
+    const toDate = document.getElementById('toDate').value;
+    const vehicleType = document.getElementById('vehicleType').value;
+    let exportUrl = "{% url 'export_vehicle_report' %}?";
+    if (fromDate) exportUrl += `from_date=${fromDate}&`;
+    if (toDate) exportUrl += `to_date=${toDate}&`;
+    if (vehicleType !== 'all') exportUrl += `vehicle_type=${vehicleType}`;
+    window.location.href = exportUrl;
+  });
+
+  // Chart.js for vehicle statistics
+  document.addEventListener('DOMContentLoaded', function () {
+    const carCount = parseInt(document.getElementById('carCount').innerText) || 0;
+    const motorcycleCount = parseInt(document.getElementById('motorcycleCount').innerText) || 0;
+    const bikeCount = parseInt(document.getElementById('bikeCount').innerText) || 0;
+
+    const ctx = document.getElementById('vehicleChart').getContext('2d');
+    const vehicleChart = new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: ['Ô tô', 'Xe máy', 'Xe đạp'],
+        datasets: [{
+          label: 'Số lượng xe',
+          data: [carCount, motorcycleCount, bikeCount],
+          backgroundColor: [
+            'rgba(59, 130, 246, 0.7)',
+            'rgba(251, 191, 36, 0.7)',
+            'rgba(34, 197, 94, 0.7)'
+          ],
+          borderColor: [
+            'rgba(59, 130, 246, 1)',
+            'rgba(251, 191, 36, 1)',
+            'rgba(34, 197, 94, 1)'
+          ],
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'bottom',
+          },
+          title: {
+            display: false
+          }
         }
-
-        // Export to Excel
-        document.getElementById('exportButton').addEventListener('click', function() {
-            const fromDate = document.getElementById('fromDate').value;
-            const toDate = document.getElementById('toDate').value;
-            const vehicleType = document.getElementById('vehicleType').value;
-            
-            // Build export URL with current filter parameters
-            let exportUrl = "{% url 'export_vehicle_report' %}?";
-            if (fromDate) exportUrl += `from_date=${fromDate}&`;
-            if (toDate) exportUrl += `to_date=${toDate}&`;
-            if (vehicleType !== 'all') exportUrl += `vehicle_type=${vehicleType}`;
-            
-            // Trigger download
-            window.location.href = exportUrl;
-        });
-
-        // Initialize date inputs if they don't have values
-        document.addEventListener('DOMContentLoaded', function() {
-            const fromDateInput = document.getElementById('fromDate');
-            const toDateInput = document.getElementById('toDate');
-            
-            if (!fromDateInput.value) {
-                const today = new Date();
-                const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-                fromDateInput.valueAsDate = firstDayOfMonth;
-            }
-            
-            if (!toDateInput.value) {
-                const today = new Date();
-                toDateInput.valueAsDate = today;
-            }
-
-            // Add event listener for mobile menu toggle
-            const navbarToggler = document.querySelector('.navbar-toggler');
-            if (navbarToggler) {
-                navbarToggler.addEventListener('click', toggleMenu);
-            }
-        });
-
-        // Chart.js for vehicle statistics
-        document.addEventListener('DOMContentLoaded', function () {
-            const carCount = parseInt(document.getElementById('carCount').innerText) || 0;
-            const motorcycleCount = parseInt(document.getElementById('motorcycleCount').innerText) || 0;
-            const bikeCount = parseInt(document.getElementById('bikeCount').innerText) || 0;
-    
-            const ctx = document.getElementById('vehicleChart').getContext('2d');
-            const vehicleChart = new Chart(ctx, {
-                type: 'pie',
-                data: {
-                    labels: ['Ô tô', 'Xe máy', 'Xe đạp'],
-                    datasets: [{
-                        label: 'Số lượng xe',
-                        data: [carCount, motorcycleCount, bikeCount],
-                        backgroundColor: [
-                            'rgba(255, 99, 132, 0.6)',
-                            'rgba(54, 162, 235, 0.6)',
-                            'rgba(255, 206, 86, 0.6)'
-                        ],
-                        borderColor: [
-                            'rgba(255, 99, 132, 1)',
-                            'rgba(54, 162, 235, 1)',
-                            'rgba(255, 206, 86, 1)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                        },
-                        title: {
-                            display: true,
-                            text: 'Thống kê số lượt xe'
-                        }
-                    }
-                }
-            });
-        });
-    </script>
-</body>
-</html>
+      }
+    });
+  });
+</script>
+{% endblock contents %}
