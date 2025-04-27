@@ -2,19 +2,25 @@
 {% load static %}
 
 {% block contents %}
-  <h1 class="text-3xl font-bold text-center mb-6">Sửa thông tin xe</h1>
-  <form method="POST">
+<div class="max-w-lg mx-auto mt-10 bg-white rounded-xl shadow-lg p-8">
+  <h1 class="text-3xl font-bold text-center mb-8 text-blue-700">Sửa thông tin xe</h1>
+  <form method="POST" class="space-y-6">
     {% csrf_token %}
-    <label>Biển số:</label>
-    <input type="text" name="bienso" value="{{ vehicle.bienso }}" required><br>
-
-    <label>Loại xe:</label>
-    <input type="text" name="loaixe" value="{{ vehicle.loaixe }}" required><br>
-
-    <label>Mã khách hàng (nếu có):</label>
-    <input type="text" name="makh" value="{{ vehicle.makh.id }}" ><br>
-
-    <button type="submit">Lưu</button>
-</form>
-
+    <div>
+      <label class="block text-sm font-semibold mb-2">Biển số</label>
+      <input type="text" name="bienso" value="{{ vehicle.bienso }}" required class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+    </div>
+    <div>
+      <label class="block text-sm font-semibold mb-2">Loại xe</label>
+      <input type="text" name="loaixe" value="{{ vehicle.loaixe }}" required class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+    </div>
+    <div>
+      <label class="block text-sm font-semibold mb-2">Mã khách hàng (nếu có)</label>
+      <input type="text" name="makh" value="{{ vehicle.makh.id }}" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+    </div>
+    <div class="flex justify-center">
+      <button type="submit" class="bg-blue-600 text-white font-semibold rounded-lg px-8 py-2 hover:bg-blue-700 transition shadow">Lưu</button>
+    </div>
+  </form>
+</div>
 {% endblock %}
