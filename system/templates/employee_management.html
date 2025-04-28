@@ -1,26 +1,14 @@
 {% extends "base.html" %}
 {% block contents %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Quản lý nhân viên</title>
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-</head>
 
-<body class="bg-gray-100">
-<!-- Main Content -->
-<div class="container mx-auto pt-24 px-4">
-
+<div class="container mx-auto px-4 py-8">
   <h2 class="text-3xl font-bold mb-6">Quản lý nhân viên</h2>
 
   <!-- Flash Messages -->
   {% if messages %}
     {% for message in messages %}
-      <div class="p-4 mb-4 rounded {% if message.tags == 'success' %}bg-green-100 text-green-800{% elif message.tags == 'error' %}bg-red-100 text-red-800{% endif %}">
+      <div class="p-4 mb-6 rounded {% if message.tags == 'success' %}bg-green-100 text-green-800{% elif message.tags == 'error' %}bg-red-100 text-red-800{% endif %}">
         {{ message }}
       </div>
     {% endfor %}
@@ -34,47 +22,51 @@
 
   <!-- Add Employee Button -->
   <button id="show_add_employee_form" class="mb-6 px-5 py-3 bg-green-600 text-white rounded hover:bg-green-700 transition">
-    Thêm Nhân Viên
+    <i class="fas fa-plus mr-2"></i>Thêm Nhân Viên
   </button>
 
   <!-- Employee Table -->
-  <div class="overflow-x-auto">
-    <table class="w-full table-auto bg-white rounded-lg shadow-md">
-      <thead class="bg-blue-600 text-white">
+  <div class="overflow-x-auto bg-white rounded-lg shadow-md">
+    <table class="w-full table-auto">
+      <thead class="bg-blue-600">
         <tr>
-          <th class="p-3">Mã NV</th>
-          <th class="p-3">Tên NV</th>
-          <th class="p-3">Chức vụ</th>
-          <th class="p-3">Địa chỉ</th>
-          <th class="p-3">Số ĐT</th>
-          <th class="p-3">Ngày sinh</th>
-          <th class="p-3">Email</th>
-          <th class="p-3">Mật khẩu</th>
-          <th class="p-3">Phân quyền</th>
-          <th class="p-3">Hành động</th>
+          <th class="p-3 text-black">Mã NV</th>
+          <th class="p-3 text-black">Tên NV</th>
+          <th class="p-3 text-black">Chức vụ</th>
+          <th class="p-3 text-black">Địa chỉ</th>
+          <th class="p-3 text-black">Số ĐT</th>
+          <th class="p-3 text-black">Ngày sinh</th>
+          <th class="p-3 text-black">Email</th>
+          <th class="p-3 text-black">Mật khẩu</th>
+          <th class="p-3 text-black">Phân quyền</th>
+          <th class="p-3 text-black">Hành động</th>
         </tr>
       </thead>
       <tbody>
         {% for nhanvien in nhanviens %}
-        <tr class="border-b hover:bg-gray-100">
-          <td class="p-3">{{ nhanvien.nhanvienid }}</td>
-          <td class="p-3">{{ nhanvien.hoten }}</td>
-          <td class="p-3">{{ nhanvien.chucvu }}</td>
-          <td class="p-3">{{ nhanvien.diachi }}</td>
-          <td class="p-3">{{ nhanvien.sodienthoai }}</td>
-          <td class="p-3">{{ nhanvien.ngaysinh }}</td>
-          <td class="p-3">{{ nhanvien.email }}</td>
-          <td class="p-3">{{ nhanvien.matkhau }}</td>
+        <tr class="border-b hover:bg-gray-50">
+          <td class="p-3 text-black">{{ nhanvien.nhanvienid }}</td>
+          <td class="p-3 text-black">{{ nhanvien.hoten }}</td>
+          <td class="p-3 text-black">{{ nhanvien.chucvu }}</td>
+          <td class="p-3 text-black">{{ nhanvien.diachi }}</td>
+          <td class="p-3 text-black">{{ nhanvien.sodienthoai }}</td>
+          <td class="p-3 text-black">{{ nhanvien.ngaysinh }}</td>
+          <td class="p-3 text-black">{{ nhanvien.email }}</td>
+          <td class="p-3 text-black">{{ nhanvien.matkhau }}</td>
           <td class="p-3">
             <span class="px-2 py-1 rounded-full text-sm {% if nhanvien.phanquyen == 'Quản lý' %}bg-green-100 text-green-700{% else %}bg-blue-100 text-blue-700{% endif %}">
               {{ nhanvien.phanquyen }}
             </span>
           </td>
           <td class="p-3 flex gap-2">
-            <button class="edit-btn bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded text-sm" data-id="{{ nhanvien.nhanvienid }}">Sửa</button>
+            <button class="edit-btn bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded text-sm" data-id="{{ nhanvien.nhanvienid }}">
+              <i class="fas fa-edit mr-1"></i>Sửa
+            </button>
             <form method="POST" action="{% url 'delete_employee' nhanvien.nhanvienid %}" onsubmit="return confirm('Bạn có chắc muốn xóa nhân viên này?')">
               {% csrf_token %}
-              <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm">Xóa</button>
+              <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm">
+                <i class="fas fa-trash mr-1"></i>Xóa
+              </button>
             </form>
           </td>
         </tr>
@@ -84,17 +76,17 @@
           <td colspan="10" class="p-4">
             <form method="POST" action="{% url 'edit_employee' nhanvien.nhanvienid %}" class="grid grid-cols-1 md:grid-cols-2 gap-4">
               {% csrf_token %}
-              <input type="text" name="hoten" value="{{ nhanvien.hoten }}" placeholder="Tên nhân viên" class="p-2 border rounded" required>
-              <input type="text" name="chucvu" value="{{ nhanvien.chucvu }}" placeholder="Chức vụ" class="p-2 border rounded" required>
-              <input type="text" name="diachi" value="{{ nhanvien.diachi }}" placeholder="Địa chỉ" class="p-2 border rounded" required>
-              <input type="text" name="sodienthoai" value="{{ nhanvien.sodienthoai }}" placeholder="Số điện thoại" class="p-2 border rounded" required>
-              <input type="date" name="ngaysinh" value="{{ nhanvien.ngaysinh|date:'Y-m-d' }}" class="p-2 border rounded" required>
-              <input type="email" name="email" value="{{ nhanvien.email }}" placeholder="Email" class="p-2 border rounded" required>
-              <input type="text" name="matkhau" value="{{ nhanvien.matkhau }}" placeholder="Mật khẩu" class="p-2 border rounded" required>
+              <input type="text" name="hoten" value="{{ nhanvien.hoten }}" placeholder="Tên nhân viên" class="p-2 border rounded focus:ring-2 focus:ring-blue-500" required>
+              <input type="text" name="chucvu" value="{{ nhanvien.chucvu }}" placeholder="Chức vụ" class="p-2 border rounded focus:ring-2 focus:ring-blue-500" required>
+              <input type="text" name="diachi" value="{{ nhanvien.diachi }}" placeholder="Địa chỉ" class="p-2 border rounded focus:ring-2 focus:ring-blue-500" required>
+              <input type="text" name="sodienthoai" value="{{ nhanvien.sodienthoai }}" placeholder="Số điện thoại" class="p-2 border rounded focus:ring-2 focus:ring-blue-500" required>
+              <input type="date" name="ngaysinh" value="{{ nhanvien.ngaysinh|date:'Y-m-d' }}" class="p-2 border rounded focus:ring-2 focus:ring-blue-500" required>
+              <input type="email" name="email" value="{{ nhanvien.email }}" placeholder="Email" class="p-2 border rounded focus:ring-2 focus:ring-blue-500" required>
+              <input type="text" name="matkhau" value="{{ nhanvien.matkhau }}" placeholder="Mật khẩu" class="p-2 border rounded focus:ring-2 focus:ring-blue-500" required>
 
               <div>
                 <label class="block mb-1 text-sm font-semibold">Phân quyền</label>
-                <select name="phanquyen" class="w-full p-2 border rounded" required>
+                <select name="phanquyen" class="w-full p-2 border rounded focus:ring-2 focus:ring-blue-500" required>
                   <option {% if nhanvien.phanquyen == 'Quản lý Nhân Viên' %}selected{% endif %}>Quản lý Nhân Viên</option>
                   <option {% if nhanvien.phanquyen == 'Quản lý bãi xe' %}selected{% endif %}>Quản lý bãi xe</option>
                   <option {% if nhanvien.phanquyen == 'Nhân viên thống Kê báo cáo' %}selected{% endif %}>Thống kê & báo cáo</option>
@@ -103,7 +95,9 @@
               </div>
 
               <div class="flex items-end">
-                <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">Cập nhật</button>
+                <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+                  <i class="fas fa-save mr-1"></i>Cập nhật
+                </button>
               </div>
             </form>
           </td>
@@ -122,34 +116,47 @@
     <h3 class="text-2xl font-bold mb-4">Thêm Nhân Viên</h3>
     <form method="POST" action="{% url 'add_employee' %}" class="grid grid-cols-1 md:grid-cols-2 gap-4">
       {% csrf_token %}
-      <input type="text" name="nhanvienid" placeholder="Mã nhân viên" class="p-3 border rounded" required>
-      <input type="text" name="hoten" placeholder="Tên nhân viên" class="p-3 border rounded" required>
-      <select name="chucvu" class="p-3 border rounded" required>
+      <input type="text" name="nhanvienid" placeholder="Mã nhân viên" class="p-3 border rounded focus:ring-2 focus:ring-blue-500" required>
+      <input type="text" name="hoten" placeholder="Tên nhân viên" class="p-3 border rounded focus:ring-2 focus:ring-blue-500" required>
+      <select name="chucvu" class="p-3 border rounded focus:ring-2 focus:ring-blue-500" required>
         <option value="Quản lý">Quản lý</option>
         <option value="Nhân viên">Nhân viên</option>
       </select>
-      <input type="text" name="diachi" placeholder="Địa chỉ" class="p-3 border rounded" required>
-      <input type="text" name="sodienthoai" placeholder="Số điện thoại" class="p-3 border rounded" required>
-      <input type="date" name="ngaysinh" class="p-3 border rounded" required>
-      <input type="text" name="email " placeholder="Email " class="p-3 border rounded" required>
-      <input type="text" name="matkhau" placeholder="Mật Khẩu" class="p-3 border rounded" required>
+      <input type="text" name="diachi" placeholder="Địa chỉ" class="p-3 border rounded focus:ring-2 focus:ring-blue-500" required>
+      <input type="text" name="sodienthoai" placeholder="Số điện thoại" class="p-3 border rounded focus:ring-2 focus:ring-blue-500" required>
+      <input type="date" name="ngaysinh" class="p-3 border rounded focus:ring-2 focus:ring-blue-500" required>
+      <input type="email" name="email" placeholder="Email" class="p-3 border rounded focus:ring-2 focus:ring-blue-500" required>
+      <input type="text" name="matkhau" placeholder="Mật Khẩu" class="p-3 border rounded focus:ring-2 focus:ring-blue-500" required>
 
       <div class="md:col-span-2">
         <label class="block text-sm font-semibold mb-2">Phân quyền</label>
-        <div class="space-y-2">
-          <label class="flex items-center"><input type="checkbox" name="phanquyen" value="Quản lý Nhân Viên" class="mr-2">Quản lý Nhân Viên</label>
-          <label class="flex items-center"><input type="checkbox" name="phanquyen" value="Quản lý bãi xe" class="mr-2">Quản lý bãi xe</label>
-          <label class="flex items-center"><input type="checkbox" name="phanquyen" value="Nhân viên thống Kê báo cáo" class="mr-2">Thống kê & báo cáo</label>
-          <label class="flex items-center"><input type="checkbox" name="phanquyen" value="Nhân viên xe ra vào" class="mr-2">Xe ra vào</label>
+        <div class="flex flex-wrap gap-6">
+          <label class="flex items-center space-x-2">
+            <input type="checkbox" name="phanquyen" value="Quản lý Nhân Viên" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+            <span>Quản lý Nhân Viên</span>
+          </label>
+          <label class="flex items-center space-x-2">
+            <input type="checkbox" name="phanquyen" value="Quản lý bãi xe" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+            <span>Quản lý bãi xe</span>
+          </label>
+          <label class="flex items-center space-x-2">
+            <input type="checkbox" name="phanquyen" value="Nhân viên thống Kê báo cáo" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+            <span>Thống kê & báo cáo</span>
+          </label>
+          <label class="flex items-center space-x-2">
+            <input type="checkbox" name="phanquyen" value="Nhân viên xe ra vào" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+            <span>Xe ra vào</span>
+          </label>
         </div>
       </div>
 
       <div class="md:col-span-2">
-        <button type="submit" class="w-full bg-green-600 text-white py-3 rounded mt-4 hover:bg-green-700">Thêm nhân viên</button>
+        <button type="submit" class="w-full bg-green-600 text-white py-3 rounded mt-4 hover:bg-green-700">
+          <i class="fas fa-user-plus mr-2"></i>Thêm nhân viên
+        </button>
       </div>
     </form>
   </div>
-
 </div>
 
 <!-- JavaScript -->
@@ -169,7 +176,4 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 </script>
-
-</body>
-</html>
 {% endblock contents %}

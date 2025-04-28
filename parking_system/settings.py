@@ -86,7 +86,7 @@ DATABASES = {
         'NAME': 'BGX', 
         'USER': '',
         'PASSWORD': '',
-        'HOST': 'TIN-LOC',
+        'HOST': 'DESKTOP-J6O1B30',
         'OPTIONS': {
             'driver': 'ODBC Driver 17 for SQL Server',
             'trusted_connection':'yes', 
