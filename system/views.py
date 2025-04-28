@@ -162,7 +162,7 @@ def add_employee(request):
 # View quản lý nhân viên, hiển thị danh sách nhân viên
 def employee_management(request):
     employees = Nhanvien.objects.all()  # Lấy danh sách tất cả nhân viên
-    return render(request, 'employee_management.html', {'nhanvien': employees})
+    return render(request, 'employee_management.html', {'nhanviens': employees})
 
 
 # Employee Management Views
@@ -519,18 +519,34 @@ def vehicle_report(request):
             except ValueError:
                 pass
         
+        # Map all possible values for vehicle types
+        car_types = ['car', 'ô tô', 'oto', 'Ô tô', 'Oto']
+        motorcycle_types = ['motorcycle', 'xe máy', 'xemay', 'Xe máy', 'Xemay']
+        bike_types = ['bike', 'xe đạp', 'xedap', 'Xe đạp', 'Xedap']
+        
         # Apply vehicle type filter if not 'all'
         if vehicle_type != 'all':
-            parking_records = parking_records.filter(bienso__loaixe=vehicle_type)
+            if vehicle_type == 'car':
+                parking_records = parking_records.filter(bienso__loaixe__in=car_types)
+            elif vehicle_type == 'motorcycle':
+                parking_records = parking_records.filter(bienso__loaixe__in=motorcycle_types)
+            elif vehicle_type == 'bike':
+                parking_records = parking_records.filter(bienso__loaixe__in=bike_types)
+            else:
+                parking_records = parking_records.filter(bienso__loaixe=vehicle_type)
         
         # Calculate statistics
         total_entries = parking_records.count()
-        car_count = parking_records.filter(bienso__loaixe='car').count()
-        motorcycle_count = parking_records.filter(bienso__loaixe='motorcycle').count()
-        bike_count = parking_records.filter(bienso__loaixe='bike').count()
+        car_count = parking_records.filter(bienso__loaixe__in=car_types).count()
+        motorcycle_count = parking_records.filter(bienso__loaixe__in=motorcycle_types).count()
+        bike_count = parking_records.filter(bienso__loaixe__in=bike_types).count()
         
-        # Calculate total revenue
+        # Calculate total revenue and revenue by vehicle type
         total_revenue = 0
+        car_revenue = 0
+        motorcycle_revenue = 0
+        bike_revenue = 0
+        
         for record in parking_records:
             if record.thoigianra:  # Only calculate for completed parking sessions
                 try:
@@ -538,7 +554,16 @@ def vehicle_report(request):
                     hours = duration.total_seconds() / 3600
                     # Get price per hour for the vehicle type
                     price_per_hour = Giave.objects.get(loaixe=record.bienso.loaixe).giatheogio
-                    total_revenue += price_per_hour * hours
+                    revenue = price_per_hour * hours
+                    total_revenue += revenue
+                    # Add to specific vehicle type revenue
+                    loaixe_lower = (record.bienso.loaixe or '').strip().lower()
+                    if loaixe_lower in [x.lower() for x in car_types]:
+                        car_revenue += revenue
+                    elif loaixe_lower in [x.lower() for x in motorcycle_types]:
+                        motorcycle_revenue += revenue
+                    elif loaixe_lower in [x.lower() for x in bike_types]:
+                        bike_revenue += revenue
                 except (Giave.DoesNotExist, AttributeError):
                     continue
         
@@ -552,6 +577,17 @@ def vehicle_report(request):
             'from_date': from_date,
             'to_date': to_date,
             'vehicle_type': vehicle_type,
+            # Add chart data
+            'vehicle_type_data': {
+                'car': car_count,
+                'motorcycle': motorcycle_count,
+                'bike': bike_count
+            },
+            'revenue_data': {
+                'car': car_revenue,
+                'motorcycle': motorcycle_revenue,
+                'bike': bike_revenue
+            }
         }
         
         return render(request, 'vehicle_report.html', context)
@@ -569,6 +605,8 @@ def vehicle_report(request):
             'from_date': from_date,
             'to_date': to_date,
             'vehicle_type': vehicle_type,
+            'vehicle_type_data': {'car': 0, 'motorcycle': 0, 'bike': 0},
+            'revenue_data': {'car': 0, 'motorcycle': 0, 'bike': 0}
         })
 
 # ========================== PASSWORD RESET ==========================

@@ -157,15 +157,16 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <div class="bg-white rounded-xl shadow-lg p-6">
             <h3 class="text-lg font-semibold text-gray-800 mb-4">Thống kê loại xe</h3>
-            <canvas id="vehicleChart" height="300"></canvas>
+            <canvas id="vehicleChart" width="400" height="300"></canvas>
         </div>
         <div class="bg-white rounded-xl shadow-lg p-6">
             <h3 class="text-lg font-semibold text-gray-800 mb-4">Doanh thu theo loại xe</h3>
-            <canvas id="revenueChart" height="300"></canvas>
+            <canvas id="revenueChart" width="400" height="300"></canvas>
         </div>
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Export to Excel
@@ -197,6 +198,21 @@ document.addEventListener('DOMContentLoaded', function() {
         toDateInput.valueAsDate = today;
     }
 
+    // Lấy dữ liệu từ Django context, đảm bảo là số
+    const vehicleTypeData = [
+        {{ vehicle_type_data.car|default_if_none:0|add:0 }},
+        {{ vehicle_type_data.motorcycle|default_if_none:0|add:0 }},
+        {{ vehicle_type_data.bike|default_if_none:0|add:0 }}
+    ];
+    const revenueData = [
+        {{ revenue_data.car|default_if_none:0|floatformat:0|add:0 }},
+        {{ revenue_data.motorcycle|default_if_none:0|floatformat:0|add:0 }},
+        {{ revenue_data.bike|default_if_none:0|floatformat:0|add:0 }}
+    ];
+
+    console.log("vehicleTypeData:", vehicleTypeData);
+    console.log("revenueData:", revenueData);
+
     // Vehicle Type Chart
     const vehicleCtx = document.getElementById('vehicleChart').getContext('2d');
     new Chart(vehicleCtx, {
@@ -204,11 +220,7 @@ document.addEventListener('DOMContentLoaded', function() {
         data: {
             labels: ['Ô tô', 'Xe máy', 'Xe đạp'],
             datasets: [{
-                data: [
-                    parseInt(document.getElementById('carCount').innerText) || 0,
-                    parseInt(document.getElementById('motorcycleCount').innerText) || 0,
-                    parseInt(document.getElementById('bikeCount').innerText) || 0
-                ],
+                data: vehicleTypeData,
                 backgroundColor: [
                     'rgba(54, 162, 235, 0.8)',
                     'rgba(255, 206, 86, 0.8)',
@@ -223,12 +235,9 @@ document.addEventListener('DOMContentLoaded', function() {
             }]
         },
         options: {
-            responsive: true,
-            maintainAspectRatio: false,
+            responsive: false,
             plugins: {
-                legend: {
-                    position: 'bottom'
-                }
+                legend: { position: 'bottom' }
             }
         }
     });
@@ -241,7 +250,7 @@ document.addEventListener('DOMContentLoaded', function() {
             labels: ['Ô tô', 'Xe máy', 'Xe đạp'],
             datasets: [{
                 label: 'Doanh thu (VNĐ)',
-                data: [1200000, 800000, 200000], // Replace with actual data
+                data: revenueData,
                 backgroundColor: [
                     'rgba(54, 162, 235, 0.8)',
                     'rgba(255, 206, 86, 0.8)',
@@ -256,11 +265,15 @@ document.addEventListener('DOMContentLoaded', function() {
             }]
         },
         options: {
-            responsive: true,
-            maintainAspectRatio: false,
+            responsive: false,
             scales: {
                 y: {
-                    beginAtZero: true
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            return value.toLocaleString('vi-VN') + ' VNĐ';
+                        }
+                    }
                 }
             }
         }
