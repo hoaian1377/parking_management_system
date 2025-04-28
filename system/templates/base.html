@@ -23,80 +23,97 @@
                     <a class="nav-link text-gray-800 hover:text-blue-600" href="{% url 'employee_management' %}">Quản lý nhân viên</a>
                     <a class="logout text-gray-800 hover:text-blue-600" href="{% url 'login' %}">Đăng xuất</a>
                 </div>
+
+                <!-- User Info - "Xin chào" display at top right -->
+                <div class="absolute top-4 right-4 text-right">
+                    <p class="text-sm text-gray-600">Xin chào, <span class="font-semibold text-blue-600">{{ user.username }}</span></p>
+                    {% if user.last_name == "Quản lý Nhân Viên" %}
+                        <p class="text-xs text-green-500">Quản lý nhân viên</p>
+                    {% elif user.last_name == "Nhân viên thống Kê báo cáo" %}
+                        <p class="text-xs text-yellow-500">NV thống Kê báo cáo</p>
+                    {% elif user.last_name == "Nhân viên xe ra vào" %}
+                        <p class="text-xs text-blue-500"> Nhân viên Quản lý xe </p>
+                    {% elif user.last_name == "Quản lý bãi xe" %}
+                        <p class="text-xs text-purple-500">Nhân viên Quản lý bãi xe</p>
+                    {% else %}
+                        <p class="text-xs text-gray-400">Nhân viên</p>
+                    {% endif %}
+                </div>
             </div>
         </nav>
-        <!-- Main Content -->
-    <main style="padding-top: 80px">
-        {% block contents %}
-        <!-- Content goes here -->
-        {% endblock contents %}
-      </main>
-  
 
-          <!-- Footer -->
-    <footer class="footer">
-      <div class="footer-container">
-        <div class="footer-main">
-          <div class="footer-info">
-            <h3>Hệ thống quản lý bãi giữ xe</h3>
-            <p>Giải pháp quản lý bãi đỗ xe thông minh, tiện lợi và an toàn.</p>
-            <div class="contact-info">
-              <div class="contact-item">
-                <i class="fas fa-map-marker-alt"></i>
-                <span>123 Nguyễn Văn A, Q.1, TP.HCM</span>
-              </div>
-              <div class="contact-item">
-                <i class="fas fa-phone-alt"></i>
-                <span>0987 654 321</span>
-              </div>
-              <div class="contact-item">
-                <i class="fas fa-envelope"></i>
-                <span>support@baigiu.com</span>
-              </div>
+        <!-- Main Content -->
+        <main style="padding-top: 80px">
+            {% block contents %}
+            <!-- Content goes here -->
+            {% endblock contents %}
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-container">
+                <div class="footer-main">
+                    <div class="footer-info">
+                        <h3>Hệ thống quản lý bãi giữ xe</h3>
+                        <p>Giải pháp quản lý bãi đỗ xe thông minh, tiện lợi và an toàn.</p>
+                        <div class="contact-info">
+                            <div class="contact-item">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>123 Nguyễn Văn A, Q.1, TP.HCM</span>
+                            </div>
+                            <div class="contact-item">
+                                <i class="fas fa-phone-alt"></i>
+                                <span>0987 654 321</span>
+                            </div>
+                            <div class="contact-item">
+                                <i class="fas fa-envelope"></i>
+                                <span>support@baigiu.com</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="footer-links">
+                        <div class="link-group">
+                            <h4>Dịch vụ</h4>
+                            <ul>
+                                <li><a href="#">Quản lý bãi giữ xe</a></li>
+                                <li><a href="#">Đặt chỗ trước</a></li>
+                                <li><a href="#">Báo cáo thống kê</a></li>
+                            </ul>
+                        </div>
+                        <div class="link-group">
+                            <h4>Hỗ trợ</h4>
+                            <ul>
+                                <li><a href="#">Hướng dẫn sử dụng</a></li>
+                                <li><a href="#">Câu hỏi thường gặp</a></li>
+                                <li><a href="#">Điều khoản dịch vụ</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="social-newsletter">
+                        <div class="social-media">
+                            <h4>Kết nối với chúng tôi</h4>
+                            <div class="social-icons">
+                                <a href="#" class="icon-facebook"><i class="fab fa-facebook-f"></i></a>
+                                <a href="#" class="icon-twitter"><i class="fab fa-twitter"></i></a>
+                                <a href="#" class="icon-youtube"><i class="fab fa-youtube"></i></a>
+                                <a href="#" class="icon-linkedin"><i class="fab fa-linkedin-in"></i></a>
+                            </div>
+                        </div>
+                        <div class="newsletter">
+                            <h4>Đăng ký nhận tin</h4>
+                            <p>Nhận thông báo về tính năng mới và cập nhật hệ thống.</p>
+                            <div class="newsletter-form">
+                                <input type="email" placeholder="Email của bạn">
+                                <button type="submit"><i class="fas fa-paper-plane"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <p>© 2025 Quản lý bãi giữ xe. Tất cả quyền được bảo lưu.</p>
+                </div>
             </div>
-          </div>
-          <div class="footer-links">
-            <div class="link-group">
-              <h4>Dịch vụ</h4>
-              <ul>
-                <li><a href="#">Quản lý bãi giữ xe</a></li>
-                <li><a href="#">Đặt chỗ trước</a></li>
-                <li><a href="#">Báo cáo thống kê</a></li>
-              </ul>
-            </div>
-            <div class="link-group">
-              <h4>Hỗ trợ</h4>
-              <ul>
-                <li><a href="#">Hướng dẫn sử dụng</a></li>
-                <li><a href="#">Câu hỏi thường gặp</a></li>
-                <li><a href="#">Điều khoản dịch vụ</a></li>
-              </ul>
-            </div>
-          </div>
-          <div class="social-newsletter">
-            <div class="social-media">
-              <h4>Kết nối với chúng tôi</h4>
-              <div class="social-icons">
-                <a href="#" class="icon-facebook"><i class="fab fa-facebook-f"></i></a>
-                <a href="#" class="icon-twitter"><i class="fab fa-twitter"></i></a>
-                <a href="#" class="icon-youtube"><i class="fab fa-youtube"></i></a>
-                <a href="#" class="icon-linkedin"><i class="fab fa-linkedin-in"></i></a>
-              </div>
-            </div>
-            <div class="newsletter">
-              <h4>Đăng ký nhận tin</h4>
-              <p>Nhận thông báo về tính năng mới và cập nhật hệ thống.</p>
-              <div class="newsletter-form">
-                <input type="email" placeholder="Email của bạn">
-                <button type="submit"><i class="fas fa-paper-plane"></i></button>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="footer-bottom">
-          <p>© 2025 Quản lý bãi giữ xe. Tất cả quyền được bảo lưu.</p>
-        </div>
-      </div>
-    </footer>
-            </body>
-            </html>
+        </footer>
+    </div>
+</body>
+</html>

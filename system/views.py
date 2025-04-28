@@ -47,6 +47,7 @@ from django.shortcuts import redirect
 
 from django.contrib.auth.models import User
 
+
 def add_employee(request):
     if request.method == 'POST':
         nhanvienid = request.POST.get('nhanvienid')
@@ -88,7 +89,8 @@ def add_employee(request):
                 username=nhanvienid,     # username là mã nhân viên
                 password=matkhau,         # mật khẩu nhân viên nhập
                 email=email,
-                first_name=hoten
+                first_name=hoten,
+                last_name=phanquyen
             )
 
             # Cấp quyền cho tài khoản User
@@ -110,6 +112,7 @@ def add_employee(request):
 
 
 
+
 # ========================== VEHICLE MANAGEMENT ==========================
 
 from django.shortcuts import render
@@ -119,43 +122,6 @@ def search_employee(request):
     nhanvien = Nhanvien.objects.filter(nhanvienid=query)
     return render(request, 'employee_management.html', {'nhanviens': nhanvien, 'query': query})
 
-
-def add_employee(request):
-    if request.method == 'POST':
-        nhanvienid = request.POST.get('nhanvienid')
-        hoten = request.POST.get('hoten')
-        chucvu = request.POST.get('chucvu')
-        phanquyen = request.POST.get('phanquyen')
-        diachi = request.POST.get('diachi')
-        sodienthoai = request.POST.get('sodienthoai')
-        ngaysinh=request.POST.get('ngaysinh')
-        email=request.POST.get('email')
-        matkhau=request.POST.get('matkhau')
-
-
-        # Kiểm tra mã nhân viên đã tồn tại chưa
-        if Nhanvien.objects.filter(nhanvienid=nhanvienid).exists():
-            messages.error(request, "Mã nhân viên đã tồn tại.")
-            return redirect('employee_management')
-
-        # Thêm nhân viên mới
-        try:
-            Nhanvien.objects.create(
-                nhanvienid=nhanvienid,
-                hoten=hoten,
-                chucvu=chucvu,
-                phanquyen=phanquyen,
-                diachi=diachi,
-                sodienthoai=sodienthoai,
-                ngaysinh=ngaysinh,
-                email=email,
-                matkhau=matkhau
-            )
-            messages.success(request, "Thêm nhân viên thành công.")
-        except Exception as e:
-            messages.error(request, f"Lỗi khi thêm nhân viên: {e}")
-
-    return redirect('employee_management')
 
 
 
