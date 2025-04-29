@@ -97,36 +97,39 @@
             </thead>
             <tbody>
               {% for item in vehicles %}
-                {% for luot in item.vehicle.luotravao_set.all %}
-                  {% if luot.thoigianra %}
-                    <tr class="border-b">
-                      <td class="px-4 py-2">{{ item.vehicle.bienso }}</td>
-                      <td class="px-4 py-2">{{ item.vehicle.loaixe }}</td>
-                      <td class="px-4 py-2">
-                        {% if item.vehicle.makh %}
-                          {{ item.vehicle.makh.ten }}
-                        {% else %}
-                          Chưa có chủ xe
-                        {% endif %}
-                      </td>
-                      <td class="px-4 py-2">{{ item.ten_vitri }}</td>
-                      <td class="px-4 py-2">{{ luot.thoigianvao|date:"d/m/Y H:i" }}</td>
-                      <td class="px-4 py-2">{{ luot.thoigianra|date:"d/m/Y H:i" }}</td>
-                      <td class="px-4 py-2">
-                        {{ luot.tong_tien|default:item.tong_tien|intcomma }} VND
-                      </td>
-                      <td class="px-4 py-2">
-                        <a href="{% url 'vehicle_edit' item.vehicle.bienso %}" class="text-blue-500">Sửa</a> |
-                        <a href="{% url 'vehicle_delete' item.vehicle.bienso %}" class="text-red-500">Xóa</a>
-                      </td>
-                    </tr>
-                  {% endif %}
+                {% for wrapped in item.luots %}
+                    {% with luot=wrapped.luot tong_tien=wrapped.tong_tien %}
+                    
+                    {% if luot.thoigianra %}
+                        <tr class="border-b">
+                          <td class="px-4 py-2">{{ item.vehicle.bienso }}</td>
+                          <td class="px-4 py-2">{{ item.vehicle.loaixe }}</td>
+                          <td class="px-4 py-2">
+                            {% if item.vehicle.makh %}
+                              {{ item.vehicle.makh.ten }}
+                            {% else %}
+                              Chưa có chủ xe
+                            {% endif %}
+                          </td>
+                          <td class="px-4 py-2">{{ item.ten_vitri }}</td>
+                          <td class="px-4 py-2">{{ luot.thoigianvao|date:"d/m/Y H:i" }}</td>
+                          <td class="px-4 py-2">{{ luot.thoigianra|date:"d/m/Y H:i" }}</td>
+                          <td class="px-4 py-2">{{ tong_tien|intcomma }} VND</td>
+                          <td class="px-4 py-2">
+                            <a href="{% url 'vehicle_edit' item.vehicle.bienso %}" class="text-blue-500">Sửa</a> |
+                            <a href="{% url 'vehicle_delete' item.vehicle.bienso %}" class="text-red-500">Xóa</a>
+                          </td>
+                        </tr>
+                    {% endif %}
+                    
+                    {% endwith %}
                 {% endfor %}
-              {% empty %}
-                <tr>
-                  <td colspan="8" class="text-center py-2">Không có xe nào đã ra khỏi bãi</td>
-                </tr>
-              {% endfor %}
+            {% empty %}
+            <tr>
+              <td colspan="8" class="text-center py-2">Không có xe nào đã ra khỏi bãi</td>
+            </tr>
+            {% endfor %}
+
             </tbody>
           </table>
         </div>
